@@ -1,0 +1,18 @@
+# Dependencias (se reinstalan con "npm install" en cada PC)
+node_modules/
+
+# Variables de entorno con contraseñas y claves - NUNCA se suben
+.env
+
+# Instaladores generados (pesan mucho, no van en el repo)
+dist/
+
+# Backups locales
+backups/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+mongodb.txt
+

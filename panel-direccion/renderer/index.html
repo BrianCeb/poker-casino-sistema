@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Dirección — Torneo de Poker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1A15;--panel:#152420;--panel-2:#1B2E27;--border:#2B3E36;--border-2:#3A5148;
+    --gold:#C9A227;--gold-light:#E4C55E;--green:#3E8E63;--green-light:#5FB183;
+    --text:#F2EDE1;--text-dim:#9FB0A6;--danger:#C1503A;--danger-light:#E0755F;--radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 60px;}
+  header.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .brand .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.03em;margin:0;line-height:1;}
+  .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:6px;}
+  .status-dot.ok{background:var(--green-light);}
+  .status-dot.error{background:var(--danger-light);}
+  .conn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
+  .torneo-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);margin-bottom:22px;}
+  .torneo-chip b{color:var(--gold-light);font-weight:600;}
+  .torneo-chip button{background:none;border:1px solid var(--border-2);color:var(--text-dim);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .torneo-chip button:hover{border-color:var(--gold);color:var(--gold-light);}
+  nav.tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--border);}
+  nav.tabs button{background:none;border:none;color:var(--text-dim);font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.04em;padding:10px 20px;cursor:pointer;border-bottom:3px solid transparent;}
+  nav.tabs button:hover{color:var(--text);}
+  nav.tabs button.active{color:var(--gold-light);border-bottom-color:var(--gold);}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;}
+  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.03em;margin:0 0 4px;}
+  .panel .sub{font-size:13px;color:var(--text-dim);margin:0 0 18px;}
+  label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;font-weight:500;}
+  input[type=text],input[type=tel],input[type=email]{width:100%;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;}
+  input:focus{outline:none;border-color:var(--gold);}
+  .row{display:flex;gap:14px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:150px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border-2);background:var(--panel-2);color:var(--text);padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn:hover{border-color:var(--gold);}
+  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2A2000;}
+  .btn-gold:hover{background:var(--gold-light);}
+  .msg{padding:14px 16px;border-radius:8px;font-size:14px;line-height:1.5;}
+  .msg-warn{background:rgba(193,80,58,.14);border:1px solid var(--danger);color:var(--danger-light);}
+  .msg-info{background:rgba(63,142,99,.12);border:1px solid var(--green);color:var(--green-light);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--text-dim);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border-2);}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;}
+  .tag{padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;}
+  .tag-buyin{background:rgba(63,142,99,.18);color:var(--green-light);}
+  .tag-recompra{background:rgba(201,162,39,.18);color:var(--gold-light);}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+  .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:6px;}
+  .stat .val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold-light);}
+  .empty{padding:30px 10px;text-align:center;color:var(--text-dim);font-size:13px;}
+  .footer-actions{display:flex;justify-content:flex-end;margin-bottom:14px;gap:10px;}
+  .hidden{display:none;}
+  .loading{color:var(--text-dim);font-size:13px;padding:10px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">Sistema de torneos</span>
+      <h1>Panel Dirección</h1>
+    </div>
+    <div class="conn"><span class="status-dot" id="statusDot"></span><span id="statusText">Conectando...</span></div>
+  </header>
+
+  <div class="torneo-chip">
+    <span>Torneo: <b id="torneoNombre">—</b></span><span>·</span>
+    <span>Buy-in <b id="torneoBuyin">$0</b></span><span>·</span>
+    <span>Recompra <b id="torneoRecompra">$0</b></span>
+    <button id="btnEditarTorneo" type="button">Editar</button>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="registro">Registro</button>
+    <button class="tab-btn" data-tab="control">Control</button>
+  </nav>
+
+  <section id="tab-registro">
+    <div class="panel">
+      <h2>Alta de jugador</h2>
+      <p class="sub">Se carga una única vez por jugador. Queda disponible al instante en el panel de Caja.</p>
+      <div class="row">
+        <div><label>DNI</label><input type="text" id="regDni" placeholder="Ej: 30123456" maxlength="10"></div>
+        <div><label>Nombre</label><input type="text" id="regNombre" placeholder="Nombre"></div>
+        <div><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido"></div>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <div><label>Teléfono (opcional)</label><input type="tel" id="regTelefono" placeholder="Ej: 261 555 1234"></div>
+        <div><label>Email (opcional)</label><input type="email" id="regEmail" placeholder="jugador@mail.com"></div>
+      </div>
+      <div style="margin-top:18px;"><button class="btn btn-gold" id="btnRegistrar" type="button">Registrar jugador</button></div>
+      <div id="regMsg" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <section id="tab-control" class="hidden">
+    <div class="panel">
+      <div class="footer-actions"><button class="btn" id="btnRefrescar" type="button">Actualizar</button></div>
+      <h2>Control operativo — hoy</h2>
+      <p class="sub" id="controlFecha"></p>
+      <div class="stats" id="statsBox"></div>
+      <table>
+        <thead><tr><th>Hora</th><th>DNI</th><th>Jugador</th><th>Tipo</th><th>Monto</th><th>Cajero</th></tr></thead>
+        <tbody id="controlTbody"></tbody>
+      </table>
+      <div id="controlEmpty" class="empty hidden">Todavía no se registraron movimientos hoy.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:4001/api';
+// OJO: esta clave tiene que coincidir con DIRECCION_API_KEY del .env
+const DIRECCION_KEY = 'casino2026clave';
+
+function money(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
+function cleanDni(v){ return (v||'').replace(/\D/g,'').trim(); }
+
+async function checkConexion(){
+  try{
+    const r = await fetch(API+'/health');
+    if(r.ok){
+      document.getElementById('statusDot').className = 'status-dot ok';
+      document.getElementById('statusText').textContent = 'Conectado a la base de datos';
+    } else throw new Error();
+  }catch(e){
+    document.getElementById('statusDot').className = 'status-dot error';
+    document.getElementById('statusText').textContent = 'Sin conexión — revisá el .env / internet';
+  }
+}
+
+let config = { nombre:'Sin configurar', buyIn:0, recompra:0 };
+async function loadConfig(){
+  try{
+    const r = await fetch(API+'/tournament');
+    config = await r.json();
+  }catch(e){}
+  document.getElementById('torneoNombre').textContent = config.nombre;
+  document.getElementById('torneoBuyin').textContent = money(config.buyIn);
+  document.getElementById('torneoRecompra').textContent = money(config.recompra);
+}
+
+document.getElementById('btnEditarTorneo').addEventListener('click', async ()=>{
+  const nombre = prompt('Nombre del torneo:', config.nombre);
+  if(nombre === null) return;
+  const buyIn = prompt('Monto de buy-in ($):', config.buyIn);
+  if(buyIn === null) return;
+  const recompra = prompt('Monto de recompra ($):', config.recompra);
+  if(recompra === null) return;
+  try{
+    const r = await fetch(API+'/tournament', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-direccion-key':DIRECCION_KEY},
+      body: JSON.stringify({ nombre, buyIn: Number(buyIn), recompra: Number(recompra) })
+    });
+    if(!r.ok){ const e = await r.json(); throw new Error(e.error); }
+    await loadConfig();
+  }catch(e){ alert('No se pudo guardar: '+e.message); }
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+    document.getElementById('tab-'+btn.dataset.tab).classList.remove('hidden');
+    if(btn.dataset.tab === 'control') loadControl();
+  });
+});
+
+document.getElementById('btnRegistrar').addEventListener('click', async ()=>{
+  const dni = cleanDni(document.getElementById('regDni').value);
+  const nombre = document.getElementById('regNombre').value.trim();
+  const apellido = document.getElementById('regApellido').value.trim();
+  const telefono = document.getElementById('regTelefono').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const msgBox = document.getElementById('regMsg');
+
+  if(!dni || dni.length < 6){ msgBox.innerHTML = '<div class="msg msg-warn">Ingresá un DNI válido.</div>'; return; }
+  if(!nombre || !apellido){ msgBox.innerHTML = '<div class="msg msg-warn">Nombre y apellido son obligatorios.</div>'; return; }
+
+  try{
+    const r = await fetch(API+'/players', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-direccion-key':DIRECCION_KEY},
+      body: JSON.stringify({ dni, nombre, apellido, telefono, email })
+    });
+    const data = await r.json();
+    if(!r.ok){ msgBox.innerHTML = '<div class="msg msg-warn">'+data.error+'</div>'; return; }
+    msgBox.innerHTML = '<div class="msg msg-info">Jugador registrado: <b>'+nombre+' '+apellido+'</b> (DNI '+dni+').</div>';
+    ['regDni','regNombre','regApellido','regTelefono','regEmail'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){
+    msgBox.innerHTML = '<div class="msg msg-warn">No se pudo conectar con la base de datos.</div>';
+  }
+});
+
+async function loadControl(){
+  const tbody = document.getElementById('controlTbody');
+  const statsBox = document.getElementById('statsBox');
+  const emptyBox = document.getElementById('controlEmpty');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">Cargando movimientos...</td></tr>';
+  try{
+    const r = await fetch(API+'/transactions/today');
+    const data = await r.json();
+    document.getElementById('controlFecha').textContent = 'Fecha: ' + data.fecha + ' · Torneo: ' + config.nombre;
+
+    if(data.transacciones.length === 0){
+      tbody.innerHTML = ''; emptyBox.classList.remove('hidden');
+    } else {
+      emptyBox.classList.add('hidden');
+      tbody.innerHTML = data.transacciones.map(tx=>`
+        <tr>
+          <td>${tx.hora}</td><td>${tx.dni}</td>
+          <td style="font-family:'Inter',sans-serif;">${tx.nombre} ${tx.apellido}</td>
+          <td><span class="tag ${tx.tipo==='buyin'?'tag-buyin':'tag-recompra'}">${tx.tipo==='buyin'?'Buy-in':'Recompra'}</span></td>
+          <td>${money(tx.monto)}</td>
+          <td style="font-family:'Inter',sans-serif;color:var(--text-dim);">${tx.cajero||'—'}</td>
+        </tr>`).join('');
+    }
+    const s = data.stats;
+    statsBox.innerHTML = `
+      <div class="stat"><div class="label">Jugadores hoy</div><div class="val">${s.jugadores}</div></div>
+      <div class="stat"><div class="label">Buy-ins</div><div class="val">${s.buyins}</div></div>
+      <div class="stat"><div class="label">Recompras</div><div class="val">${s.recompras}</div></div>
+      <div class="stat"><div class="label">Total recaudado</div><div class="val">${money(s.total)}</div></div>`;
+  }catch(e){
+    tbody.innerHTML = '<tr><td colspan="6" class="loading">No se pudo cargar. Revisá la conexión.</td></tr>';
+  }
+}
+document.getElementById('btnRefrescar').addEventListener('click', loadControl);
+
+checkConexion();
+loadConfig();
+setInterval(checkConexion, 15000);
+</script>
+</body>
+</html>
