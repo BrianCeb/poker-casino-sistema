@@ -3,192 +3,1076 @@
 <head>
 <meta charset="UTF-8">
 <title>Panel Caja — Torneo de Poker</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-  :root{
-    --bg:#0E1A15;--panel:#152420;--panel-2:#1B2E27;--border:#2B3E36;--border-2:#3A5148;
-    --gold:#C9A227;--gold-light:#E4C55E;--green:#3E8E63;--green-light:#5FB183;
-    --text:#F2EDE1;--text-dim:#9FB0A6;--danger:#C1503A;--danger-light:#E0755F;--radius:10px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
-  .wrap{max-width:800px;margin:0 auto;padding:24px 20px 60px;}
-  header.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
-  .brand .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green-light);}
-  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.03em;margin:0;line-height:1;}
-  .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:6px;}
-  .status-dot.ok{background:var(--green-light);}
-  .status-dot.error{background:var(--danger-light);}
-  .conn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
-  .torneo-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);margin-bottom:18px;}
-  .torneo-chip b{color:var(--gold-light);font-weight:600;}
-  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
-  .row > div{flex:1;min-width:150px;}
-  label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;font-weight:500;}
-  input[type=text],input[type=number]{width:100%;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;}
-  input:focus{outline:none;border-color:var(--gold);}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;}
-  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.03em;margin:0 0 4px;}
-  .panel .sub{font-size:13px;color:var(--text-dim);margin:0 0 18px;}
-  .search-row{display:flex;gap:10px;}
-  .search-row input{flex:1;font-size:22px;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;padding:15px 16px;}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border-2);background:var(--panel-2);color:var(--text);padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
-  .btn:hover{border-color:var(--gold);}
-  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2A2000;}
-  .btn-gold:hover{background:var(--gold-light);}
-  .btn-green{background:var(--green);border-color:var(--green);color:#EAFBF0;}
-  .btn-green:hover{background:var(--green-light);}
-  .btn-block{width:100%;padding:15px;font-size:16px;}
-  .result-box{margin-top:20px;}
-  .msg{padding:14px 16px;border-radius:8px;font-size:14px;line-height:1.5;}
-  .msg-warn{background:rgba(193,80,58,.14);border:1px solid var(--danger);color:var(--danger-light);}
-  .player-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-top:16px;}
-  .player-card .name{font-size:19px;font-weight:600;}
-  .player-card .dni{font-family:'IBM Plex Mono',monospace;color:var(--text-dim);font-size:13px;margin-top:2px;}
-  .player-card .status{margin-top:10px;font-size:13px;color:var(--text-dim);}
-  .player-card .status b{color:var(--gold-light);}
-  .action-box{margin-top:16px;padding-top:16px;border-top:1px dashed var(--border-2);}
-  .amount-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-  .amount-row label{margin:0;flex-shrink:0;}
-  .amount-row input{width:130px;font-family:'IBM Plex Mono',monospace;font-size:16px;}
-  .ticket{margin-top:18px;background:var(--bg);border:1px dashed var(--gold);border-radius:8px;padding:16px 18px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);}
-  .ticket .t-title{color:var(--gold-light);font-size:15px;margin-bottom:8px;font-weight:600;}
-  .ticket div{display:flex;justify-content:space-between;padding:2px 0;}
-  .ticket div b{color:var(--text);}
-  .loading{color:var(--text-dim);font-size:13px;padding:10px 0;}
+:root{
+  --bg:#0E1A15;
+  --panel:#152420;
+  --p2:#1B2E27;
+  --b:#2B3E36;
+  --b2:#3A5148;
+  --g:#C9A227;
+  --g2:#E4C55E;
+  --green:#3E8E63;
+  --green2:#5FB183;
+  --t:#F2EDE1;
+  --d:#9FB0A6;
+  --red:#C1503A;
+  --red2:#E0755F
+}
+
+*{
+  box-sizing:border-box
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--t);
+  font-family:Inter,system-ui
+}
+
+.wrap{
+  max-width:800px;
+  margin:auto;
+  padding:24px 20px 60px
+}
+
+.login{
+  max-width:420px;
+  margin:12vh auto
+}
+
+.brand{
+  text-align:center;
+  margin-bottom:25px
+}
+
+.ey{
+  font:11px 'IBM Plex Mono';
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--green2)
+}
+
+h1{
+  font:34px 'Bebas Neue';
+  margin:0
+}
+
+h2{
+  font:22px 'Bebas Neue';
+  margin:0 0 4px
+}
+
+.loginbox,
+.panel{
+  background:var(--panel);
+  border:1px solid var(--b);
+  border-radius:10px;
+  padding:22px 24px;
+  margin-bottom:18px
+}
+
+.sub,
+label{
+  font-size:13px;
+  color:var(--d)
+}
+
+label{
+  display:block;
+  font-size:12px;
+  margin-bottom:5px
+}
+
+.field{
+  margin-bottom:15px
+}
+
+input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--b2);
+  border-radius:8px;
+  color:var(--t);
+  padding:11px 12px;
+  font-size:14px
+}
+
+button{
+  border:1px solid var(--b2);
+  background:var(--p2);
+  color:var(--t);
+  padding:11px 18px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer
+}
+
+button:hover{
+  border-color:var(--g)
+}
+
+.gold{
+  background:var(--g);
+  color:#2A2000;
+  border-color:var(--g)
+}
+
+.green{
+  background:var(--green);
+  border-color:var(--green)
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--b2);
+  padding-bottom:18px;
+  margin-bottom:22px;
+  gap:15px
+}
+
+.user{
+  font:12px 'IBM Plex Mono';
+  color:var(--d)
+}
+
+.chip{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  background:var(--p2);
+  border:1px solid var(--b);
+  border-radius:999px;
+  padding:8px 16px;
+  font:13px 'IBM Plex Mono';
+  color:var(--d);
+  margin-bottom:18px
+}
+
+.chip b{
+  color:var(--g2)
+}
+
+.row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap
+}
+
+.row .field{
+  flex:1;
+  min-width:150px
+}
+
+.search{
+  display:flex;
+  gap:10px
+}
+
+.search input{
+  flex:1;
+  font:22px 'IBM Plex Mono';
+  padding:15px
+}
+
+.msg{
+  padding:14px;
+  border-radius:8px;
+  margin-top:15px
+}
+
+.warn{
+  background:rgba(193,80,58,.14);
+  border:1px solid var(--red);
+  color:var(--red2)
+}
+
+.info{
+  background:rgba(63,142,99,.12);
+  border:1px solid var(--green);
+  color:var(--green2)
+}
+
+.card{
+  background:var(--p2);
+  border:1px solid var(--b);
+  border-radius:8px;
+  padding:18px;
+  margin-top:16px
+}
+
+.name{
+  font-size:19px;
+  font-weight:600
+}
+
+.dni{
+  font:13px 'IBM Plex Mono';
+  color:var(--d);
+  margin-top:3px
+}
+
+.status{
+  margin-top:10px;
+  color:var(--d);
+  font-size:13px
+}
+
+.action{
+  border-top:1px dashed var(--b2);
+  margin-top:16px;
+  padding-top:16px
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap
+}
+
+.ticket{
+  margin-top:18px;
+  background:var(--bg);
+  border:1px dashed var(--g);
+  padding:16px;
+  border-radius:8px;
+  font:13px 'IBM Plex Mono';
+  color:var(--d)
+}
+
+.ticket b{
+  color:var(--t)
+}
+
+.hidden{
+  display:none
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  display:inline-block;
+  background:var(--d);
+  margin-right:6px
+}
+
+.ok{
+  background:var(--green2)
+}
+
+.err{
+  background:var(--red2)
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><span class="eyebrow">Sector caja</span><h1>Panel Caja</h1></div>
-    <div class="conn"><span class="status-dot" id="statusDot"></span><span id="statusText">Conectando...</span></div>
-  </header>
 
-  <div class="torneo-chip">
-    <span>Torneo: <b id="torneoNombre">—</b></span><span>·</span>
-    <span>Buy-in <b id="torneoBuyin">$0</b></span><span>·</span>
-    <span>Recompra <b id="torneoRecompra">$0</b></span>
+<!-- =========================
+     LOGIN
+========================= -->
+
+<div id="loginView" class="wrap login">
+
+  <div class="brand">
+    <span class="ey">Sector caja</span>
+    <h1>Panel Caja</h1>
   </div>
 
-  <div class="row">
-    <div><label>Cajero / puesto</label><input type="text" id="cajeroNombre" placeholder="Nombre del cajero (opcional)"></div>
+  <div class="loginbox">
+
+    <h2>Iniciar sesión</h2>
+
+    <p class="sub">
+      Acceso exclusivo para Caja.
+    </p>
+
+    <form id="loginForm">
+
+      <div class="field">
+        <label>Usuario</label>
+        <input
+          id="loginUser"
+          autocomplete="username"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input
+          id="loginPass"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <button
+        type="submit"
+        class="gold"
+        style="width:100%"
+      >
+        Ingresar
+      </button>
+
+      <div id="loginMsg"></div>
+
+    </form>
+
   </div>
 
-  <div class="panel">
-    <h2>Buscar jugador</h2>
-    <p class="sub">Ingresá el DNI para verificar inscripción y habilitar buy-in o recompra.</p>
-    <div class="search-row">
-      <input type="text" id="dniBuscar" placeholder="Número de DNI" maxlength="10">
-      <button class="btn btn-gold" id="btnBuscar" type="button">Buscar</button>
-    </div>
-    <div id="cajaResult" class="result-box"></div>
-  </div>
 </div>
 
+
+<!-- =========================
+     APP
+========================= -->
+
+<div id="appView" class="wrap hidden">
+
+  <header class="top">
+
+    <div>
+      <span class="ey">Sector caja</span>
+      <h1>Panel Caja</h1>
+    </div>
+
+    <div class="user">
+      <span id="loggedUser"></span>
+      ·
+      <button id="logout">
+        Salir
+      </button>
+    </div>
+
+  </header>
+
+
+  <div>
+    <span class="dot" id="dot"></span>
+    <span id="status">Conectando...</span>
+  </div>
+
+
+  <div class="chip">
+
+    <span>
+      Torneo:
+      <b id="torneoNombre">—</b>
+    </span>
+
+    <span>·</span>
+
+    <span>
+      Buy-in
+      <b id="torneoBuyin">$0</b>
+    </span>
+
+    <span>·</span>
+
+    <span>
+      Recompra
+      <b id="torneoRecompra">$0</b>
+    </span>
+
+  </div>
+
+
+  <div class="panel">
+
+    <h2>Buscar jugador</h2>
+
+    <p class="sub">
+      Ingresá el DNI para verificar inscripción y habilitar la operación.
+    </p>
+
+    <div class="search">
+
+      <input
+        id="dni"
+        maxlength="10"
+        placeholder="Número de DNI"
+      >
+
+      <button
+        class="gold"
+        id="buscar"
+      >
+        Buscar
+      </button>
+
+    </div>
+
+    <div id="result"></div>
+
+  </div>
+
+</div>
+
+
 <script>
+
+/* =========================================
+   CONFIGURACIÓN
+========================================= */
+
 const API = 'http://127.0.0.1:4002/api';
 
-function money(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
-function cleanDni(v){ return (v||'').replace(/\D/g,'').trim(); }
 
-async function checkConexion(){
-  try{
-    const r = await fetch(API+'/health');
-    if(r.ok){
-      document.getElementById('statusDot').className = 'status-dot ok';
-      document.getElementById('statusText').textContent = 'Conectado a la base de datos';
-    } else throw new Error();
-  }catch(e){
-    document.getElementById('statusDot').className = 'status-dot error';
-    document.getElementById('statusText').textContent = 'Sin conexión — revisá el .env / internet';
+/* =========================================
+   ESTADO DE SESIÓN
+========================================= */
+
+let token = sessionStorage.getItem('caja_token');
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+const $ = id => document.getElementById(id);
+
+const money = n =>
+  '$' + (Number(n) || 0).toLocaleString('es-AR');
+
+const clean = v =>
+  (v || '').replace(/\D/g, '');
+
+
+function h(extra = {}) {
+  return {
+    ...extra,
+    Authorization: 'Bearer ' + token
+  };
+}
+
+
+/* =========================================
+   API
+========================================= */
+
+async function api(path, opt = {}) {
+
+  const r = await fetch(API + path, {
+    ...opt,
+
+    headers: h(
+      opt.headers || {}
+    )
+  });
+
+  /*
+   * Si el backend informa que el JWT
+   * no es válido o expiró, cerramos sesión.
+   */
+
+  if (r.status === 401) {
+    logout();
+    throw new Error('Sesión expirada.');
+  }
+
+  return r;
+}
+
+
+/* =========================================
+   MOSTRAR PANEL
+========================================= */
+
+function show() {
+
+  $('loginView').classList.add('hidden');
+
+  $('appView').classList.remove('hidden');
+
+  $('loggedUser').textContent =
+    sessionStorage.getItem('caja_user') || '';
+
+  conexion();
+
+  config();
+}
+
+
+/* =========================================
+   CERRAR SESIÓN
+========================================= */
+
+function logout() {
+
+  sessionStorage.removeItem('caja_token');
+
+  sessionStorage.removeItem('caja_user');
+
+  token = null;
+
+  $('appView').classList.add('hidden');
+
+  $('loginView').classList.remove('hidden');
+
+  $('loginUser').value = '';
+
+  $('loginPass').value = '';
+
+  $('loginMsg').innerHTML = '';
+}
+
+
+/* =========================================
+   LOGOUT BUTTON
+========================================= */
+
+$('logout').onclick = logout;
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+$('loginForm').onsubmit = async e => {
+
+  e.preventDefault();
+
+  $('loginMsg').innerHTML = '';
+
+  try {
+
+    const username =
+      $('loginUser').value.trim();
+
+    const password =
+      $('loginPass').value;
+
+
+    const r = await fetch(
+      API + '/auth/login',
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          username,
+          password,
+          panel: 'caja'
+        })
+      }
+    );
+
+
+    const d = await r.json();
+
+
+    /*
+     * Si el backend devuelve un error
+     * mostramos el mensaje.
+     */
+
+    if (!r.ok) {
+      throw new Error(
+        d.error || 'Error al iniciar sesión.'
+      );
+    }
+
+
+    /*
+     * El backend devuelve:
+     *
+     * {
+     *   token: "...",
+     *   user: {
+     *      username: "...",
+     *      role: "caja"
+     *   }
+     * }
+     */
+
+    if (!d.token) {
+      throw new Error(
+        'El servidor no devolvió el token de sesión.'
+      );
+    }
+
+
+    if (!d.user || !d.user.username) {
+      throw new Error(
+        'El servidor no devolvió los datos del usuario.'
+      );
+    }
+
+
+    /*
+     * Guardamos JWT.
+     */
+
+    token = d.token;
+
+    sessionStorage.setItem(
+      'caja_token',
+      token
+    );
+
+
+    /*
+     * Guardamos usuario.
+     */
+
+    sessionStorage.setItem(
+      'caja_user',
+      d.user.username
+    );
+
+
+    /*
+     * Mostramos la aplicación.
+     */
+
+    show();
+
+  } catch (e) {
+
+    console.error(
+      'Error de login:',
+      e
+    );
+
+    $('loginMsg').innerHTML =
+      '<div class="msg warn">' +
+      esc(e.message) +
+      '</div>';
+  }
+};
+
+
+/* =========================================
+   CONEXIÓN CON BACKEND
+========================================= */
+
+async function conexion() {
+
+  try {
+
+    const r =
+      await api('/health');
+
+    $('dot').className =
+      'dot ' + (r.ok ? 'ok' : 'err');
+
+    $('status').textContent =
+      r.ok
+        ? 'Backend conectado'
+        : 'Sin conexión';
+
+  } catch (e) {
+
+    console.error(
+      'Error de conexión:',
+      e
+    );
+
+    $('dot').className =
+      'dot err';
+
+    $('status').textContent =
+      'Sin conexión';
   }
 }
 
-let config = { nombre:'Sin configurar', buyIn:0, recompra:0 };
-async function loadConfig(){
-  try{
-    const r = await fetch(API+'/tournament');
-    config = await r.json();
-  }catch(e){}
-  document.getElementById('torneoNombre').textContent = config.nombre;
-  document.getElementById('torneoBuyin').textContent = money(config.buyIn);
-  document.getElementById('torneoRecompra').textContent = money(config.recompra);
+
+/* =========================================
+   CONFIGURACIÓN DEL TORNEO
+========================================= */
+
+async function config() {
+
+  try {
+
+    const r =
+      await api('/tournament');
+
+    const d =
+      await r.json();
+
+
+    $('torneoNombre').textContent =
+      d.nombre || '—';
+
+    $('torneoBuyin').textContent =
+      money(d.buyIn);
+
+    $('torneoRecompra').textContent =
+      money(d.recompra);
+
+  } catch (e) {
+
+    console.error(
+      'Error cargando torneo:',
+      e
+    );
+  }
 }
 
-document.getElementById('btnBuscar').addEventListener('click', buscarJugador);
-document.getElementById('dniBuscar').addEventListener('keydown', e=>{ if(e.key==='Enter') buscarJugador(); });
 
-async function buscarJugador(){
-  const dni = cleanDni(document.getElementById('dniBuscar').value);
-  const box = document.getElementById('cajaResult');
-  if(!dni || dni.length < 6){ box.innerHTML = '<div class="msg msg-warn">Ingresá un DNI válido.</div>'; return; }
-  box.innerHTML = '<div class="loading">Buscando...</div>';
+/* =========================================
+   BUSCAR JUGADOR
+========================================= */
 
-  try{
-    const r = await fetch(API+'/players/'+dni);
-    if(r.status === 404){
-      box.innerHTML = `<div class="msg msg-warn">El DNI <b>${dni}</b> no está registrado. Pedile a Dirección que lo dé de alta.</div>`;
+$('buscar').onclick = buscar;
+
+
+$('dni').onkeydown = e => {
+
+  if (e.key === 'Enter') {
+    buscar();
+  }
+
+};
+
+
+async function buscar() {
+
+  const dni =
+    clean($('dni').value);
+
+
+  if (!dni || dni.length < 6) {
+
+    $('result').innerHTML =
+      '<div class="msg warn">' +
+      'Ingresá un DNI válido.' +
+      '</div>';
+
+    return;
+  }
+
+
+  $('result').textContent =
+    'Buscando...';
+
+
+  try {
+
+    const r =
+      await api('/players/' + dni);
+
+
+    /*
+     * Jugador no encontrado.
+     */
+
+    if (r.status === 404) {
+
+      $('result').innerHTML =
+        '<div class="msg warn">' +
+        'El jugador no está registrado. ' +
+        'Pedile a Dirección que lo dé de alta.' +
+        '</div>';
+
       return;
     }
-    const data = await r.json();
-    const player = data.player;
-    const yaCompro = data.yaCompro;
-    const statusLine = !yaCompro
-      ? 'Sin compras registradas hoy · corresponde <b>buy-in</b>'
-      : `Ya realizó buy-in hoy (${data.recomprasCount} recompra${data.recomprasCount===1?'':'s'} adicional${data.recomprasCount===1?'':'es'}) · corresponde <b>recompra</b>`;
 
-    box.innerHTML = `
-      <div class="player-card">
-        <div class="name">${player.nombre} ${player.apellido}</div>
-        <div class="dni">DNI ${player.dni}</div>
-        <div class="status">${statusLine}</div>
-        <div class="action-box">
-          <div class="amount-row">
-            <label>Monto</label>
-            <input type="number" id="montoOperacion" value="${yaCompro ? config.recompra : config.buyIn}">
-          </div>
-          <button class="btn ${yaCompro ? 'btn-gold' : 'btn-green'} btn-block" id="btnOperar" type="button">
-            ${yaCompro ? 'Registrar recompra' : 'Registrar buy-in'}
-          </button>
+
+    const d =
+      await r.json();
+
+
+    if (!r.ok) {
+
+      throw new Error(
+        d.error || 'Error buscando jugador.'
+      );
+    }
+
+
+    const p =
+      d.player;
+
+
+    const buy =
+      !d.yaCompro;
+
+
+    $('result').innerHTML = `
+
+      <div class="card">
+
+        <div class="name">
+          ${esc(p.nombre + ' ' + p.apellido)}
         </div>
-      </div>`;
 
-    document.getElementById('btnOperar').addEventListener('click', async ()=>{
-      const monto = Number(document.getElementById('montoOperacion').value)||0;
-      const cajero = document.getElementById('cajeroNombre').value.trim();
-      try{
-        const r2 = await fetch(API+'/transactions', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ dni: player.dni, monto, cajero })
-        });
-        const tx = await r2.json();
-        if(!r2.ok) throw new Error(tx.error);
+        <div class="dni">
+          DNI ${esc(p.dni)}
+        </div>
 
-        const ticket = document.createElement('div');
-        ticket.className = 'ticket';
-        ticket.innerHTML = `
-          <div class="t-title">${tx.tipo==='buyin' ? 'Buy-in confirmado' : 'Recompra confirmada'}</div>
-          <div>Jugador <b>${player.nombre} ${player.apellido}</b></div>
-          <div>DNI <b>${player.dni}</b></div>
-          <div>Torneo <b>${tx.torneo}</b></div>
-          <div>Monto <b>${money(tx.monto)}</b></div>
-          <div>Hora <b>${tx.hora}</b></div>`;
-        box.appendChild(ticket);
-        buscarJugador();
-      }catch(e){ alert('No se pudo registrar: '+e.message); }
-    });
-  }catch(e){
-    box.innerHTML = '<div class="msg msg-warn">No se pudo conectar con la base de datos.</div>';
+        <div class="status">
+
+          ${
+            buy
+              ? 'Sin buy-in hoy · corresponde BUY-IN'
+              : `Ya tiene buy-in hoy · ${d.recomprasCount} recompra(s) · corresponde RECOMPRA`
+          }
+
+        </div>
+
+        <div class="action">
+
+          <div class="field">
+
+            <label>Monto</label>
+
+            <input
+              id="monto"
+              type="number"
+              value="0"
+              disabled
+            >
+
+          </div>
+
+          <button
+            id="operar"
+            class="${buy ? 'green' : 'gold'}"
+            style="width:100%"
+          >
+            ${buy ? 'Registrar buy-in' : 'Registrar recompra'}
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+
+    /*
+     * Actualizamos configuración
+     * antes de tomar los montos.
+     */
+
+    await config();
+
+
+    /*
+     * Obtenemos el monto desde
+     * la configuración mostrada.
+     */
+
+    const buyinTexto =
+      $('torneoBuyin').textContent
+        .replace(/\D/g, '');
+
+    const recompraTexto =
+      $('torneoRecompra').textContent
+        .replace(/\D/g, '');
+
+
+    $('monto').value =
+      buy
+        ? buyinTexto
+        : recompraTexto;
+
+
+    /*
+     * Registrar operación.
+     */
+
+    $('operar').onclick =
+      async () => {
+
+        try {
+
+          const monto =
+            Number(
+              $('monto').value
+            );
+
+
+          if (!monto || monto <= 0) {
+
+            throw new Error(
+              'El monto debe ser mayor a cero.'
+            );
+          }
+
+
+          const r2 =
+            await api(
+              '/transactions',
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body: JSON.stringify({
+                  dni: p.dni,
+
+                  monto,
+
+                  cajero:
+                    sessionStorage.getItem(
+                      'caja_user'
+                    ) || ''
+                })
+              }
+            );
+
+
+          const tx =
+            await r2.json();
+
+
+          if (!r2.ok) {
+
+            throw new Error(
+              tx.error ||
+              'No se pudo registrar la operación.'
+            );
+          }
+
+
+          $('result').insertAdjacentHTML(
+            'beforeend',
+
+            `
+            <div class="ticket">
+
+              <div>
+                <b>
+                  ${
+                    tx.tipo === 'buyin'
+                      ? 'Buy-in confirmado'
+                      : 'Recompra confirmada'
+                  }
+                </b>
+              </div>
+
+              <div>
+                Jugador
+                <b>
+                  ${esc(
+                    p.nombre + ' ' + p.apellido
+                  )}
+                </b>
+              </div>
+
+              <div>
+                DNI
+                <b>
+                  ${esc(p.dni)}
+                </b>
+              </div>
+
+              <div>
+                Torneo
+                <b>
+                  ${esc(tx.torneo)}
+                </b>
+              </div>
+
+              <div>
+                Monto
+                <b>
+                  ${money(tx.monto)}
+                </b>
+              </div>
+
+              <div>
+                Hora
+                <b>
+                  ${esc(tx.hora)}
+                </b>
+              </div>
+
+            </div>
+            `
+          );
+
+
+          /*
+           * Actualizamos el jugador
+           * después de registrar.
+           */
+
+          buscar();
+
+
+        } catch (e) {
+
+          console.error(
+            'Error registrando operación:',
+            e
+          );
+
+          $('result').insertAdjacentHTML(
+
+            'beforeend',
+
+            '<div class="msg warn">' +
+            esc(e.message) +
+            '</div>'
+          );
+        }
+
+      };
+
+
+  } catch (e) {
+
+    console.error(
+      'Error buscando jugador:',
+      e
+    );
+
+    $('result').innerHTML =
+      '<div class="msg warn">' +
+      esc(e.message) +
+      '</div>';
   }
 }
 
-checkConexion();
-loadConfig();
-setInterval(checkConexion, 15000);
+
+/* =========================================
+   ESCAPAR HTML
+========================================= */
+
+function esc(v) {
+
+  return String(v ?? '').replace(
+    /[&<>"']/g,
+
+    c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c])
+  );
+}
+
+
+/* =========================================
+   RESTAURAR SESIÓN
+========================================= */
+
+if (token) {
+  show();
+}
+
 </script>
+
 </body>
 </html>

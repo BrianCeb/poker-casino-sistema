@@ -3,243 +3,2004 @@
 <head>
 <meta charset="UTF-8">
 <title>Panel Dirección — Torneo de Poker</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-  :root{
-    --bg:#0E1A15;--panel:#152420;--panel-2:#1B2E27;--border:#2B3E36;--border-2:#3A5148;
-    --gold:#C9A227;--gold-light:#E4C55E;--green:#3E8E63;--green-light:#5FB183;
-    --text:#F2EDE1;--text-dim:#9FB0A6;--danger:#C1503A;--danger-light:#E0755F;--radius:10px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
-  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 60px;}
-  header.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
-  .brand .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
-  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.03em;margin:0;line-height:1;}
-  .status-dot{width:9px;height:9px;border-radius:50%;background:var(--text-dim);display:inline-block;margin-right:6px;}
-  .status-dot.ok{background:var(--green-light);}
-  .status-dot.error{background:var(--danger-light);}
-  .conn{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);}
-  .torneo-chip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel-2);border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);margin-bottom:22px;}
-  .torneo-chip b{color:var(--gold-light);font-weight:600;}
-  .torneo-chip button{background:none;border:1px solid var(--border-2);color:var(--text-dim);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;}
-  .torneo-chip button:hover{border-color:var(--gold);color:var(--gold-light);}
-  nav.tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid var(--border);}
-  nav.tabs button{background:none;border:none;color:var(--text-dim);font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.04em;padding:10px 20px;cursor:pointer;border-bottom:3px solid transparent;}
-  nav.tabs button:hover{color:var(--text);}
-  nav.tabs button.active{color:var(--gold-light);border-bottom-color:var(--gold);}
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;}
-  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.03em;margin:0 0 4px;}
-  .panel .sub{font-size:13px;color:var(--text-dim);margin:0 0 18px;}
-  label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;font-weight:500;}
-  input[type=text],input[type=tel],input[type=email]{width:100%;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:'Inter',sans-serif;}
-  input:focus{outline:none;border-color:var(--gold);}
-  .row{display:flex;gap:14px;flex-wrap:wrap;}
-  .row > div{flex:1;min-width:150px;}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border-2);background:var(--panel-2);color:var(--text);padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
-  .btn:hover{border-color:var(--gold);}
-  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2A2000;}
-  .btn-gold:hover{background:var(--gold-light);}
-  .msg{padding:14px 16px;border-radius:8px;font-size:14px;line-height:1.5;}
-  .msg-warn{background:rgba(193,80,58,.14);border:1px solid var(--danger);color:var(--danger-light);}
-  .msg-info{background:rgba(63,142,99,.12);border:1px solid var(--green);color:var(--green-light);}
-  table{width:100%;border-collapse:collapse;font-size:13px;}
-  th{text-align:left;color:var(--text-dim);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border-2);}
-  td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;}
-  .tag{padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;}
-  .tag-buyin{background:rgba(63,142,99,.18);color:var(--green-light);}
-  .tag-recompra{background:rgba(201,162,39,.18);color:var(--gold-light);}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
-  .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
-  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:6px;}
-  .stat .val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--gold-light);}
-  .empty{padding:30px 10px;text-align:center;color:var(--text-dim);font-size:13px;}
-  .footer-actions{display:flex;justify-content:flex-end;margin-bottom:14px;gap:10px;}
-  .hidden{display:none;}
-  .loading{color:var(--text-dim);font-size:13px;padding:10px 0;}
+:root{
+  --bg:#0E1A15;
+  --panel:#152420;
+  --panel2:#1B2E27;
+  --border:#2B3E36;
+  --border2:#3A5148;
+  --gold:#C9A227;
+  --gold2:#E4C55E;
+  --green:#3E8E63;
+  --green2:#5FB183;
+  --text:#F2EDE1;
+  --dim:#9FB0A6;
+  --danger:#C1503A;
+  --danger2:#E0755F
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  padding:0
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
+  min-height:100vh
+}
+
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:24px 20px 60px
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--border2);
+  padding-bottom:18px;
+  margin-bottom:22px;
+  gap:15px
+}
+
+.eyebrow{
+  font:11px 'IBM Plex Mono';
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--gold)
+}
+
+h1{
+  font:34px 'Bebas Neue';
+  margin:0
+}
+
+h2{
+  font:22px 'Bebas Neue';
+  margin:0 0 4px
+}
+
+.conn{
+  font:12px 'IBM Plex Mono';
+  color:var(--dim)
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  display:inline-block;
+  background:var(--dim);
+  margin-right:6px
+}
+
+.dot.ok{background:var(--green2)}
+.dot.err{background:var(--danger2)}
+
+.chip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:8px 16px;
+  font:13px 'IBM Plex Mono';
+  color:var(--dim);
+  margin-bottom:22px
+}
+
+.chip b{
+  color:var(--gold2)
+}
+
+nav{
+  display:flex;
+  gap:2px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:24px
+}
+
+nav button{
+  background:none;
+  border:0;
+  color:var(--dim);
+  font:19px 'Bebas Neue';
+  padding:10px 20px;
+  cursor:pointer;
+  border-bottom:3px solid transparent
+}
+
+nav button.active{
+  color:var(--gold2);
+  border-bottom-color:var(--gold)
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:22px 24px;
+  margin-bottom:18px
+}
+
+.sub{
+  font-size:13px;
+  color:var(--dim);
+  margin:0 0 18px
+}
+
+.row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap
+}
+
+.field{
+  flex:1;
+  min-width:150px
+}
+
+label{
+  display:block;
+  font-size:12px;
+  color:var(--dim);
+  margin-bottom:5px
+}
+
+input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  color:var(--text);
+  padding:10px 12px;
+  font-size:14px
+}
+
+input:focus{
+  outline:none;
+  border-color:var(--gold)
+}
+
+button.btn{
+  border:1px solid var(--border2);
+  background:var(--panel2);
+  color:var(--text);
+  padding:11px 18px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer
+}
+
+button.btn:hover{
+  border-color:var(--gold)
+}
+
+.gold{
+  background:var(--gold)!important;
+  color:#2A2000!important;
+  border-color:var(--gold)!important
+}
+
+.green{
+  background:var(--green)!important
+}
+
+.danger{
+  color:var(--danger2)
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap
+}
+
+.msg{
+  padding:13px 15px;
+  border-radius:8px;
+  font-size:14px;
+  margin-top:12px
+}
+
+.info{
+  background:rgba(63,142,99,.12);
+  border:1px solid var(--green);
+  color:var(--green2)
+}
+
+.warn{
+  background:rgba(193,80,58,.14);
+  border:1px solid var(--danger);
+  color:var(--danger2)
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px
+}
+
+th{
+  text-align:left;
+  color:var(--dim);
+  font-size:11px;
+  text-transform:uppercase;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border2)
+}
+
+td{
+  padding:9px 10px;
+  border-bottom:1px solid var(--border);
+  font-family:'IBM Plex Mono'
+}
+
+td .edit{
+  padding:6px 10px;
+  font-size:12px
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+  margin-bottom:20px
+}
+
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px
+}
+
+.stat .label{
+  font-size:11px;
+  text-transform:uppercase
+}
+
+.val{
+  font:22px 'IBM Plex Mono';
+  color:var(--gold2)
+}
+
+.hidden{
+  display:none
+}
+
+.login{
+  max-width:420px;
+  margin:12vh auto
+}
+
+.login h1{
+  text-align:center
+}
+
+.login .brand{
+  text-align:center;
+  margin-bottom:25px
+}
+
+.loginbox{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:28px
+}
+
+.loginbox .field{
+  margin-bottom:15px
+}
+
+.right{
+  margin-left:auto
+}
+
+.userbar{
+  font:12px 'IBM Plex Mono';
+  color:var(--dim);
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px
+}
+
+.modal.hidden{
+  display:none
+}
+
+.modalbox{
+  width:min(520px,100%);
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:24px
+}
+
+.loading{
+  color:var(--dim);
+  padding:15px
+}
+
+.empty{
+  text-align:center;
+  color:var(--dim);
+  padding:25px
+}
+
+.rake-help{
+  font-size:11px;
+  color:var(--dim);
+  margin-top:5px;
+  line-height:1.4
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
+
+<!-- LOGIN -->
+<div id="loginView" class="wrap login">
+
+  <div class="brand">
+    <span class="eyebrow">Sistema de torneos</span>
+    <h1>Panel Dirección</h1>
+  </div>
+
+  <div class="loginbox">
+
+    <h2>Iniciar sesión</h2>
+
+    <p class="sub">
+      Acceso exclusivo para Dirección.
+    </p>
+
+    <form id="loginForm">
+
+      <div class="field">
+        <label>Usuario</label>
+        <input
+          id="loginUser"
+          autocomplete="username"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input
+          id="loginPass"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <button
+        class="btn gold"
+        style="width:100%"
+        type="submit"
+      >
+        Ingresar
+      </button>
+
+      <div id="loginMsg"></div>
+
+    </form>
+
+  </div>
+</div>
+
+
+<!-- APP -->
+<div id="appView" class="wrap hidden">
+
   <header class="top">
-    <div class="brand">
+
+    <div>
       <span class="eyebrow">Sistema de torneos</span>
       <h1>Panel Dirección</h1>
     </div>
-    <div class="conn"><span class="status-dot" id="statusDot"></span><span id="statusText">Conectando...</span></div>
+
+    <div class="userbar">
+      <span id="loggedUser"></span>
+      <button class="btn" id="logoutBtn">
+        Cerrar sesión
+      </button>
+    </div>
+
   </header>
 
-  <div class="torneo-chip">
-    <span>Torneo: <b id="torneoNombre">—</b></span><span>·</span>
-    <span>Buy-in <b id="torneoBuyin">$0</b></span><span>·</span>
-    <span>Recompra <b id="torneoRecompra">$0</b></span>
-    <button id="btnEditarTorneo" type="button">Editar</button>
+
+  <!-- CONEXION -->
+  <div class="conn">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Conectando...</span>
   </div>
 
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="registro">Registro</button>
-    <button class="tab-btn" data-tab="control">Control</button>
+
+  <!-- RESUMEN TORNEO -->
+  <div class="chip">
+
+    <span>
+      Torneo:
+      <b id="torneoNombre">—</b>
+    </span>
+
+    <span>·</span>
+
+    <span>
+      Buy-in:
+      <b id="torneoBuyin">$0</b>
+    </span>
+
+    <span>·</span>
+
+    <span>
+      Recompra:
+      <b id="torneoRecompra">$0</b>
+    </span>
+
+  </div>
+
+
+  <!-- NAVEGACION -->
+  <nav>
+
+    <button
+      class="tab active"
+      data-tab="registro"
+    >
+      Registro
+    </button>
+
+    <button
+      class="tab"
+      data-tab="jugadores"
+    >
+      Jugadores
+    </button>
+
+    <button
+      class="tab"
+      data-tab="torneo"
+    >
+      Torneo
+    </button>
+
+    <button
+      class="tab"
+      data-tab="control"
+    >
+      Control
+    </button>
+
   </nav>
 
+
+  <!-- REGISTRO -->
   <section id="tab-registro">
+
     <div class="panel">
+
       <h2>Alta de jugador</h2>
-      <p class="sub">Se carga una única vez por jugador. Queda disponible al instante en el panel de Caja.</p>
+
+      <p class="sub">
+        El jugador queda disponible al instante en Caja.
+      </p>
+
       <div class="row">
-        <div><label>DNI</label><input type="text" id="regDni" placeholder="Ej: 30123456" maxlength="10"></div>
-        <div><label>Nombre</label><input type="text" id="regNombre" placeholder="Nombre"></div>
-        <div><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido"></div>
+
+        <div class="field">
+          <label>DNI</label>
+          <input id="regDni" maxlength="10">
+        </div>
+
+        <div class="field">
+          <label>Nombre</label>
+          <input id="regNombre">
+        </div>
+
+        <div class="field">
+          <label>Apellido</label>
+          <input id="regApellido">
+        </div>
+
       </div>
-      <div class="row" style="margin-top:14px;">
-        <div><label>Teléfono (opcional)</label><input type="tel" id="regTelefono" placeholder="Ej: 261 555 1234"></div>
-        <div><label>Email (opcional)</label><input type="email" id="regEmail" placeholder="jugador@mail.com"></div>
+
+      <div class="row" style="margin-top:14px">
+
+        <div class="field">
+          <label>Teléfono</label>
+          <input id="regTelefono">
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input id="regEmail" type="email">
+        </div>
+
       </div>
-      <div style="margin-top:18px;"><button class="btn btn-gold" id="btnRegistrar" type="button">Registrar jugador</button></div>
-      <div id="regMsg" style="margin-top:14px;"></div>
+
+      <div class="actions" style="margin-top:18px">
+
+        <button
+          class="btn gold"
+          id="btnRegistrar"
+        >
+          Registrar jugador
+        </button>
+
+      </div>
+
+      <div id="regMsg"></div>
+
     </div>
+
   </section>
 
-  <section id="tab-control" class="hidden">
+
+  <!-- JUGADORES -->
+  <section id="tab-jugadores" class="hidden">
+
     <div class="panel">
-      <div class="footer-actions"><button class="btn" id="btnRefrescar" type="button">Actualizar</button></div>
-      <h2>Control operativo — hoy</h2>
-      <p class="sub" id="controlFecha"></p>
-      <div class="stats" id="statsBox"></div>
-      <table>
-        <thead><tr><th>Hora</th><th>DNI</th><th>Jugador</th><th>Tipo</th><th>Monto</th><th>Cajero</th></tr></thead>
-        <tbody id="controlTbody"></tbody>
-      </table>
-      <div id="controlEmpty" class="empty hidden">Todavía no se registraron movimientos hoy.</div>
+
+      <div
+        class="actions"
+        style="justify-content:space-between"
+      >
+
+        <div>
+
+          <h2>Jugadores registrados</h2>
+
+          <p class="sub">
+            Buscá por DNI, nombre o apellido.
+          </p>
+
+        </div>
+
+        <button
+          class="btn"
+          id="refreshPlayers"
+        >
+          Actualizar
+        </button>
+
+      </div>
+
+
+      <div class="row">
+
+        <div class="field">
+          <input
+            id="playerSearch"
+            placeholder="Buscar..."
+          >
+        </div>
+
+      </div>
+
+
+      <div style="overflow:auto;margin-top:15px">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th></th>
+            </tr>
+
+          </thead>
+
+          <tbody id="playersBody"></tbody>
+
+        </table>
+
+      </div>
+
     </div>
+
   </section>
+
+
+  <!-- TORNEO -->
+  <section id="tab-torneo" class="hidden">
+
+    <div class="panel">
+
+      <h2>Configurar torneo</h2>
+
+      <p class="sub">
+        Caja toma automáticamente esta configuración.
+      </p>
+
+
+      <!-- NOMBRE + FECHA -->
+      <div class="row">
+
+        <div class="field">
+
+          <label>Nombre</label>
+
+          <input
+            id="torneoFormNombre"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Fecha</label>
+
+          <input
+            id="torneoFormFecha"
+            type="date"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- BUY IN + RECOMPRA -->
+      <div
+        class="row"
+        style="margin-top:14px"
+      >
+
+        <div class="field">
+
+          <label>Buy-in total</label>
+
+          <input
+            id="torneoFormBuyin"
+            type="number"
+            min="0"
+            step="0.01"
+          >
+
+          <div class="rake-help">
+            Es el monto total que paga el jugador por una entrada.
+          </div>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Recompra total</label>
+
+          <input
+            id="torneoFormRecompra"
+            type="number"
+            min="0"
+            step="0.01"
+          >
+
+          <div class="rake-help">
+            Es el monto total que paga el jugador por cada reentrada.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- RAKE -->
+      <div
+        class="row"
+        style="margin-top:14px"
+      >
+
+        <div class="field">
+
+          <label>
+            Rake por entrada / reentrada
+          </label>
+
+          <input
+            id="torneoFormRake"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Ej: 5000"
+          >
+
+          <div class="rake-help">
+            Monto fijo destinado al rake por cada buy-in o reentrada.
+            No se calcula como porcentaje.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="actions"
+        style="margin-top:18px"
+      >
+
+        <button
+          class="btn gold"
+          id="saveTournament"
+        >
+          Guardar torneo
+        </button>
+
+      </div>
+
+
+      <div id="torneoMsg"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- CONTROL -->
+  <section id="tab-control" class="hidden">
+
+    <div class="panel">
+
+      <div class="actions">
+
+        <button
+          class="btn"
+          id="refreshControl"
+        >
+          Actualizar
+        </button>
+
+        <button
+          class="btn"
+          id="exportCsv"
+        >
+          Exportar CSV
+        </button>
+
+        <button
+          class="btn gold"
+          id="exportExcel"
+        >
+          Exportar Excel
+        </button>
+
+      </div>
+
+
+      <h2 style="margin-top:18px">
+        Control operativo
+      </h2>
+
+      <p
+        class="sub"
+        id="controlFecha"
+      ></p>
+
+
+      <div
+        class="stats"
+        id="statsBox"
+      ></div>
+
+
+      <div style="overflow:auto">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Hora</th>
+              <th>DNI</th>
+              <th>Jugador</th>
+              <th>Tipo</th>
+              <th>Monto</th>
+              <th>Cajero</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="controlTbody"></tbody>
+
+        </table>
+
+      </div>
+
+
+      <div
+        id="controlEmpty"
+        class="empty hidden"
+      >
+        Todavía no se registraron movimientos.
+      </div>
+
+    </div>
+
+  </section>
+
 </div>
 
-<script>
-const API = 'http://127.0.0.1:4001/api';
-// OJO: esta clave tiene que coincidir con DIRECCION_API_KEY del .env
-const DIRECCION_KEY = 'casino2026clave';
 
-function money(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
-function cleanDni(v){ return (v||'').replace(/\D/g,'').trim(); }
+<!-- MODAL EDITAR JUGADOR -->
+<div
+  id="editModal"
+  class="modal hidden"
+>
+
+  <div class="modalbox">
+
+    <div
+      class="actions"
+      style="justify-content:space-between"
+    >
+
+      <h2>Editar jugador</h2>
+
+      <button
+        class="btn"
+        id="closeModal"
+      >
+        Cerrar
+      </button>
+
+    </div>
+
+
+    <input
+      type="hidden"
+      id="editId"
+    >
+
+
+    <div
+      class="row"
+      style="margin-top:18px"
+    >
+
+      <div class="field">
+
+        <label>DNI</label>
+
+        <input
+          id="editDni"
+          disabled
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Nombre</label>
+
+        <input id="editNombre">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Apellido</label>
+
+        <input id="editApellido">
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="row"
+      style="margin-top:14px"
+    >
+
+      <div class="field">
+
+        <label>Teléfono</label>
+
+        <input id="editTelefono">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Email</label>
+
+        <input
+          id="editEmail"
+          type="email"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="actions"
+      style="margin-top:18px"
+    >
+
+      <button
+        class="btn gold"
+        id="savePlayer"
+      >
+        Guardar cambios
+      </button>
+
+    </div>
+
+
+    <div id="editMsg"></div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const API='http://127.0.0.1:4001/api';
+
+let token=sessionStorage.getItem('direccion_token');
+
+let config={};
+
+
+const $=id=>document.getElementById(id);
+
+
+const money=n=>
+  '$'+(Number(n)||0).toLocaleString('es-AR');
+
+
+const cleanDni=v=>
+  (v||'').replace(/\D/g,'');
+
+
+function authHeaders(extra={}){
+  return {
+    ...extra,
+    Authorization:'Bearer '+token
+  };
+}
+
+
+async function api(path,opt={}){
+
+  const headers=authHeaders(opt.headers||{});
+
+  const r=await fetch(
+    API+path,
+    {
+      ...opt,
+      headers
+    }
+  );
+
+  if(r.status===401){
+
+    logout();
+
+    throw new Error('Sesión expirada.');
+
+  }
+
+  return r;
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+function showApp(){
+
+  $('loginView').classList.add('hidden');
+
+  $('appView').classList.remove('hidden');
+
+  $('loggedUser').textContent=
+    sessionStorage.getItem('direccion_user')||'';
+
+  checkConexion();
+
+  loadConfig();
+
+}
+
+
+function logout(){
+
+  sessionStorage.removeItem('direccion_token');
+
+  sessionStorage.removeItem('direccion_user');
+
+  token=null;
+
+  $('appView').classList.add('hidden');
+
+  $('loginView').classList.remove('hidden');
+
+  $('loginPass').value='';
+
+}
+
+
+$('logoutBtn').onclick=logout;
+
+
+$('loginForm').onsubmit=async e=>{
+
+  e.preventDefault();
+
+  $('loginMsg').innerHTML='';
+
+  try{
+
+    const r=await fetch(
+      API+'/auth/login',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          username:$('loginUser').value,
+          password:$('loginPass').value,
+          panel:'direccion'
+        })
+      }
+    );
+
+    const d=await r.json();
+
+    if(!r.ok)
+      throw new Error(d.error);
+
+    token=d.token;
+
+    sessionStorage.setItem(
+      'direccion_token',
+      token
+    );
+
+    sessionStorage.setItem(
+      'direccion_user',
+      d.user.username
+    );
+
+    showApp();
+
+  }catch(err){
+
+    $('loginMsg').innerHTML=
+      '<div class="msg warn">'+
+      err.message+
+      '</div>';
+
+  }
+
+};
+
+
+/* =========================
+   CONEXION
+========================= */
 
 async function checkConexion(){
+
   try{
-    const r = await fetch(API+'/health');
-    if(r.ok){
-      document.getElementById('statusDot').className = 'status-dot ok';
-      document.getElementById('statusText').textContent = 'Conectado a la base de datos';
-    } else throw new Error();
-  }catch(e){
-    document.getElementById('statusDot').className = 'status-dot error';
-    document.getElementById('statusText').textContent = 'Sin conexión — revisá el .env / internet';
+
+    const r=await api('/health');
+
+    $('statusDot').className=
+      'dot '+(r.ok?'ok':'err');
+
+    $('statusText').textContent=
+      r.ok
+        ? 'Backend conectado'
+        : 'Sin conexión';
+
+  }catch{
+
+    $('statusDot').className=
+      'dot err';
+
+    $('statusText').textContent=
+      'Sin conexión';
+
   }
+
 }
 
-let config = { nombre:'Sin configurar', buyIn:0, recompra:0 };
+
+/* =========================
+   CONFIG TORNEO
+========================= */
+
 async function loadConfig(){
+
   try{
-    const r = await fetch(API+'/tournament');
-    config = await r.json();
-  }catch(e){}
-  document.getElementById('torneoNombre').textContent = config.nombre;
-  document.getElementById('torneoBuyin').textContent = money(config.buyIn);
-  document.getElementById('torneoRecompra').textContent = money(config.recompra);
+
+    const r=await api('/tournament');
+
+    config=await r.json();
+
+
+    $('torneoNombre').textContent=
+      config.nombre||'Sin configurar';
+
+    $('torneoBuyin').textContent=
+      money(config.buyIn);
+
+    $('torneoRecompra').textContent=
+      money(config.recompra);
+
+
+    $('torneoFormNombre').value=
+      config.nombre==='Sin configurar'
+        ? ''
+        : (config.nombre||'');
+
+
+    $('torneoFormFecha').value=
+      config.fecha||
+      new Date().toISOString().slice(0,10);
+
+
+    $('torneoFormBuyin').value=
+      config.buyIn!=null
+        ? config.buyIn
+        : '';
+
+
+    $('torneoFormRecompra').value=
+      config.recompra!=null
+        ? config.recompra
+        : '';
+
+
+    $('torneoFormRake').value=
+      config.rake!=null
+        ? config.rake
+        : '';
+
+  }catch(e){
+
+    console.error(
+      'Error cargando configuración:',
+      e
+    );
+
+  }
+
 }
 
-document.getElementById('btnEditarTorneo').addEventListener('click', async ()=>{
-  const nombre = prompt('Nombre del torneo:', config.nombre);
-  if(nombre === null) return;
-  const buyIn = prompt('Monto de buy-in ($):', config.buyIn);
-  if(buyIn === null) return;
-  const recompra = prompt('Monto de recompra ($):', config.recompra);
-  if(recompra === null) return;
-  try{
-    const r = await fetch(API+'/tournament', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-direccion-key':DIRECCION_KEY},
-      body: JSON.stringify({ nombre, buyIn: Number(buyIn), recompra: Number(recompra) })
-    });
-    if(!r.ok){ const e = await r.json(); throw new Error(e.error); }
-    await loadConfig();
-  }catch(e){ alert('No se pudo guardar: '+e.message); }
-});
 
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
-    document.getElementById('tab-'+btn.dataset.tab).classList.remove('hidden');
-    if(btn.dataset.tab === 'control') loadControl();
-  });
-});
+/* =========================
+   TABS
+========================= */
 
-document.getElementById('btnRegistrar').addEventListener('click', async ()=>{
-  const dni = cleanDni(document.getElementById('regDni').value);
-  const nombre = document.getElementById('regNombre').value.trim();
-  const apellido = document.getElementById('regApellido').value.trim();
-  const telefono = document.getElementById('regTelefono').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const msgBox = document.getElementById('regMsg');
+function switchTab(name){
 
-  if(!dni || dni.length < 6){ msgBox.innerHTML = '<div class="msg msg-warn">Ingresá un DNI válido.</div>'; return; }
-  if(!nombre || !apellido){ msgBox.innerHTML = '<div class="msg msg-warn">Nombre y apellido son obligatorios.</div>'; return; }
+  document
+    .querySelectorAll('.tab')
+    .forEach(b=>
+      b.classList.toggle(
+        'active',
+        b.dataset.tab===name
+      )
+    );
 
-  try{
-    const r = await fetch(API+'/players', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-direccion-key':DIRECCION_KEY},
-      body: JSON.stringify({ dni, nombre, apellido, telefono, email })
-    });
-    const data = await r.json();
-    if(!r.ok){ msgBox.innerHTML = '<div class="msg msg-warn">'+data.error+'</div>'; return; }
-    msgBox.innerHTML = '<div class="msg msg-info">Jugador registrado: <b>'+nombre+' '+apellido+'</b> (DNI '+dni+').</div>';
-    ['regDni','regNombre','regApellido','regTelefono','regEmail'].forEach(id=>document.getElementById(id).value='');
-  }catch(e){
-    msgBox.innerHTML = '<div class="msg msg-warn">No se pudo conectar con la base de datos.</div>';
+
+  document
+    .querySelectorAll('section[id^=tab-]')
+    .forEach(s=>
+      s.classList.add('hidden')
+    );
+
+
+  $('tab-'+name)
+    .classList.remove('hidden');
+
+
+  if(name==='jugadores')
+    loadPlayers();
+
+
+  if(name==='control')
+    loadControl();
+
+}
+
+
+document
+  .querySelectorAll('.tab')
+  .forEach(
+    b=>
+      b.onclick=
+      ()=>switchTab(b.dataset.tab)
+  );
+
+
+/* =========================
+   REGISTRAR JUGADOR
+========================= */
+
+$('btnRegistrar').onclick=async()=>{
+
+  const body={
+
+    dni:cleanDni(
+      $('regDni').value
+    ),
+
+    nombre:$('regNombre')
+      .value
+      .trim(),
+
+    apellido:$('regApellido')
+      .value
+      .trim(),
+
+    telefono:$('regTelefono')
+      .value
+      .trim(),
+
+    email:$('regEmail')
+      .value
+      .trim()
+
+  };
+
+
+  if(
+    !body.dni||
+    !body.nombre||
+    !body.apellido
+  ){
+
+    $('regMsg').innerHTML=
+      '<div class="msg warn">'+
+      'DNI, nombre y apellido son obligatorios.'+
+      '</div>';
+
+    return;
+
   }
-});
+
+
+  try{
+
+    const r=await api(
+      '/players',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+
+    const d=await r.json();
+
+
+    if(!r.ok)
+      throw new Error(d.error);
+
+
+    $('regMsg').innerHTML=
+      '<div class="msg info">'+
+      'Jugador registrado correctamente.'+
+      '</div>';
+
+
+    [
+      'regDni',
+      'regNombre',
+      'regApellido',
+      'regTelefono',
+      'regEmail'
+    ].forEach(
+      x=>$(x).value=''
+    );
+
+
+  }catch(e){
+
+    $('regMsg').innerHTML=
+      '<div class="msg warn">'+
+      e.message+
+      '</div>';
+
+  }
+
+};
+
+
+/* =========================
+   JUGADORES
+========================= */
+
+async function loadPlayers(){
+
+  const q=
+    encodeURIComponent(
+      $('playerSearch')
+        .value
+        .trim()
+    );
+
+
+  $('playersBody').innerHTML=
+    '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+
+
+  try{
+
+    const r=await api(
+      '/players?q='+q
+    );
+
+    const data=await r.json();
+
+
+    if(!data.length){
+
+      $('playersBody').innerHTML=
+        '<tr><td colspan="6" class="empty">'+
+        'No se encontraron jugadores.'+
+        '</td></tr>';
+
+      return;
+
+    }
+
+
+    $('playersBody').innerHTML=
+      data.map(
+        p=>`
+
+        <tr>
+
+          <td>${esc(p.dni)}</td>
+
+          <td>${esc(p.nombre)}</td>
+
+          <td>${esc(p.apellido)}</td>
+
+          <td>${esc(p.telefono||'—')}</td>
+
+          <td>${esc(p.email||'—')}</td>
+
+          <td>
+
+            <button
+              class="btn edit"
+              onclick='openEdit(${JSON.stringify(p)})'
+            >
+              Editar
+            </button>
+
+          </td>
+
+        </tr>
+
+        `
+      ).join('');
+
+
+  }catch(e){
+
+    $('playersBody').innerHTML=
+      '<tr><td colspan="6" class="danger">'+
+      e.message+
+      '</td></tr>';
+
+  }
+
+}
+
+
+function esc(v){
+
+  return String(v??'')
+    .replace(
+      /[&<>"']/g,
+      c=>({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[c])
+    );
+
+}
+
+
+$('playerSearch').oninput=
+  ()=>loadPlayers();
+
+
+$('refreshPlayers').onclick=
+  loadPlayers;
+
+
+/* =========================
+   EDITAR JUGADOR
+========================= */
+
+window.openEdit=p=>{
+
+  $('editId').value=p._id;
+
+  $('editDni').value=p.dni;
+
+  $('editNombre').value=p.nombre;
+
+  $('editApellido').value=p.apellido;
+
+  $('editTelefono').value=
+    p.telefono||'';
+
+  $('editEmail').value=
+    p.email||'';
+
+  $('editMsg').innerHTML='';
+
+  $('editModal')
+    .classList
+    .remove('hidden');
+
+};
+
+
+$('closeModal').onclick=()=>
+  $('editModal')
+    .classList
+    .add('hidden');
+
+
+$('savePlayer').onclick=async()=>{
+
+  const id=$('editId').value;
+
+
+  const body={
+
+    nombre:$('editNombre')
+      .value
+      .trim(),
+
+    apellido:$('editApellido')
+      .value
+      .trim(),
+
+    telefono:$('editTelefono')
+      .value
+      .trim(),
+
+    email:$('editEmail')
+      .value
+      .trim()
+
+  };
+
+
+  try{
+
+    const r=await api(
+      '/players/'+id,
+      {
+        method:'PUT',
+        headers:{
+          'Content-Type':
+            'application/json'
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+
+    const d=await r.json();
+
+
+    if(!r.ok)
+      throw new Error(d.error);
+
+
+    $('editModal')
+      .classList
+      .add('hidden');
+
+
+    loadPlayers();
+
+
+  }catch(e){
+
+    $('editMsg').innerHTML=
+      '<div class="msg warn">'+
+      e.message+
+      '</div>';
+
+  }
+
+};
+
+
+/* =========================
+   GUARDAR TORNEO
+========================= */
+
+$('saveTournament').onclick=async()=>{
+
+  const nombre=
+    $('torneoFormNombre')
+      .value
+      .trim();
+
+  const fecha=
+    $('torneoFormFecha')
+      .value;
+
+  const buyIn=
+    Number(
+      $('torneoFormBuyin')
+        .value
+    );
+
+  const recompra=
+    Number(
+      $('torneoFormRecompra')
+        .value
+    );
+
+  const rake=
+    Number(
+      $('torneoFormRake')
+        .value
+    );
+
+
+  /* VALIDACIONES */
+
+  if(!nombre){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'El nombre del torneo es obligatorio.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  if(!fecha){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'La fecha del torneo es obligatoria.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  if(
+    !Number.isFinite(buyIn)||
+    buyIn<0
+  ){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'El buy-in no puede ser negativo.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  if(
+    !Number.isFinite(recompra)||
+    recompra<0
+  ){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'La recompra no puede ser negativa.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  if(
+    !Number.isFinite(rake)||
+    rake<0
+  ){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'El rake no puede ser negativo.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  /*
+    El rake no puede superar
+    el valor total de la entrada.
+  */
+
+  if(rake>buyIn){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'El rake no puede ser mayor que el buy-in total.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  /*
+    El mismo rake se utiliza
+    para buy-in y recompra.
+  */
+
+  if(rake>recompra){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      'El rake tampoco puede ser mayor que la recompra.'+
+      '</div>';
+
+    return;
+
+  }
+
+
+  const body={
+
+    nombre,
+
+    fecha,
+
+    buyIn,
+
+    recompra,
+
+    rake
+
+  };
+
+
+  try{
+
+    const r=await api(
+      '/tournament',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':
+            'application/json'
+        },
+        body:JSON.stringify(body)
+      }
+    );
+
+
+    const d=await r.json();
+
+
+    if(!r.ok)
+      throw new Error(d.error);
+
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg info">'+
+      'Torneo guardado y activado correctamente.'+
+      '</div>';
+
+
+    await loadConfig();
+
+
+  }catch(e){
+
+    $('torneoMsg').innerHTML=
+      '<div class="msg warn">'+
+      e.message+
+      '</div>';
+
+  }
+
+};
+
+
+/* =========================
+   CONTROL DEL DIA
+========================= */
 
 async function loadControl(){
-  const tbody = document.getElementById('controlTbody');
-  const statsBox = document.getElementById('statsBox');
-  const emptyBox = document.getElementById('controlEmpty');
-  tbody.innerHTML = '<tr><td colspan="6" class="loading">Cargando movimientos...</td></tr>';
+
   try{
-    const r = await fetch(API+'/transactions/today');
-    const data = await r.json();
-    document.getElementById('controlFecha').textContent = 'Fecha: ' + data.fecha + ' · Torneo: ' + config.nombre;
 
-    if(data.transacciones.length === 0){
-      tbody.innerHTML = ''; emptyBox.classList.remove('hidden');
-    } else {
-      emptyBox.classList.add('hidden');
-      tbody.innerHTML = data.transacciones.map(tx=>`
-        <tr>
-          <td>${tx.hora}</td><td>${tx.dni}</td>
-          <td style="font-family:'Inter',sans-serif;">${tx.nombre} ${tx.apellido}</td>
-          <td><span class="tag ${tx.tipo==='buyin'?'tag-buyin':'tag-recompra'}">${tx.tipo==='buyin'?'Buy-in':'Recompra'}</span></td>
-          <td>${money(tx.monto)}</td>
-          <td style="font-family:'Inter',sans-serif;color:var(--text-dim);">${tx.cajero||'—'}</td>
-        </tr>`).join('');
-    }
-    const s = data.stats;
-    statsBox.innerHTML = `
-      <div class="stat"><div class="label">Jugadores hoy</div><div class="val">${s.jugadores}</div></div>
-      <div class="stat"><div class="label">Buy-ins</div><div class="val">${s.buyins}</div></div>
-      <div class="stat"><div class="label">Recompras</div><div class="val">${s.recompras}</div></div>
-      <div class="stat"><div class="label">Total recaudado</div><div class="val">${money(s.total)}</div></div>`;
+    const r=
+      await api(
+        '/transactions/today'
+      );
+
+
+    const d=
+      await r.json();
+
+
+    $('controlFecha').textContent=
+      'Fecha: '+
+      d.fecha+
+      ' · Torneo: '+
+      (config.nombre||'Sin configurar');
+
+
+    const s=d.stats;
+
+
+    $('statsBox').innerHTML=`
+
+      <div class="stat">
+
+        <div class="label">
+          Jugadores hoy
+        </div>
+
+        <div class="val">
+          ${s.jugadores}
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Buy-ins
+        </div>
+
+        <div class="val">
+          ${s.buyins}
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Recompras
+        </div>
+
+        <div class="val">
+          ${s.recompras}
+        </div>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="label">
+          Total
+        </div>
+
+        <div class="val">
+          ${money(s.total)}
+        </div>
+
+      </div>
+
+    `;
+
+
+    $('controlTbody').innerHTML=
+      d.transacciones.length
+        ? d.transacciones.map(
+            t=>`
+
+            <tr>
+
+              <td>${esc(t.hora)}</td>
+
+              <td>${esc(t.dni)}</td>
+
+              <td>
+                ${esc(
+                  t.nombre+
+                  ' '+
+                  t.apellido
+                )}
+              </td>
+
+              <td>
+                ${
+                  t.tipo==='buyin'
+                    ? 'Buy-in'
+                    : 'Recompra'
+                }
+              </td>
+
+              <td>
+                ${money(t.monto)}
+              </td>
+
+              <td>
+                ${esc(t.cajero||'—')}
+              </td>
+
+            </tr>
+
+            `
+          ).join('')
+        : '';
+
+
+    $('controlEmpty')
+      .classList
+      .toggle(
+        'hidden',
+        d.transacciones.length>0
+      );
+
+
   }catch(e){
-    tbody.innerHTML = '<tr><td colspan="6" class="loading">No se pudo cargar. Revisá la conexión.</td></tr>';
-  }
-}
-document.getElementById('btnRefrescar').addEventListener('click', loadControl);
 
-checkConexion();
-loadConfig();
-setInterval(checkConexion, 15000);
+    console.error(
+      'Error cargando control:',
+      e
+    );
+
+  }
+
+}
+
+
+$('refreshControl').onclick=
+  loadControl;
+
+
+/* =========================
+   EXPORTACIONES
+========================= */
+
+async function downloadExport(type){
+
+  try{
+
+    const r=
+      await api(
+        '/transactions/export.'+
+        type
+      );
+
+
+    if(!r.ok){
+
+      const d=
+        await r.json();
+
+      throw new Error(
+        d.error||
+        'No se pudo exportar.'
+      );
+
+    }
+
+
+    const blob=
+      await r.blob();
+
+
+    const a=
+      document.createElement('a');
+
+
+    a.href=
+      URL.createObjectURL(blob);
+
+
+    a.download=
+      type==='xlsx'
+        ? 'operaciones.xlsx'
+        : 'operaciones.csv';
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    setTimeout(
+      ()=>{
+        URL.revokeObjectURL(a.href);
+      },
+      1000
+    );
+
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+$('exportCsv').onclick=
+  ()=>downloadExport('csv');
+
+
+$('exportExcel').onclick=
+  ()=>downloadExport('xlsx');
+
+
+/* =========================
+   ARRANQUE
+========================= */
+
+if(token)
+  showApp();
+
 </script>
+
 </body>
 </html>
