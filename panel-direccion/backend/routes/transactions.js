@@ -42,21 +42,25 @@ router.get(
         .find({ fecha: today })
         .sort({ createdAt: -1 });
 
-      const buyins = txs.filter(
+      const activas = txs.filter(
+        t => !t.anulado
+      );
+
+      const buyins = activas.filter(
         t => t.tipo === 'buyin'
       );
 
-      const recompras = txs.filter(
+      const recompras = activas.filter(
         t => t.tipo === 'recompra'
       );
 
-      const total = txs.reduce(
+      const total = activas.reduce(
         (s, t) => s + Number(t.monto || 0),
         0
       );
 
       const jugadoresUnicos =
-        new Set(txs.map(t => t.dni)).size;
+        new Set(activas.map(t => t.dni)).size;
 
       res.json({
         fecha: today,
@@ -76,6 +80,30 @@ router.get(
       res.status(500).json({
         error: 'Error al obtener el control del día.'
       });
+    }
+  }
+);
+
+router.patch(
+  '/:id/anular',
+  requireAuth,
+  requireRole('direccion'),
+  async (req, res) => {
+    try {
+      const tx = await Transaction.findOneAndUpdate(
+        { _id: req.params.id, anulado: { $ne: true } },
+        {
+          anulado: true,
+          anuladoPor: req.user.username || req.user.sub,
+          anuladoEn: new Date()
+        },
+        { new: true }
+      );
+
+      if (!tx) return res.status(404).json({ error: 'Movimiento no encontrado o ya anulado.' });
+      res.json(tx);
+    } catch (err) {
+      res.status(500).json({ error: 'Error al anular el movimiento.' });
     }
   }
 );
@@ -152,9 +180,7 @@ function rows(txs) {
     t.hora,
     t.dni,
     `${t.nombre} ${t.apellido}`,
-    t.tipo === 'buyin'
-      ? 'Buy-in'
-      : 'Recompra',
+    `${t.anulado ? 'ANULADO - ' : ''}${t.tipo === 'buyin' ? 'Buy-in' : 'Recompra'}`,
     t.monto,
     t.torneo,
     t.cajero || ''
@@ -303,11 +329,15 @@ router.get(
       // SEPARAR OPERACIONES
       // ==================================================
 
-      const buyins = txs.filter(
+      const activas = txs.filter(
+        t => !t.anulado
+      );
+
+      const buyins = activas.filter(
         t => t.tipo === 'buyin'
       );
 
-      const recompras = txs.filter(
+      const recompras = activas.filter(
         t => t.tipo === 'recompra'
       );
 
@@ -316,7 +346,7 @@ router.get(
       // TOTALES
       // ==================================================
 
-      const totalRecaudado = txs.reduce(
+      const totalRecaudado = activas.reduce(
         (s, t) =>
           s + Number(t.monto || 0),
         0
@@ -324,7 +354,7 @@ router.get(
 
 
       const cantidadOperaciones =
-        txs.length;
+        activas.length;
 
 
       // ==================================================
@@ -554,9 +584,7 @@ router.get(
           t.hora,
           t.dni,
           `${t.nombre} ${t.apellido}`,
-          t.tipo === 'buyin'
-            ? 'Buy-in'
-            : 'Recompra',
+          `${t.anulado ? 'ANULADO - ' : ''}${t.tipo === 'buyin' ? 'Buy-in' : 'Recompra'}`,
           Number(t.monto || 0),
           t.torneo,
           t.cajero || ''

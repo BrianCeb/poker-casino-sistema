@@ -6,7 +6,8 @@ async function ensureDefaultUsers() {
 
   const defaults = [
     { username: process.env.DIRECCION_USER, password: process.env.DIRECCION_PASSWORD, role: 'direccion' },
-    { username: process.env.CAJA_USER, password: process.env.CAJA_PASSWORD, role: 'caja' }
+    { username: process.env.CAJA_USER, password: process.env.CAJA_PASSWORD, role: 'caja' },
+    { username: process.env.GERENCIA_USER, password: process.env.GERENCIA_PASSWORD, role: 'gerencia' }
   ];
 
   for (const item of defaults) {

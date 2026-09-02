@@ -254,6 +254,15 @@ td .edit{
   font-size:12px
 }
 
+tr.cancelled{
+  opacity:.62
+}
+
+.cancelled-by{
+  color:var(--danger2);
+  font:11px 'IBM Plex Mono'
+}
+
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -339,6 +348,111 @@ td .edit{
   border:1px solid var(--border2);
   border-radius:10px;
   padding:24px
+}
+
+/* =========================================
+   MODAL DE CONFIRMACION
+========================================= */
+
+.modal-title{
+  font:26px 'Bebas Neue';
+  margin:0 0 10px
+}
+
+.modal-text{
+  color:var(--dim);
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:22px
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end
+}
+
+.modal-actions button{
+  min-width:110px
+}
+
+.btn-cancel{
+  background:var(--panel2)
+}
+
+.btn-confirm{
+  background:var(--gold)!important;
+  color:#2A2000!important;
+  border-color:var(--gold)!important
+}
+
+/* =========================================
+   TOAST
+========================================= */
+
+.toast-container{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:2000;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  pointer-events:none
+}
+
+.toast{
+  min-width:280px;
+  max-width:380px;
+  background:var(--panel);
+  border:1px solid var(--green);
+  border-radius:10px;
+  padding:15px 18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.35);
+  animation:toastIn .2s ease-out;
+  pointer-events:auto
+}
+
+.toast-title{
+  font-weight:700;
+  margin-bottom:4px
+}
+
+.toast-text{
+  color:var(--dim);
+  font-size:13px
+}
+
+.toast.error{
+  border-color:var(--danger)
+}
+
+@keyframes toastIn{
+  from{ opacity:0; transform:translateY(-8px) }
+  to{ opacity:1; transform:translateY(0) }
+}
+
+@media(max-width:600px){
+
+  .modal-actions{
+    flex-direction:column-reverse
+  }
+
+  .modal-actions button{
+    width:100%
+  }
+
+  .toast-container{
+    left:14px;
+    right:14px;
+    top:14px
+  }
+
+  .toast{
+    min-width:0;
+    max-width:none
+  }
+
 }
 
 .loading{
@@ -461,7 +575,7 @@ td .edit{
     <span>·</span>
 
     <span>
-      Recompra:
+      Re-Entry:
       <b id="torneoRecompra">$0</b>
     </span>
 
@@ -700,7 +814,7 @@ td .edit{
 
         <div class="field">
 
-          <label>Recompra total</label>
+          <label>Re-Entry total</label>
 
           <input
             id="torneoFormRecompra"
@@ -710,7 +824,7 @@ td .edit{
           >
 
           <div class="rake-help">
-            Es el monto total que paga el jugador por cada reentrada.
+            Es el monto total que paga el jugador por cada Re-Entry.
           </div>
 
         </div>
@@ -739,7 +853,7 @@ td .edit{
           >
 
           <div class="rake-help">
-            Monto fijo destinado al rake por cada buy-in o reentrada.
+            Monto fijo destinado al rake por cada Buy-in o Re-Entry.
             No se calcula como porcentaje.
           </div>
 
@@ -830,6 +944,7 @@ td .edit{
               <th>Tipo</th>
               <th>Monto</th>
               <th>Cajero</th>
+              <th>Acción</th>
             </tr>
 
           </thead>
@@ -973,6 +1088,58 @@ td .edit{
 </div>
 
 
+<!-- MODAL CONFIRMACION -->
+<div
+  id="confirmModal"
+  class="modal hidden"
+>
+
+  <div class="modalbox">
+
+    <h2
+      id="confirmTitle"
+      class="modal-title"
+    >
+      Confirmar operación
+    </h2>
+
+    <div
+      id="confirmText"
+      class="modal-text"
+    >
+      ¿Confirmar operación?
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        id="confirmCancel"
+        class="btn btn-cancel"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="confirmAccept"
+        class="btn btn-confirm"
+      >
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- TOASTS -->
+<div
+  id="toastContainer"
+  class="toast-container"
+></div>
+
+
 <script>
 
 const API='http://127.0.0.1:4001/api';
@@ -1022,6 +1189,113 @@ async function api(path,opt={}){
   }
 
   return r;
+}
+
+
+/* =========================================
+   MODAL DE CONFIRMACION
+========================================= */
+
+let confirmResolve=null;
+
+function openConfirmModal({
+  title,
+  message,
+  confirmText='Confirmar'
+}){
+
+  $('confirmTitle').textContent=title;
+
+  $('confirmText').textContent=message;
+
+  $('confirmAccept').textContent=confirmText;
+
+  $('confirmModal').classList.remove('hidden');
+
+  return new Promise(resolve=>{
+
+    confirmResolve=resolve;
+
+  });
+
+}
+
+
+function closeConfirmModal(result){
+
+  $('confirmModal').classList.add('hidden');
+
+  if(confirmResolve){
+
+    const resolve=confirmResolve;
+
+    confirmResolve=null;
+
+    resolve(result);
+
+  }
+
+}
+
+
+$('confirmCancel').onclick=
+  ()=>closeConfirmModal(false);
+
+
+$('confirmAccept').onclick=
+  ()=>closeConfirmModal(true);
+
+
+$('confirmModal').onclick=e=>{
+
+  if(e.target===$('confirmModal')){
+
+    closeConfirmModal(false);
+
+  }
+
+};
+
+
+document.addEventListener('keydown',e=>{
+
+  if(
+    e.key==='Escape'&&
+    !$('confirmModal').classList.contains('hidden')
+  ){
+
+    closeConfirmModal(false);
+
+  }
+
+});
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(title,message,type='success'){
+
+  const container=$('toastContainer');
+
+  const toast=document.createElement('div');
+
+  toast.className=
+    'toast'+(type==='error'?' error':'');
+
+  toast.innerHTML=`
+
+    <div class="toast-title">${esc(title)}</div>
+
+    <div class="toast-text">${esc(message)}</div>
+
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(()=>toast.remove(),3500);
+
 }
 
 
@@ -1306,6 +1580,22 @@ $('btnRegistrar').onclick=async()=>{
   }
 
 
+  const confirmado=await openConfirmModal({
+
+    title:'¿Confirmar alta del jugador?',
+
+    message:
+      `Se va a registrar a ${body.nombre} ${body.apellido} `+
+      `(DNI ${body.dni}).`,
+
+    confirmText:'Registrar'
+
+  });
+
+
+  if(!confirmado) return;
+
+
   try{
 
     const r=await api(
@@ -1333,6 +1623,12 @@ $('btnRegistrar').onclick=async()=>{
       '</div>';
 
 
+    showToast(
+      'Jugador registrado',
+      `${body.nombre} ${body.apellido} (DNI ${body.dni}) fue registrado con éxito.`
+    );
+
+
     [
       'regDni',
       'regNombre',
@@ -1350,6 +1646,13 @@ $('btnRegistrar').onclick=async()=>{
       '<div class="msg warn">'+
       e.message+
       '</div>';
+
+
+    showToast(
+      'No se pudo registrar el jugador',
+      e.message,
+      'error'
+    );
 
   }
 
@@ -1418,6 +1721,13 @@ async function loadPlayers(){
               onclick='openEdit(${JSON.stringify(p)})'
             >
               Editar
+            </button>
+
+            <button
+              class="btn danger"
+              onclick='deletePlayer(${JSON.stringify(p)})'
+            >
+              Eliminar
             </button>
 
           </td>
@@ -1494,6 +1804,59 @@ window.openEdit=p=>{
 };
 
 
+window.deletePlayer=async p=>{
+
+  const confirmado=await openConfirmModal({
+
+    title:'¿Eliminar jugador?',
+
+    message:
+      `Se va a quitar a ${p.nombre} ${p.apellido} `+
+      `(DNI ${p.dni}) del registro activo. Su historial se conservará.`,
+
+    confirmText:'Eliminar'
+
+  });
+
+
+  if(!confirmado) return;
+
+
+  try{
+
+    const r=await api(
+      '/players/'+p._id,
+      {method:'DELETE'}
+    );
+
+    const d=await r.json();
+
+
+    if(!r.ok)
+      throw new Error(d.error);
+
+
+    showToast(
+      'Jugador eliminado',
+      `${p.nombre} ${p.apellido} ya no aparece como jugador activo.`
+    );
+
+
+    loadPlayers();
+
+  }catch(e){
+
+    showToast(
+      'No se pudo eliminar el jugador',
+      e.message,
+      'error'
+    );
+
+  }
+
+};
+
+
 $('closeModal').onclick=()=>
   $('editModal')
     .classList
@@ -1526,6 +1889,23 @@ $('savePlayer').onclick=async()=>{
   };
 
 
+  const confirmado=await openConfirmModal({
+
+    title:'¿Confirmar edición del jugador?',
+
+    message:
+      `Se van a guardar los cambios de `+
+      `${body.nombre} ${body.apellido} `+
+      `(DNI ${$('editDni').value}).`,
+
+    confirmText:'Guardar cambios'
+
+  });
+
+
+  if(!confirmado) return;
+
+
   try{
 
     const r=await api(
@@ -1553,6 +1933,12 @@ $('savePlayer').onclick=async()=>{
       .add('hidden');
 
 
+    showToast(
+      'Jugador actualizado',
+      `Los datos de ${body.nombre} ${body.apellido} se guardaron con éxito.`
+    );
+
+
     loadPlayers();
 
 
@@ -1562,6 +1948,13 @@ $('savePlayer').onclick=async()=>{
       '<div class="msg warn">'+
       e.message+
       '</div>';
+
+
+    showToast(
+      'No se pudo editar el jugador',
+      e.message,
+      'error'
+    );
 
   }
 
@@ -1650,7 +2043,7 @@ $('saveTournament').onclick=async()=>{
 
     $('torneoMsg').innerHTML=
       '<div class="msg warn">'+
-      'La recompra no puede ser negativa.'+
+      'El monto de Re-Entry no puede ser negativo.'+
       '</div>';
 
     return;
@@ -1699,7 +2092,7 @@ $('saveTournament').onclick=async()=>{
 
     $('torneoMsg').innerHTML=
       '<div class="msg warn">'+
-      'El rake tampoco puede ser mayor que la recompra.'+
+      'El rake tampoco puede ser mayor que el monto de Re-Entry.'+
       '</div>';
 
     return;
@@ -1720,6 +2113,22 @@ $('saveTournament').onclick=async()=>{
     rake
 
   };
+
+
+  const confirmado=await openConfirmModal({
+
+    title:'¿Confirmar configuración del torneo?',
+
+    message:
+      `Se va a activar "${nombre}" (fecha ${fecha}) `+
+      `y se desactivará el torneo activo anterior, si había uno.`,
+
+    confirmText:'Guardar y activar'
+
+  });
+
+
+  if(!confirmado) return;
 
 
   try{
@@ -1750,6 +2159,12 @@ $('saveTournament').onclick=async()=>{
       '</div>';
 
 
+    showToast(
+      'Torneo activado',
+      `"${nombre}" quedó configurado y activo.`
+    );
+
+
     await loadConfig();
 
 
@@ -1759,6 +2174,13 @@ $('saveTournament').onclick=async()=>{
       '<div class="msg warn">'+
       e.message+
       '</div>';
+
+
+    showToast(
+      'No se pudo guardar el torneo',
+      e.message,
+      'error'
+    );
 
   }
 
@@ -1824,7 +2246,7 @@ async function loadControl(){
       <div class="stat">
 
         <div class="label">
-          Recompras
+          Re-Entries
         </div>
 
         <div class="val">
@@ -1854,7 +2276,7 @@ async function loadControl(){
         ? d.transacciones.map(
             t=>`
 
-            <tr>
+            <tr class="${t.anulado?'cancelled':''}">
 
               <td>${esc(t.hora)}</td>
 
@@ -1869,11 +2291,8 @@ async function loadControl(){
               </td>
 
               <td>
-                ${
-                  t.tipo==='buyin'
-                    ? 'Buy-in'
-                    : 'Recompra'
-                }
+                ${t.anulado ? 'ANULADO · ' : ''}
+                ${t.tipo==='buyin' ? 'Buy-in' : 'Re-Entry'}
               </td>
 
               <td>
@@ -1882,6 +2301,12 @@ async function loadControl(){
 
               <td>
                 ${esc(t.cajero||'—')}
+              </td>
+
+              <td>
+                ${t.anulado
+                  ? `<span class="cancelled-by">Por ${esc(t.anuladoPor||'—')}</span>`
+                  : `<button class="btn danger edit" onclick='voidTransaction(${JSON.stringify(t)})'>Anular</button>`}
               </td>
 
             </tr>
@@ -1913,6 +2338,35 @@ async function loadControl(){
 
 $('refreshControl').onclick=
   loadControl;
+
+
+window.voidTransaction=async t=>{
+
+  const confirmado=await openConfirmModal({
+    title:'¿Anular movimiento?',
+    message:
+      `Se anulará el ${t.tipo==='buyin'?'buy-in':'Re-Entry'} de `+
+      `${t.nombre} ${t.apellido} por ${money(t.monto)}. `+
+      'Quedará registrado, pero no contará en los totales.',
+    confirmText:'Anular'
+  });
+
+  if(!confirmado) return;
+
+  try{
+    const r=await api(
+      '/transactions/'+t._id+'/anular',
+      {method:'PATCH'}
+    );
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error);
+    showToast('Movimiento anulado', 'La operación quedó registrada y excluida del conteo.');
+    loadControl();
+  }catch(e){
+    showToast('No se pudo anular el movimiento', e.message, 'error');
+  }
+
+};
 
 
 /* =========================
@@ -1978,7 +2432,11 @@ async function downloadExport(type){
 
   }catch(e){
 
-    alert(e.message);
+    showToast(
+      'No se pudo exportar',
+      e.message,
+      'error'
+    );
 
   }
 

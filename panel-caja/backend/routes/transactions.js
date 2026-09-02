@@ -10,10 +10,10 @@ router.post('/', requireAuth, requireRole('caja'), async(req,res)=>{
   try{
     const {dni,monto,cajero}=req.body||{}; const cleanDni=String(dni||'').replace(/\D/g,''); const amount=Number(monto);
     if(!cleanDni || !Number.isFinite(amount) || amount<=0) return res.status(400).json({error:'DNI y un monto válido son obligatorios.'});
-    const player=await Player.findOne({dni:cleanDni}); if(!player)return res.status(404).json({error:'El jugador no está registrado.'});
+    const player=await Player.findOne({dni:cleanDni, activo:{$ne:false}}); if(!player)return res.status(404).json({error:'El jugador no está registrado.'});
     const torneo=await Tournament.findOne({activo:true}).sort({createdAt:-1}); if(!torneo)return res.status(409).json({error:'No hay un torneo activo configurado por Dirección.'});
     const today=todayStr();
-    const buyinExists=await Transaction.exists({dni:cleanDni,fecha:today,tipo:'buyin'});
+    const buyinExists=await Transaction.exists({dni:cleanDni,fecha:today,tipo:'buyin',anulado:{$ne:true}});
     const tipo=buyinExists?'recompra':'buyin';
     if(tipo==='buyin' && amount!==Number(torneo.buyIn)) return res.status(400).json({error:`El monto del buy-in debe ser ${torneo.buyIn}.`});
     if(tipo==='recompra' && amount!==Number(torneo.recompra)) return res.status(400).json({error:`El monto de la recompra debe ser ${torneo.recompra}.`});

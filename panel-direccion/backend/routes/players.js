@@ -8,12 +8,19 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
   try {
     const q = String(req.query.q || '').trim();
     const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const filter = q ? { $or: [
+    const filter = q ? { activo: { $ne: false }, $or: [
       { dni: { $regex: safeQ, $options: 'i' } },
       { nombre: { $regex: safeQ, $options: 'i' } },
       { apellido: { $regex: safeQ, $options: 'i' } }
-    ] } : {};
-    const players = await Player.find(filter).sort({ apellido: 1, nombre: 1 }).lean();
+    ] } : { activo: { $ne: false } };
+    // Orden apellido -> nombre -> dni, con comparacion locale-aware para
+    // que tildes y enie ordenen correctamente en espanol (ej: "Nuñez"
+    // despues de "Nunez", "Álvarez" junto a "Alvarez"). strength:1 ignora
+    // mayusculas/minusculas y acentos para el orden.
+    const players = await Player.find(filter)
+      .collation({ locale: 'es', strength: 1 })
+      .sort({ apellido: 1, nombre: 1, dni: 1 })
+      .lean();
     res.json(players);
   } catch (err) { res.status(500).json({ error: 'Error al listar jugadores.' }); }
 });
@@ -42,6 +49,18 @@ router.put('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
     if (!player) return res.status(404).json({ error: 'Jugador no encontrado.' });
     res.json(player);
   } catch (err) { res.status(500).json({ error: 'Error al editar el jugador.' }); }
+});
+
+router.delete('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    const player = await Player.findOneAndUpdate(
+      { _id: req.params.id, activo: { $ne: false } },
+      { activo: false },
+      { new: true }
+    );
+    if (!player) return res.status(404).json({ error: 'Jugador no encontrado.' });
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Error al eliminar el jugador.' }); }
 });
 
 router.get('/:dni', requireAuth, requireRole('direccion'), async (req, res) => {

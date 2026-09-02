@@ -26,6 +26,7 @@ async function startServer(port) {
   app.use('/api/players', playersRouter);
   app.use('/api/tournament', tournamentRouter);
   app.use('/api/transactions', transactionsRouter);
+  app.use('/api/reports', require('./routes/reports'));
 
   return new Promise((resolve) => {
     const server = app.listen(port, '127.0.0.1', () => {

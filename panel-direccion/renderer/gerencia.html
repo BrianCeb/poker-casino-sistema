@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Gerencia — Torneo de Poker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1A15;--panel:#152420;--panel-2:#1B2E27;--border:#2B3E36;--border-2:#3A5148;
+    --gold:#C9A227;--gold-light:#E4C55E;--green:#3E8E63;--green-light:#5FB183;
+    --text:#F2EDE1;--text-dim:#9FB0A6;--danger:#C1503A;--danger-light:#E0755F;--radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px;}
+
+  /* Login */
+  #loginBox{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+  .login-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:32px 28px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);text-align:center;display:block;margin-bottom:6px;}
+  .login-card h1{font-family:'Bebas Neue',sans-serif;font-size:28px;text-align:center;margin:0 0 24px;}
+  label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;font-weight:500;}
+  input{width:100%;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;color:var(--text);padding:12px 14px;font-size:15px;font-family:'Inter',sans-serif;margin-bottom:14px;}
+  input:focus{outline:none;border-color:var(--gold);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border-2);background:var(--panel-2);color:var(--text);padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2A2000;width:100%;padding:13px;}
+  .btn-gold:hover{background:var(--gold-light);}
+  .msg-warn{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;background:rgba(193,80,58,.14);border:1px solid var(--danger);color:var(--danger-light);}
+
+  /* Dashboard */
+  header.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.03em;margin:0;line-height:1;}
+  .btn-logout{background:none;border:1px solid var(--border-2);color:var(--text-dim);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+  .filtros{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:24px;}
+  .filtros div{min-width:150px;}
+  .filtros input[type=date]{margin-bottom:0;}
+  .chip-rango{display:flex;gap:6px;}
+  .chip-rango button{background:var(--panel-2);border:1px solid var(--border-2);color:var(--text-dim);border-radius:999px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .chip-rango button.active{border-color:var(--gold);color:var(--gold-light);}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+  .kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:8px;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;color:var(--gold-light);}
+  .kpi .sub{font-size:12px;color:var(--text-dim);margin-top:4px;}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;}
+  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.03em;margin:0 0 18px;}
+  .chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding-top:10px;}
+  .chart .barra-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .chart .barra{width:100%;max-width:36px;background:linear-gradient(180deg,var(--gold-light),var(--gold));border-radius:4px 4px 0 0;min-height:2px;}
+  .chart .barra-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:6px;white-space:nowrap;}
+  .chart .barra-valor{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold-light);margin-bottom:4px;}
+  .loading{color:var(--text-dim);font-size:13px;padding:20px 0;text-align:center;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div id="loginBox">
+  <div class="login-card">
+    <span class="eyebrow">Sistema de torneos</span>
+    <h1>Panel Gerencia</h1>
+    <label>Usuario</label>
+    <input type="text" id="username" autocomplete="username">
+    <label>Contraseña</label>
+    <input type="password" id="password" autocomplete="current-password">
+    <button class="btn btn-gold" id="btnLogin" type="button">Ingresar</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="dashBox" class="wrap hidden">
+  <header class="top">
+    <div class="brand"><span class="eyebrow" style="display:block;margin-bottom:4px;">Resumen ejecutivo</span><h1>Panel Gerencia</h1></div>
+    <button class="btn-logout" id="btnLogout" type="button">Salir</button>
+  </header>
+
+  <div class="filtros">
+    <div class="chip-rango">
+      <button data-dias="7" class="active" type="button">7 días</button>
+      <button data-dias="30" type="button">30 días</button>
+      <button data-dias="90" type="button">90 días</button>
+    </div>
+    <div><label>Desde</label><input type="date" id="fDesde"></div>
+    <div><label>Hasta</label><input type="date" id="fHasta"></div>
+    <div><button class="btn btn-gold" id="btnAplicar" type="button">Aplicar</button></div>
+  </div>
+
+  <div id="contenido">
+    <div class="loading">Cargando datos...</div>
+  </div>
+</div>
+
+<script>
+const API = window.location.protocol === 'file:' ? 'http://127.0.0.1:4001/api' : '/api';
+
+function money(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function fechaStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+let token = sessionStorage.getItem('gerencia_token');
+
+function mostrarLogin(){
+  document.getElementById('loginBox').classList.remove('hidden');
+  document.getElementById('dashBox').classList.add('hidden');
+}
+function mostrarDashboard(){
+  document.getElementById('loginBox').classList.add('hidden');
+  document.getElementById('dashBox').classList.remove('hidden');
+  inicializarFechas();
+  cargarResumen();
+}
+
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const msgBox = document.getElementById('loginMsg');
+  msgBox.innerHTML = '';
+  if(!username || !password){ msgBox.innerHTML = '<div class="msg-warn">Completá usuario y contraseña.</div>'; return; }
+
+  try{
+    const r = await fetch(API+'/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username, password, panel: 'gerencia' })
+    });
+    const data = await r.json();
+    if(!r.ok){ msgBox.innerHTML = '<div class="msg-warn">'+(data.error||'No se pudo iniciar sesión.')+'</div>'; return; }
+    token = data.token;
+    sessionStorage.setItem('gerencia_token', token);
+    mostrarDashboard();
+  }catch(e){
+    msgBox.innerHTML = '<div class="msg-warn">No se pudo conectar con el servidor.</div>';
+  }
+});
+
+document.getElementById('btnLogout').addEventListener('click', ()=>{
+  sessionStorage.removeItem('gerencia_token');
+  token = null;
+  mostrarLogin();
+});
+
+function inicializarFechas(){
+  const hoy = new Date();
+  const hace7 = new Date(); hace7.setDate(hoy.getDate()-6);
+  document.getElementById('fHasta').value = fechaStr(hoy);
+  document.getElementById('fDesde').value = fechaStr(hace7);
+}
+
+document.querySelectorAll('.chip-rango button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip-rango button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const dias = Number(btn.dataset.dias);
+    const hoy = new Date();
+    const desde = new Date(); desde.setDate(hoy.getDate()-(dias-1));
+    document.getElementById('fHasta').value = fechaStr(hoy);
+    document.getElementById('fDesde').value = fechaStr(desde);
+    cargarResumen();
+  });
+});
+document.getElementById('btnAplicar').addEventListener('click', cargarResumen);
+
+async function cargarResumen(){
+  const contenido = document.getElementById('contenido');
+  contenido.innerHTML = '<div class="loading">Cargando datos...</div>';
+  const desde = document.getElementById('fDesde').value;
+  const hasta = document.getElementById('fHasta').value;
+
+  try{
+    const r = await fetch(`${API}/reports/resumen?desde=${desde}&hasta=${hasta}`, {
+      headers: { 'Authorization': 'Bearer '+token }
+    });
+    if(r.status === 401){ sessionStorage.removeItem('gerencia_token'); mostrarLogin(); return; }
+    const data = await r.json();
+    if(!r.ok){ contenido.innerHTML = '<div class="loading">No se pudo cargar el resumen.</div>'; return; }
+    renderDashboard(data);
+  }catch(e){
+    contenido.innerHTML = '<div class="loading">No se pudo conectar con el servidor.</div>';
+  }
+}
+
+function renderDashboard(data){
+  const contenido = document.getElementById('contenido');
+  const maxTotal = Math.max(1, ...data.serieDiaria.map(d=>d.total));
+  const maxJug = Math.max(1, ...data.serieDiaria.map(d=>d.jugadores));
+
+  contenido.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="label">Total recaudado</div><div class="val">${money(data.totalRecaudado)}</div></div>
+      <div class="kpi"><div class="label">Jugadores en el período</div><div class="val">${data.totalJugadores}</div></div>
+      <div class="kpi"><div class="label">Jugadores nuevos</div><div class="val">${data.jugadoresNuevos}</div><div class="sub">${data.jugadoresRecurrentes} recurrentes</div></div>
+      <div class="kpi"><div class="label">Buy-ins</div><div class="val">${data.buyins}</div></div>
+      <div class="kpi"><div class="label">Re-Entries</div><div class="val">${data.recompras}</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Recaudación por día</h2>
+      <div class="chart">
+        ${data.serieDiaria.map(d => `
+          <div class="barra-wrap">
+            <div class="barra-valor">${d.total >= 1000 ? Math.round(d.total/1000)+'k' : d.total}</div>
+            <div class="barra" style="height:${Math.max(4, (d.total/maxTotal)*140)}px"></div>
+            <div class="barra-label">${d.fecha.slice(5)}</div>
+          </div>`).join('') || '<div class="loading">Sin movimientos en este período.</div>'}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Jugadores por día</h2>
+      <div class="chart">
+        ${data.serieDiaria.map(d => `
+          <div class="barra-wrap">
+            <div class="barra-valor">${d.jugadores}</div>
+            <div class="barra" style="height:${Math.max(4, (d.jugadores/maxJug)*140)}px;background:linear-gradient(180deg,var(--green-light),var(--green));"></div>
+            <div class="barra-label">${d.fecha.slice(5)}</div>
+          </div>`).join('') || '<div class="loading">Sin movimientos en este período.</div>'}
+      </div>
+    </div>
+  `;
+}
+
+if(token){ mostrarDashboard(); } else { mostrarLogin(); }
+</script>
+</body>
+</html>

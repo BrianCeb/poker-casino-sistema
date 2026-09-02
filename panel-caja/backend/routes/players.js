@@ -7,7 +7,7 @@ const router = express.Router();
 function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 router.get('/:dni', requireAuth, requireRole('caja'), async (req,res)=>{
   try {
-    const dni = req.params.dni.replace(/\D/g,''); const player = await Player.findOne({dni});
+    const dni = req.params.dni.replace(/\D/g,''); const player = await Player.findOne({dni, activo: {$ne: false}});
     if(!player) return res.status(404).json({registrado:false});
     const today=todayStr(); const txHoy=await Transaction.find({dni,fecha:today}).sort({createdAt:1});
     const yaCompro=txHoy.some(t=>t.tipo==='buyin');

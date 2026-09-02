@@ -271,10 +271,166 @@ button:hover{
 .err{
   background:var(--red2)
 }
+
+
+/* =========================================
+   MODAL
+========================================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.72);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:1000;
+}
+
+.modal.hidden{
+  display:none;
+}
+
+.modalbox{
+  width:100%;
+  max-width:430px;
+  background:var(--panel);
+  border:1px solid var(--b2);
+  border-radius:12px;
+  padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+.modal-title{
+  font:26px 'Bebas Neue';
+  margin:0 0 10px;
+}
+
+.modal-text{
+  color:var(--d);
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:22px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+
+.modal-actions button{
+  min-width:110px;
+}
+
+.btn-cancel{
+  background:var(--p2);
+}
+
+.btn-confirm{
+  background:var(--g);
+  color:#2A2000;
+  border-color:var(--g);
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+.toast-container{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:2000;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  pointer-events:none;
+}
+
+.toast{
+  min-width:280px;
+  max-width:380px;
+  background:var(--panel);
+  border:1px solid var(--green);
+  border-radius:10px;
+  padding:15px 18px;
+  box-shadow:0 12px 35px rgba(0,0,0,.35);
+  animation:toastIn .2s ease-out;
+  pointer-events:auto;
+}
+
+.toast-title{
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.toast-text{
+  color:var(--d);
+  font-size:13px;
+}
+
+.toast.error{
+  border-color:var(--red);
+}
+
+@keyframes toastIn{
+  from{
+    opacity:0;
+    transform:translateY(-8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:18px 14px 40px
+  }
+
+  .top{
+    align-items:flex-start;
+  }
+
+  .search{
+    flex-direction:column;
+  }
+
+  .search button{
+    width:100%;
+  }
+
+  .modal-actions{
+    flex-direction:column-reverse;
+  }
+
+  .modal-actions button{
+    width:100%;
+  }
+
+  .toast-container{
+    left:14px;
+    right:14px;
+    top:14px;
+  }
+
+  .toast{
+    min-width:0;
+    max-width:none;
+  }
+
+}
 </style>
 </head>
 
 <body>
+
 
 <!-- =========================
      LOGIN
@@ -298,23 +454,31 @@ button:hover{
     <form id="loginForm">
 
       <div class="field">
+
         <label>Usuario</label>
+
         <input
           id="loginUser"
           autocomplete="username"
           required
         >
+
       </div>
 
+
       <div class="field">
+
         <label>Contraseña</label>
+
         <input
           id="loginPass"
           type="password"
           autocomplete="current-password"
           required
         >
+
       </div>
+
 
       <button
         type="submit"
@@ -333,6 +497,7 @@ button:hover{
 </div>
 
 
+
 <!-- =========================
      APP
 ========================= -->
@@ -342,24 +507,44 @@ button:hover{
   <header class="top">
 
     <div>
-      <span class="ey">Sector caja</span>
-      <h1>Panel Caja</h1>
+
+      <span class="ey">
+        Sector caja
+      </span>
+
+      <h1>
+        Panel Caja
+      </h1>
+
     </div>
 
+
     <div class="user">
+
       <span id="loggedUser"></span>
+
       ·
+
       <button id="logout">
         Salir
       </button>
+
     </div>
 
   </header>
 
 
   <div>
-    <span class="dot" id="dot"></span>
-    <span id="status">Conectando...</span>
+
+    <span
+      class="dot"
+      id="dot"
+    ></span>
+
+    <span id="status">
+      Conectando...
+    </span>
+
   </div>
 
 
@@ -380,20 +565,24 @@ button:hover{
     <span>·</span>
 
     <span>
-      Recompra
+      Re-Entry
       <b id="torneoRecompra">$0</b>
     </span>
 
   </div>
 
 
+
   <div class="panel">
 
-    <h2>Buscar jugador</h2>
+    <h2>
+      Buscar jugador
+    </h2>
 
     <p class="sub">
       Ingresá el DNI para verificar inscripción y habilitar la operación.
     </p>
+
 
     <div class="search">
 
@@ -412,11 +601,73 @@ button:hover{
 
     </div>
 
+
     <div id="result"></div>
 
   </div>
 
 </div>
+
+
+
+<!-- =========================
+     MODAL CONFIRMACIÓN
+========================= -->
+
+<div
+  id="confirmModal"
+  class="modal hidden"
+>
+
+  <div class="modalbox">
+
+    <h2
+      id="confirmTitle"
+      class="modal-title"
+    >
+      Confirmar operación
+    </h2>
+
+    <div
+      id="confirmText"
+      class="modal-text"
+    >
+      ¿Confirmar operación?
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        id="confirmCancel"
+        class="btn-cancel"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="confirmAccept"
+        class="btn-confirm"
+      >
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================
+     TOASTS
+========================= -->
+
+<div
+  id="toastContainer"
+  class="toast-container"
+></div>
+
 
 
 <script>
@@ -425,361 +676,636 @@ button:hover{
    CONFIGURACIÓN
 ========================================= */
 
-const API = 'http://127.0.0.1:4002/api';
+const API =
+  'http://127.0.0.1:4002/api';
+
 
 
 /* =========================================
    ESTADO DE SESIÓN
 ========================================= */
 
-let token = sessionStorage.getItem('caja_token');
+let token =
+  sessionStorage.getItem('caja_token');
+
 
 
 /* =========================================
    HELPERS
 ========================================= */
 
-const $ = id => document.getElementById(id);
-
-const money = n =>
-  '$' + (Number(n) || 0).toLocaleString('es-AR');
-
-const clean = v =>
-  (v || '').replace(/\D/g, '');
+const $ =
+  id => document.getElementById(id);
 
 
-function h(extra = {}) {
+const money =
+  n =>
+    '$' +
+    (Number(n) || 0)
+      .toLocaleString('es-AR');
+
+
+const clean =
+  v =>
+    (v || '').replace(/\D/g, '');
+
+
+
+function h(extra = {}){
+
   return {
     ...extra,
-    Authorization: 'Bearer ' + token
+    Authorization:
+      'Bearer ' + token
   };
+
 }
+
 
 
 /* =========================================
    API
 ========================================= */
 
-async function api(path, opt = {}) {
+async function api(
+  path,
+  opt = {}
+){
 
-  const r = await fetch(API + path, {
-    ...opt,
+  const r =
+    await fetch(
+      API + path,
+      {
+        ...opt,
 
-    headers: h(
-      opt.headers || {}
-    )
-  });
+        headers:
+          h(
+            opt.headers || {}
+          )
+      }
+    );
+
 
   /*
    * Si el backend informa que el JWT
    * no es válido o expiró, cerramos sesión.
    */
 
-  if (r.status === 401) {
+  if(r.status === 401){
+
     logout();
-    throw new Error('Sesión expirada.');
+
+    throw new Error(
+      'Sesión expirada.'
+    );
+
   }
 
+
   return r;
+
 }
+
+
+
+/* =========================================
+   MODAL DE CONFIRMACIÓN
+========================================= */
+
+let confirmResolve = null;
+
+
+function openConfirmModal({
+  title,
+  message,
+  confirmText = 'Confirmar'
+}){
+
+  $('confirmTitle')
+    .textContent = title;
+
+  $('confirmText')
+    .textContent = message;
+
+  $('confirmAccept')
+    .textContent = confirmText;
+
+  $('confirmModal')
+    .classList
+    .remove('hidden');
+
+
+  return new Promise(resolve => {
+
+    confirmResolve = resolve;
+
+  });
+
+}
+
+
+
+function closeConfirmModal(
+  result
+){
+
+  $('confirmModal')
+    .classList
+    .add('hidden');
+
+
+  if(confirmResolve){
+
+    const resolve =
+      confirmResolve;
+
+    confirmResolve =
+      null;
+
+    resolve(result);
+
+  }
+
+}
+
+
+
+$('confirmCancel').onclick =
+  () => {
+
+    closeConfirmModal(false);
+
+  };
+
+
+$('confirmAccept').onclick =
+  () => {
+
+    closeConfirmModal(true);
+
+  };
+
+
+$('confirmModal').onclick =
+  e => {
+
+    if(
+      e.target ===
+      $('confirmModal')
+    ){
+
+      closeConfirmModal(false);
+
+    }
+
+  };
+
+
+document.addEventListener(
+  'keydown',
+  e => {
+
+    if(
+      e.key === 'Escape' &&
+      !$('confirmModal')
+        .classList
+        .contains('hidden')
+    ){
+
+      closeConfirmModal(false);
+
+    }
+
+  }
+);
+
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(
+  title,
+  message,
+  type = 'success'
+){
+
+  const container =
+    $('toastContainer');
+
+
+  const toast =
+    document.createElement('div');
+
+  toast.className =
+    'toast' +
+    (
+      type === 'error'
+        ? ' error'
+        : ''
+    );
+
+
+  toast.innerHTML = `
+
+    <div class="toast-title">
+      ${esc(title)}
+    </div>
+
+    <div class="toast-text">
+      ${esc(message)}
+    </div>
+
+  `;
+
+
+  container.appendChild(toast);
+
+
+  setTimeout(
+    () => {
+
+      toast.remove();
+
+    },
+    3500
+  );
+
+}
+
 
 
 /* =========================================
    MOSTRAR PANEL
 ========================================= */
 
-function show() {
+function show(){
 
-  $('loginView').classList.add('hidden');
+  $('loginView')
+    .classList
+    .add('hidden');
 
-  $('appView').classList.remove('hidden');
 
-  $('loggedUser').textContent =
-    sessionStorage.getItem('caja_user') || '';
+  $('appView')
+    .classList
+    .remove('hidden');
+
+
+  $('loggedUser')
+    .textContent =
+      sessionStorage
+        .getItem('caja_user') || '';
+
 
   conexion();
 
   config();
+
 }
+
 
 
 /* =========================================
    CERRAR SESIÓN
 ========================================= */
 
-function logout() {
+function logout(){
 
-  sessionStorage.removeItem('caja_token');
+  sessionStorage
+    .removeItem('caja_token');
 
-  sessionStorage.removeItem('caja_user');
+
+  sessionStorage
+    .removeItem('caja_user');
+
 
   token = null;
 
-  $('appView').classList.add('hidden');
 
-  $('loginView').classList.remove('hidden');
+  $('appView')
+    .classList
+    .add('hidden');
 
-  $('loginUser').value = '';
 
-  $('loginPass').value = '';
+  $('loginView')
+    .classList
+    .remove('hidden');
 
-  $('loginMsg').innerHTML = '';
+
+  $('loginUser')
+    .value = '';
+
+
+  $('loginPass')
+    .value = '';
+
+
+  $('loginMsg')
+    .innerHTML = '';
+
 }
+
 
 
 /* =========================================
    LOGOUT BUTTON
 ========================================= */
 
-$('logout').onclick = logout;
+$('logout').onclick =
+  logout;
+
 
 
 /* =========================================
    LOGIN
 ========================================= */
 
-$('loginForm').onsubmit = async e => {
+$('loginForm').onsubmit =
+  async e => {
 
-  e.preventDefault();
-
-  $('loginMsg').innerHTML = '';
-
-  try {
-
-    const username =
-      $('loginUser').value.trim();
-
-    const password =
-      $('loginPass').value;
+    e.preventDefault();
 
 
-    const r = await fetch(
-      API + '/auth/login',
-      {
-        method: 'POST',
+    $('loginMsg')
+      .innerHTML = '';
 
-        headers: {
-          'Content-Type': 'application/json'
-        },
 
-        body: JSON.stringify({
-          username,
-          password,
-          panel: 'caja'
-        })
+    try{
+
+      const username =
+        $('loginUser')
+          .value
+          .trim();
+
+
+      const password =
+        $('loginPass')
+          .value;
+
+
+      const r =
+        await fetch(
+          API + '/auth/login',
+          {
+            method:'POST',
+
+            headers:{
+              'Content-Type':
+                'application/json'
+            },
+
+            body:
+              JSON.stringify({
+                username,
+                password,
+                panel:'caja'
+              })
+
+          }
+        );
+
+
+      const d =
+        await r.json();
+
+
+      if(!r.ok){
+
+        throw new Error(
+          d.error ||
+          'Error al iniciar sesión.'
+        );
+
       }
-    );
 
 
-    const d = await r.json();
+      if(!d.token){
+
+        throw new Error(
+          'El servidor no devolvió el token de sesión.'
+        );
+
+      }
 
 
-    /*
-     * Si el backend devuelve un error
-     * mostramos el mensaje.
-     */
+      if(
+        !d.user ||
+        !d.user.username
+      ){
 
-    if (!r.ok) {
-      throw new Error(
-        d.error || 'Error al iniciar sesión.'
+        throw new Error(
+          'El servidor no devolvió los datos del usuario.'
+        );
+
+      }
+
+
+      token =
+        d.token;
+
+
+      sessionStorage.setItem(
+        'caja_token',
+        token
       );
+
+
+      sessionStorage.setItem(
+        'caja_user',
+        d.user.username
+      );
+
+
+      show();
+
+
+    }catch(e){
+
+      console.error(
+        'Error de login:',
+        e
+      );
+
+
+      $('loginMsg')
+        .innerHTML =
+          '<div class="msg warn">' +
+          esc(e.message) +
+          '</div>';
+
     }
 
+  };
 
-    /*
-     * El backend devuelve:
-     *
-     * {
-     *   token: "...",
-     *   user: {
-     *      username: "...",
-     *      role: "caja"
-     *   }
-     * }
-     */
-
-    if (!d.token) {
-      throw new Error(
-        'El servidor no devolvió el token de sesión.'
-      );
-    }
-
-
-    if (!d.user || !d.user.username) {
-      throw new Error(
-        'El servidor no devolvió los datos del usuario.'
-      );
-    }
-
-
-    /*
-     * Guardamos JWT.
-     */
-
-    token = d.token;
-
-    sessionStorage.setItem(
-      'caja_token',
-      token
-    );
-
-
-    /*
-     * Guardamos usuario.
-     */
-
-    sessionStorage.setItem(
-      'caja_user',
-      d.user.username
-    );
-
-
-    /*
-     * Mostramos la aplicación.
-     */
-
-    show();
-
-  } catch (e) {
-
-    console.error(
-      'Error de login:',
-      e
-    );
-
-    $('loginMsg').innerHTML =
-      '<div class="msg warn">' +
-      esc(e.message) +
-      '</div>';
-  }
-};
 
 
 /* =========================================
    CONEXIÓN CON BACKEND
 ========================================= */
 
-async function conexion() {
+async function conexion(){
 
-  try {
+  try{
 
     const r =
       await api('/health');
 
-    $('dot').className =
-      'dot ' + (r.ok ? 'ok' : 'err');
 
-    $('status').textContent =
-      r.ok
-        ? 'Backend conectado'
-        : 'Sin conexión';
+    $('dot')
+      .className =
+        'dot ' +
+        (r.ok ? 'ok' : 'err');
 
-  } catch (e) {
+
+    $('status')
+      .textContent =
+        r.ok
+          ? 'Backend conectado'
+          : 'Sin conexión';
+
+
+  }catch(e){
 
     console.error(
       'Error de conexión:',
       e
     );
 
-    $('dot').className =
-      'dot err';
 
-    $('status').textContent =
-      'Sin conexión';
+    $('dot')
+      .className =
+        'dot err';
+
+
+    $('status')
+      .textContent =
+        'Sin conexión';
+
   }
+
 }
+
 
 
 /* =========================================
    CONFIGURACIÓN DEL TORNEO
 ========================================= */
 
-async function config() {
+async function config(){
 
-  try {
+  try{
 
     const r =
       await api('/tournament');
+
 
     const d =
       await r.json();
 
 
-    $('torneoNombre').textContent =
-      d.nombre || '—';
+    $('torneoNombre')
+      .textContent =
+        d.nombre || '—';
 
-    $('torneoBuyin').textContent =
-      money(d.buyIn);
 
-    $('torneoRecompra').textContent =
-      money(d.recompra);
+    $('torneoBuyin')
+      .textContent =
+        money(d.buyIn);
 
-  } catch (e) {
+
+    $('torneoRecompra')
+      .textContent =
+        money(d.recompra);
+
+
+  }catch(e){
 
     console.error(
       'Error cargando torneo:',
       e
     );
+
   }
+
 }
+
 
 
 /* =========================================
    BUSCAR JUGADOR
 ========================================= */
 
-$('buscar').onclick = buscar;
+$('buscar').onclick =
+  buscar;
 
 
-$('dni').onkeydown = e => {
 
-  if (e.key === 'Enter') {
-    buscar();
-  }
+$('dni').onkeydown =
+  e => {
 
-};
+    if(e.key === 'Enter'){
+
+      buscar();
+
+    }
+
+  };
 
 
-async function buscar() {
+
+async function buscar(){
 
   const dni =
-    clean($('dni').value);
+    clean(
+      $('dni').value
+    );
 
 
-  if (!dni || dni.length < 6) {
+  if(
+    !dni ||
+    dni.length < 6
+  ){
 
-    $('result').innerHTML =
-      '<div class="msg warn">' +
-      'Ingresá un DNI válido.' +
-      '</div>';
+    $('result')
+      .innerHTML =
+        '<div class="msg warn">' +
+        'Ingresá un DNI válido.' +
+        '</div>';
 
     return;
+
   }
 
 
-  $('result').textContent =
-    'Buscando...';
+  $('result')
+    .textContent =
+      'Buscando...';
 
 
-  try {
+  try{
 
     const r =
-      await api('/players/' + dni);
+      await api(
+        '/players/' + dni
+      );
 
 
     /*
      * Jugador no encontrado.
      */
 
-    if (r.status === 404) {
+    if(r.status === 404){
 
-      $('result').innerHTML =
-        '<div class="msg warn">' +
-        'El jugador no está registrado. ' +
-        'Pedile a Dirección que lo dé de alta.' +
-        '</div>';
+      $('result')
+        .innerHTML =
+          '<div class="msg warn">' +
+          'El jugador no está registrado. ' +
+          'Pedile a Dirección que lo dé de alta.' +
+          '</div>';
 
       return;
+
     }
 
 
@@ -787,11 +1313,13 @@ async function buscar() {
       await r.json();
 
 
-    if (!r.ok) {
+    if(!r.ok){
 
       throw new Error(
-        d.error || 'Error buscando jugador.'
+        d.error ||
+        'Error buscando jugador.'
       );
+
     }
 
 
@@ -803,55 +1331,74 @@ async function buscar() {
       !d.yaCompro;
 
 
-    $('result').innerHTML = `
+    $('result')
+      .innerHTML = `
 
-      <div class="card">
+        <div class="card">
 
-        <div class="name">
-          ${esc(p.nombre + ' ' + p.apellido)}
-        </div>
+          <div class="name">
+            ${esc(
+              p.nombre +
+              ' ' +
+              p.apellido
+            )}
+          </div>
 
-        <div class="dni">
-          DNI ${esc(p.dni)}
-        </div>
 
-        <div class="status">
+          <div class="dni">
+            DNI ${esc(p.dni)}
+          </div>
 
-          ${
-            buy
-              ? 'Sin buy-in hoy · corresponde BUY-IN'
-              : `Ya tiene buy-in hoy · ${d.recomprasCount} recompra(s) · corresponde RECOMPRA`
-          }
 
-        </div>
+          <div class="status">
 
-        <div class="action">
-
-          <div class="field">
-
-            <label>Monto</label>
-
-            <input
-              id="monto"
-              type="number"
-              value="0"
-              disabled
-            >
+            ${
+              buy
+                ? 'Sin buy-in hoy · corresponde BUY-IN'
+                : `Ya tiene buy-in hoy · ${d.recomprasCount} Re-Entry(s) · corresponde RE-ENTRY`
+            }
 
           </div>
 
-          <button
-            id="operar"
-            class="${buy ? 'green' : 'gold'}"
-            style="width:100%"
-          >
-            ${buy ? 'Registrar buy-in' : 'Registrar recompra'}
-          </button>
+
+          <div class="action">
+
+            <div class="field">
+
+              <label>
+                Monto
+              </label>
+
+              <input
+                id="monto"
+                type="number"
+                value="0"
+                disabled
+              >
+
+            </div>
+
+
+            <button
+              id="operar"
+              class="${buy ? 'green' : 'gold'}"
+              style="width:100%"
+            >
+
+              ${
+                buy
+                  ? 'Registrar Buy-in'
+                  : 'Registrar Re-Entry'
+              }
+
+            </button>
+
+          </div>
 
         </div>
 
-      </div>
-    `;
+      `;
+
 
 
     /*
@@ -862,17 +1409,21 @@ async function buscar() {
     await config();
 
 
+
     /*
      * Obtenemos el monto desde
      * la configuración mostrada.
      */
 
     const buyinTexto =
-      $('torneoBuyin').textContent
+      $('torneoBuyin')
+        .textContent
         .replace(/\D/g, '');
 
+
     const recompraTexto =
-      $('torneoRecompra').textContent
+      $('torneoRecompra')
+        .textContent
         .replace(/\D/g, '');
 
 
@@ -882,6 +1433,7 @@ async function buscar() {
         : recompraTexto;
 
 
+
     /*
      * Registrar operación.
      */
@@ -889,7 +1441,7 @@ async function buscar() {
     $('operar').onclick =
       async () => {
 
-        try {
+        try{
 
           const monto =
             Number(
@@ -897,35 +1449,84 @@ async function buscar() {
             );
 
 
-          if (!monto || monto <= 0) {
+          if(
+            !monto ||
+            monto <= 0
+          ){
 
             throw new Error(
               'El monto debe ser mayor a cero.'
             );
+
           }
 
+
+
+          /*
+           * Confirmación previa.
+           */
+
+          const tipoTexto =
+            buy
+              ? 'Buy-in'
+              : 'Re-Entry';
+
+
+          const confirmado =
+            await openConfirmModal({
+
+              title:
+                `¿Confirmar ${tipoTexto}?`,
+
+              message:
+                `${tipoTexto} de ${money(monto)} para ${p.nombre} ${p.apellido} (DNI ${p.dni}).`,
+
+              confirmText:
+                'Confirmar'
+
+            });
+
+
+          if(!confirmado){
+
+            return;
+
+          }
+
+
+
+          /*
+           * Enviamos la operación
+           * al backend.
+           */
 
           const r2 =
             await api(
               '/transactions',
               {
-                method: 'POST',
+                method:'POST',
 
-                headers: {
+                headers:{
                   'Content-Type':
                     'application/json'
                 },
 
-                body: JSON.stringify({
-                  dni: p.dni,
+                body:
+                  JSON.stringify({
 
-                  monto,
+                    dni:
+                      p.dni,
 
-                  cajero:
-                    sessionStorage.getItem(
-                      'caja_user'
-                    ) || ''
-                })
+                    monto,
+
+                    cajero:
+                      sessionStorage
+                        .getItem(
+                          'caja_user'
+                        ) || ''
+
+                  })
+
               }
             );
 
@@ -934,71 +1535,120 @@ async function buscar() {
             await r2.json();
 
 
-          if (!r2.ok) {
+          if(!r2.ok){
 
             throw new Error(
               tx.error ||
               'No se pudo registrar la operación.'
             );
+
           }
 
 
-          $('result').insertAdjacentHTML(
-            'beforeend',
 
-            `
-            <div class="ticket">
+          /*
+           * Éxito.
+           */
 
-              <div>
-                <b>
-                  ${
-                    tx.tipo === 'buyin'
-                      ? 'Buy-in confirmado'
-                      : 'Recompra confirmada'
-                  }
-                </b>
-              </div>
-
-              <div>
-                Jugador
-                <b>
-                  ${esc(
-                    p.nombre + ' ' + p.apellido
-                  )}
-                </b>
-              </div>
-
-              <div>
-                DNI
-                <b>
-                  ${esc(p.dni)}
-                </b>
-              </div>
-
-              <div>
-                Torneo
-                <b>
-                  ${esc(tx.torneo)}
-                </b>
-              </div>
-
-              <div>
-                Monto
-                <b>
-                  ${money(tx.monto)}
-                </b>
-              </div>
-
-              <div>
-                Hora
-                <b>
-                  ${esc(tx.hora)}
-                </b>
-              </div>
-
-            </div>
-            `
+          showToast(
+            `${tipoTexto} realizado`,
+            `${tipoTexto} realizado con éxito para ${p.nombre} ${p.apellido}.`
           );
+
+
+
+          /*
+           * Mostramos el comprobante
+           * debajo del jugador.
+           */
+
+          $('result')
+            .insertAdjacentHTML(
+              'beforeend',
+
+              `
+
+              <div class="ticket">
+
+                <div>
+
+                  <b>
+
+                    ${
+                      tx.tipo === 'buyin'
+                        ? 'Buy-in realizado con éxito'
+                        : 'Re-Entry realizado con éxito'
+                    }
+
+                  </b>
+
+                </div>
+
+
+                <div>
+
+                  Jugador
+
+                  <b>
+                    ${esc(
+                      p.nombre +
+                      ' ' +
+                      p.apellido
+                    )}
+                  </b>
+
+                </div>
+
+
+                <div>
+
+                  DNI
+
+                  <b>
+                    ${esc(p.dni)}
+                  </b>
+
+                </div>
+
+
+                <div>
+
+                  Torneo
+
+                  <b>
+                    ${esc(tx.torneo)}
+                  </b>
+
+                </div>
+
+
+                <div>
+
+                  Monto
+
+                  <b>
+                    ${money(tx.monto)}
+                  </b>
+
+                </div>
+
+
+                <div>
+
+                  Hora
+
+                  <b>
+                    ${esc(tx.hora)}
+                  </b>
+
+                </div>
+
+              </div>
+
+              `
+
+            );
+
 
 
           /*
@@ -1009,67 +1659,90 @@ async function buscar() {
           buscar();
 
 
-        } catch (e) {
+        }catch(e){
 
           console.error(
             'Error registrando operación:',
             e
           );
 
-          $('result').insertAdjacentHTML(
 
-            'beforeend',
-
-            '<div class="msg warn">' +
-            esc(e.message) +
-            '</div>'
+          showToast(
+            'No se pudo realizar la operación',
+            e.message,
+            'error'
           );
+
+
+          $('result')
+            .insertAdjacentHTML(
+
+              'beforeend',
+
+              '<div class="msg warn">' +
+              esc(e.message) +
+              '</div>'
+
+            );
+
         }
 
       };
 
 
-  } catch (e) {
+  }catch(e){
 
     console.error(
       'Error buscando jugador:',
       e
     );
 
-    $('result').innerHTML =
-      '<div class="msg warn">' +
-      esc(e.message) +
-      '</div>';
+
+    $('result')
+      .innerHTML =
+        '<div class="msg warn">' +
+        esc(e.message) +
+        '</div>';
+
   }
+
 }
+
 
 
 /* =========================================
    ESCAPAR HTML
 ========================================= */
 
-function esc(v) {
+function esc(v){
 
-  return String(v ?? '').replace(
+  return String(
+    v ?? ''
+  ).replace(
     /[&<>"']/g,
 
     c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
     }[c])
+
   );
+
 }
+
 
 
 /* =========================================
    RESTAURAR SESIÓN
 ========================================= */
 
-if (token) {
+if(token){
+
   show();
+
 }
 
 </script>

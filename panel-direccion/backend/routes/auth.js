@@ -16,9 +16,16 @@ router.post('/login', async (req, res) => {
     if (!user) return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
     const ok = await bcrypt.compare(String(password), user.passwordHash);
     if (!ok) return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
-    if ((panel === 'direccion' && user.role !== 'direccion') || (panel === 'caja' && user.role !== 'caja')) {
+
+    const PANEL_ROLES = {
+      direccion: ['direccion'],
+      caja: ['caja'],
+      gerencia: ['direccion', 'gerencia']
+    };
+    if (!PANEL_ROLES[panel] || !PANEL_ROLES[panel].includes(user.role)) {
       return res.status(403).json({ error: 'Este usuario no tiene acceso a este panel.' });
     }
+
     const token = jwt.sign({ sub: String(user._id), username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '8h' });
     res.json({ token, user: { username: user.username, role: user.role } });
   } catch (err) {
