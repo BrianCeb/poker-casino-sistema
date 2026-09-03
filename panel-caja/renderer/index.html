@@ -274,6 +274,97 @@ button:hover{
 
 
 /* =========================================
+   PESTAÑAS
+========================================= */
+
+.tabs{
+  display:flex;
+  gap:2px;
+  margin-bottom:20px;
+  border-bottom:1px solid var(--b);
+}
+
+.tabs button{
+  background:none;
+  border:none;
+  color:var(--d);
+  font:19px 'Bebas Neue';
+  letter-spacing:.04em;
+  padding:10px 18px;
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  border-radius:0;
+}
+
+.tabs button:hover{
+  color:var(--t);
+  border-color:transparent;
+}
+
+.tabs button.active{
+  color:var(--g2);
+  border-bottom-color:var(--g);
+}
+
+
+/* =========================================
+   TABLA DE JUGADORES
+========================================= */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th{
+  text-align:left;
+  color:var(--d);
+  font-weight:500;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  padding:8px 10px;
+  border-bottom:1px solid var(--b2);
+}
+
+td{
+  padding:9px 10px;
+  border-bottom:1px solid var(--b);
+  font:13px 'IBM Plex Mono';
+}
+
+.btn-sm{
+  padding:6px 12px;
+  font-size:12px;
+}
+
+.search-mini{
+  max-width:280px;
+  margin-bottom:14px;
+}
+
+.edit-row{
+  background:var(--p2);
+}
+
+.edit-row td{
+  padding:16px 10px;
+}
+
+.edit-row .row{
+  margin-bottom:10px;
+}
+
+.empty{
+  padding:26px 10px;
+  text-align:center;
+  color:var(--d);
+  font-size:13px;
+}
+
+
+/* =========================================
    MODAL
 ========================================= */
 
@@ -572,37 +663,84 @@ button:hover{
   </div>
 
 
-
-  <div class="panel">
-
-    <h2>
-      Buscar jugador
-    </h2>
-
-    <p class="sub">
-      Ingresá el DNI para verificar inscripción y habilitar la operación.
-    </p>
+  <nav class="tabs">
+    <button id="tabCobrarBtn" class="active" type="button">Cobrar</button>
+    <button id="tabJugadoresBtn" type="button">Jugadores</button>
+  </nav>
 
 
-    <div class="search">
+  <div id="viewCobrar">
 
-      <input
-        id="dni"
-        maxlength="10"
-        placeholder="Número de DNI"
-      >
+    <div class="panel">
 
-      <button
-        class="gold"
-        id="buscar"
-      >
-        Buscar
-      </button>
+      <h2>
+        Buscar jugador
+      </h2>
+
+      <p class="sub">
+        Ingresá el DNI para verificar inscripción y habilitar la operación.
+      </p>
+
+
+      <div class="search">
+
+        <input
+          id="dni"
+          maxlength="10"
+          placeholder="Número de DNI"
+        >
+
+        <button
+          class="gold"
+          id="buscar"
+        >
+          Buscar
+        </button>
+
+      </div>
+
+
+      <div id="result"></div>
 
     </div>
 
+  </div>
 
-    <div id="result"></div>
+
+  <div id="viewJugadores" class="hidden">
+
+    <div class="panel">
+      <h2>Alta de jugador</h2>
+      <p class="sub">Se carga una única vez por jugador.</p>
+
+      <div class="row">
+        <div class="field"><label>DNI</label><input id="altaDni" maxlength="10" placeholder="Ej: 30123456"></div>
+        <div class="field"><label>Nombre</label><input id="altaNombre" placeholder="Nombre"></div>
+        <div class="field"><label>Apellido</label><input id="altaApellido" placeholder="Apellido"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Teléfono (opcional)</label><input id="altaTelefono" placeholder="Ej: 261 555 1234"></div>
+        <div class="field"><label>Email (opcional)</label><input id="altaEmail" placeholder="jugador@mail.com"></div>
+      </div>
+
+      <button class="gold" id="btnAlta" type="button">Registrar jugador</button>
+    </div>
+
+    <div class="panel">
+      <h2>Jugadores registrados</h2>
+      <p class="sub">Buscá para corregir un dato mal cargado.</p>
+
+      <input id="filtroJugadores" class="search-mini" placeholder="Buscar por DNI, nombre o apellido...">
+
+      <table>
+        <thead>
+          <tr><th>DNI</th><th>Nombre</th><th>Apellido</th><th>Teléfono</th><th>Email</th><th></th></tr>
+        </thead>
+        <tbody id="jugadoresTbody"></tbody>
+      </table>
+
+      <div id="jugadoresEmpty" class="empty hidden">Todavía no hay jugadores registrados.</div>
+    </div>
 
   </div>
 
@@ -745,11 +883,6 @@ async function api(
       }
     );
 
-
-  /*
-   * Si el backend informa que el JWT
-   * no es válido o expiró, cerramos sesión.
-   */
 
   if(r.status === 401){
 
@@ -1233,6 +1366,179 @@ async function config(){
 
 
 /* =========================================
+   PESTAÑAS: COBRAR / JUGADORES
+========================================= */
+
+$('tabCobrarBtn').onclick = () => {
+  $('tabCobrarBtn').classList.add('active');
+  $('tabJugadoresBtn').classList.remove('active');
+  $('viewCobrar').classList.remove('hidden');
+  $('viewJugadores').classList.add('hidden');
+};
+
+$('tabJugadoresBtn').onclick = () => {
+  $('tabJugadoresBtn').classList.add('active');
+  $('tabCobrarBtn').classList.remove('active');
+  $('viewJugadores').classList.remove('hidden');
+  $('viewCobrar').classList.add('hidden');
+  loadJugadores();
+};
+
+
+
+/* =========================================
+   ALTA DE JUGADOR (desde Caja)
+========================================= */
+
+$('btnAlta').onclick = async () => {
+  const dni = clean($('altaDni').value);
+  const nombre = $('altaNombre').value.trim();
+  const apellido = $('altaApellido').value.trim();
+  const telefono = $('altaTelefono').value.trim();
+  const email = $('altaEmail').value.trim();
+
+  if (!dni || dni.length < 6 || !nombre || !apellido) {
+    showToast('Datos incompletos', 'DNI, nombre y apellido son obligatorios.', 'error');
+    return;
+  }
+
+  const confirmado = await openConfirmModal({
+    title: '¿Registrar jugador?',
+    message: `Se va a dar de alta a ${nombre} ${apellido} (DNI ${dni}).`,
+    confirmText: 'Registrar'
+  });
+  if (!confirmado) return;
+
+  try {
+    const r = await api('/players', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dni, nombre, apellido, telefono, email })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'No se pudo registrar el jugador.');
+
+    showToast('Jugador registrado', `${nombre} ${apellido} (DNI ${dni}) se registró con éxito.`);
+    ['altaDni','altaNombre','altaApellido','altaTelefono','altaEmail'].forEach(id => $(id).value = '');
+    loadJugadores();
+  } catch (e) {
+    showToast('No se pudo registrar', e.message, 'error');
+  }
+};
+
+
+
+/* =========================================
+   LISTADO Y EDICIÓN DE JUGADORES
+========================================= */
+
+let jugadoresCache = [];
+
+async function loadJugadores(){
+  const tbody = $('jugadoresTbody');
+  tbody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+  try{
+    const r = await api('/players');
+    jugadoresCache = await r.json();
+    renderJugadores(jugadoresCache);
+  }catch(e){
+    tbody.innerHTML = '<tr><td colspan="6">No se pudo cargar el listado.</td></tr>';
+  }
+}
+
+function renderJugadores(lista){
+  const tbody = $('jugadoresTbody');
+  const empty = $('jugadoresEmpty');
+  if (lista.length === 0){
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  tbody.innerHTML = lista.map(p => `
+    <tr id="fila-${esc(p._id)}">
+      <td>${esc(p.dni)}</td>
+      <td style="font-family:Inter,system-ui;">${esc(p.nombre)}</td>
+      <td style="font-family:Inter,system-ui;">${esc(p.apellido)}</td>
+      <td style="font-family:Inter,system-ui;">${esc(p.telefono || '—')}</td>
+      <td style="font-family:Inter,system-ui;">${esc(p.email || '—')}</td>
+      <td><button class="btn-sm" data-editar="${esc(p._id)}" type="button">Editar</button></td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('[data-editar]').forEach(btn => {
+    btn.onclick = () => abrirEdicionJugador(btn.dataset.editar);
+  });
+}
+
+function abrirEdicionJugador(id){
+  const player = jugadoresCache.find(p => p._id === id);
+  if (!player) return;
+  const fila = $('fila-' + id);
+  fila.className = 'edit-row';
+  fila.innerHTML = `
+    <td colspan="6">
+      <div class="row">
+        <div class="field"><label>DNI</label><input value="${esc(player.dni)}" disabled></div>
+        <div class="field"><label>Nombre</label><input id="editNombre" value="${esc(player.nombre)}"></div>
+        <div class="field"><label>Apellido</label><input id="editApellido" value="${esc(player.apellido)}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Teléfono</label><input id="editTelefono" value="${esc(player.telefono||'')}"></div>
+        <div class="field"><label>Email</label><input id="editEmail" value="${esc(player.email||'')}"></div>
+      </div>
+      <div class="actions">
+        <button class="gold btn-sm" id="btnGuardarEdicion" type="button">Guardar cambios</button>
+        <button class="btn-sm" id="btnCancelarEdicion" type="button">Cancelar</button>
+      </div>
+    </td>`;
+
+  $('btnCancelarEdicion').onclick = () => renderJugadores(jugadoresCache);
+
+  $('btnGuardarEdicion').onclick = async () => {
+    const nombre = $('editNombre').value.trim();
+    const apellido = $('editApellido').value.trim();
+    const telefono = $('editTelefono').value.trim();
+    const email = $('editEmail').value.trim();
+
+    if (!nombre || !apellido) {
+      showToast('Datos incompletos', 'Nombre y apellido son obligatorios.', 'error');
+      return;
+    }
+
+    const confirmado = await openConfirmModal({
+      title: '¿Guardar cambios?',
+      message: `Se van a actualizar los datos de ${nombre} ${apellido}.`,
+      confirmText: 'Guardar'
+    });
+    if (!confirmado) return;
+
+    try{
+      const r = await api('/players/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, apellido, telefono, email })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'No se pudo editar el jugador.');
+      showToast('Jugador actualizado', `Los datos de ${nombre} ${apellido} se guardaron con éxito.`);
+      loadJugadores();
+    }catch(e){
+      showToast('No se pudo guardar', e.message, 'error');
+    }
+  };
+}
+
+$('filtroJugadores').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { renderJugadores(jugadoresCache); return; }
+  renderJugadores(jugadoresCache.filter(p =>
+    p.dni.includes(q) || p.nombre.toLowerCase().includes(q) || p.apellido.toLowerCase().includes(q)
+  ));
+});
+
+
+
+/* =========================================
    BUSCAR JUGADOR
 ========================================= */
 
@@ -1291,17 +1597,13 @@ async function buscar(){
       );
 
 
-    /*
-     * Jugador no encontrado.
-     */
-
     if(r.status === 404){
 
       $('result')
         .innerHTML =
           '<div class="msg warn">' +
           'El jugador no está registrado. ' +
-          'Pedile a Dirección que lo dé de alta.' +
+          'Podés registrarlo en la pestaña Jugadores.' +
           '</div>';
 
       return;
@@ -1401,19 +1703,9 @@ async function buscar(){
 
 
 
-    /*
-     * Actualizamos configuración
-     * antes de tomar los montos.
-     */
-
     await config();
 
 
-
-    /*
-     * Obtenemos el monto desde
-     * la configuración mostrada.
-     */
 
     const buyinTexto =
       $('torneoBuyin')
@@ -1433,10 +1725,6 @@ async function buscar(){
         : recompraTexto;
 
 
-
-    /*
-     * Registrar operación.
-     */
 
     $('operar').onclick =
       async () => {
@@ -1461,10 +1749,6 @@ async function buscar(){
           }
 
 
-
-          /*
-           * Confirmación previa.
-           */
 
           const tipoTexto =
             buy
@@ -1494,11 +1778,6 @@ async function buscar(){
           }
 
 
-
-          /*
-           * Enviamos la operación
-           * al backend.
-           */
 
           const r2 =
             await api(
@@ -1546,21 +1825,12 @@ async function buscar(){
 
 
 
-          /*
-           * Éxito.
-           */
-
           showToast(
             `${tipoTexto} realizado`,
             `${tipoTexto} realizado con éxito para ${p.nombre} ${p.apellido}.`
           );
 
 
-
-          /*
-           * Mostramos el comprobante
-           * debajo del jugador.
-           */
 
           $('result')
             .insertAdjacentHTML(
@@ -1650,11 +1920,6 @@ async function buscar(){
             );
 
 
-
-          /*
-           * Actualizamos el jugador
-           * después de registrar.
-           */
 
           buscar();
 

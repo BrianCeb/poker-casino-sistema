@@ -1,5 +1,6 @@
 const express = require('express');
 const Player = require('../models/Player');
+const Transaction = require('../models/Transaction');
 const requireAuth = require('../middleware/auth').requireAuth;
 const requireRole = require('../middleware/auth').requireRole;
 const router = express.Router();
@@ -13,10 +14,6 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
       { nombre: { $regex: safeQ, $options: 'i' } },
       { apellido: { $regex: safeQ, $options: 'i' } }
     ] } : { activo: { $ne: false } };
-    // Orden apellido -> nombre -> dni, con comparacion locale-aware para
-    // que tildes y enie ordenen correctamente en espanol (ej: "Nuñez"
-    // despues de "Nunez", "Álvarez" junto a "Alvarez"). strength:1 ignora
-    // mayusculas/minusculas y acentos para el orden.
     const players = await Player.find(filter)
       .collation({ locale: 'es', strength: 1 })
       .sort({ apellido: 1, nombre: 1, dni: 1 })
@@ -61,6 +58,18 @@ router.delete('/:id', requireAuth, requireRole('direccion'), async (req, res) =>
     if (!player) return res.status(404).json({ error: 'Jugador no encontrado.' });
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: 'Error al eliminar el jugador.' }); }
+});
+
+// NUEVO: historial completo del jugador (todas las fechas, mas reciente primero)
+router.get('/:id/historial', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    const player = await Player.findById(req.params.id);
+    if (!player) return res.status(404).json({ error: 'Jugador no encontrado.' });
+    const movimientos = await Transaction.find({ dni: player.dni })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ player, movimientos });
+  } catch (err) { res.status(500).json({ error: 'Error al obtener el historial.' }); }
 });
 
 router.get('/:dni', requireAuth, requireRole('direccion'), async (req, res) => {
