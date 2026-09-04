@@ -919,6 +919,23 @@ tr.cancelled{
         Control operativo
       </h2>
 
+      <div
+        class="row"
+        style="margin:14px 0 4px;align-items:flex-end"
+      >
+
+        <div class="field" style="max-width:340px">
+
+          <label>Torneo / fecha</label>
+
+          <select id="controlTorneoSelect">
+            <option value="">Torneo actual (hoy)</option>
+          </select>
+
+        </div>
+
+      </div>
+
       <p
         class="sub"
         id="controlFecha"
@@ -929,6 +946,38 @@ tr.cancelled{
         class="stats"
         id="statsBox"
       ></div>
+
+
+      <div
+        class="row"
+        style="margin-bottom:14px;align-items:flex-end"
+      >
+
+        <div class="field" style="max-width:220px">
+
+          <label>Tipo</label>
+
+          <select id="controlFiltroTipo">
+            <option value="">Todos</option>
+            <option value="buyin">Buy-ins</option>
+            <option value="recompra">Re-Entries</option>
+          </select>
+
+        </div>
+
+        <div class="field" style="max-width:220px">
+
+          <label>DNI</label>
+
+          <input
+            id="controlFiltroDni"
+            placeholder="Filtrar por DNI"
+            maxlength="10"
+          >
+
+        </div>
+
+      </div>
 
 
       <div style="overflow:auto">
@@ -1088,7 +1137,6 @@ tr.cancelled{
 </div>
 
 
-
 <!-- MODAL HISTORIAL -->
 <div
   id="historialModal"
@@ -1123,7 +1171,6 @@ tr.cancelled{
 </div>
 
 
-<!-- MODAL CONFIRMACION -->
 <!-- MODAL CONFIRMACION -->
 <div
   id="confirmModal"
@@ -1554,8 +1601,10 @@ function switchTab(name){
     loadPlayers();
 
 
-  if(name==='control')
+  if(name==='control'){
+    loadTorneosHistorial();
     loadControl();
+  }
 
 }
 
@@ -1752,7 +1801,7 @@ async function loadPlayers(){
 
           <td>
 
-                        <button
+            <button
               class="btn edit"
               onclick='openEdit(${JSON.stringify(p)})'
             >
@@ -1854,8 +1903,9 @@ window.deletePlayer=async p=>{
     title:'¿Eliminar jugador?',
 
     message:
-      `Se va a quitar a ${p.nombre} ${p.apellido} `+
-      `(DNI ${p.dni}) del registro activo. Su historial se conservará.`,
+      `Se va a eliminar a ${p.nombre} ${p.apellido} (DNI ${p.dni}). `+
+      `Si nunca tuvo operaciones registradas se borra por completo. `+
+      `Si ya tiene historial, se conserva y el jugador solo queda desactivado.`,
 
     confirmText:'Eliminar'
 
@@ -1880,8 +1930,12 @@ window.deletePlayer=async p=>{
 
 
     showToast(
-      'Jugador eliminado',
-      `${p.nombre} ${p.apellido} ya no aparece como jugador activo.`
+      d.borradoReal
+        ? 'Jugador eliminado'
+        : 'Jugador desactivado',
+      d.borradoReal
+        ? `${p.nombre} ${p.apellido} se borró por completo (no tenía operaciones registradas).`
+        : `${p.nombre} ${p.apellido} tenía historial, así que se desactivó y se conservó su historial.`
     );
 
 
@@ -1904,6 +1958,61 @@ $('closeModal').onclick=()=>
   $('editModal')
     .classList
     .add('hidden');
+
+
+/* =========================
+   HISTORIAL DE JUGADOR
+========================= */
+
+window.openHistorial = async (p) => {
+
+  $('historialTitle').textContent =
+    `Historial — ${p.nombre} ${p.apellido} (DNI ${p.dni})`;
+
+  $('historialContent').innerHTML =
+    '<div class="loading">Cargando...</div>';
+
+  $('historialModal').classList.remove('hidden');
+
+  try{
+
+    const r = await api('/players/'+p._id+'/historial');
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error);
+
+    if(d.movimientos.length === 0){
+      $('historialContent').innerHTML =
+        '<div class="empty">Este jugador todavía no tiene movimientos registrados.</div>';
+      return;
+    }
+
+    $('historialContent').innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Monto</th><th>Torneo</th><th>Cajero</th></tr>
+        </thead>
+        <tbody>
+          ${d.movimientos.map(m => `
+            <tr class="${m.anulado ? 'cancelled' : ''}">
+              <td>${esc(m.fecha)}</td>
+              <td>${esc(m.hora)}</td>
+              <td>${m.anulado ? 'ANULADO · ' : ''}${m.tipo === 'buyin' ? 'Buy-in' : 'Re-Entry'}</td>
+              <td>${money(m.monto)}</td>
+              <td>${esc(m.torneo)}</td>
+              <td>${esc(m.cajero || '—')}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+
+  }catch(e){
+    $('historialContent').innerHTML =
+      '<div class="msg warn">'+esc(e.message)+'</div>';
+  }
+
+};
+
+$('closeHistorial').onclick = () =>
+  $('historialModal').classList.add('hidden');
 
 
 $('savePlayer').onclick=async()=>{
@@ -2234,13 +2343,68 @@ $('saveTournament').onclick=async()=>{
    CONTROL DEL DIA
 ========================= */
 
-async function loadControl(){
+let torneosHistorialCache=[];
+
+
+async function loadTorneosHistorial(){
 
   try{
 
     const r=
+      await api('/tournament/historial');
+
+    torneosHistorialCache=
+      await r.json();
+
+
+    const seleccionActual=
+      $('controlTorneoSelect').value;
+
+
+    $('controlTorneoSelect').innerHTML=
+      '<option value="">Torneo actual (hoy)</option>'+
+      torneosHistorialCache.map(
+        t=>`<option value="${esc(t.fecha)}">${esc(t.nombre)} — ${esc(t.fecha)}</option>`
+      ).join('');
+
+
+    $('controlTorneoSelect').value=
+      seleccionActual;
+
+
+  }catch(e){
+
+    console.error(
+      'Error cargando historial de torneos:',
+      e
+    );
+
+  }
+
+}
+
+
+$('controlTorneoSelect').onchange=
+  loadControl;
+
+
+async function loadControl(){
+
+  try{
+
+    const fechaSeleccionada=
+      $('controlTorneoSelect').value;
+
+
+    const query=
+      fechaSeleccionada
+        ? '?fecha='+encodeURIComponent(fechaSeleccionada)
+        : '';
+
+
+    const r=
       await api(
-        '/transactions/today'
+        '/transactions/today'+query
       );
 
 
@@ -2248,11 +2412,26 @@ async function loadControl(){
       await r.json();
 
 
+    // Si se eligio una fecha historica, mostramos el nombre de ESE
+    // torneo (buscado en el historial). Si no, el torneo activo actual.
+    const torneoDeLaFecha=
+      fechaSeleccionada
+        ? torneosHistorialCache.find(
+            t=>t.fecha===fechaSeleccionada
+          )
+        : null;
+
+
     $('controlFecha').textContent=
       'Fecha: '+
       d.fecha+
       ' · Torneo: '+
-      (config.nombre||'Sin configurar');
+      (
+        (torneoDeLaFecha
+          ? torneoDeLaFecha.nombre
+          : config.nombre)||
+        'Sin configurar'
+      );
 
 
     const s=d.stats;
@@ -2314,57 +2493,11 @@ async function loadControl(){
     `;
 
 
-    $('controlTbody').innerHTML=
-      d.transacciones.length
-        ? d.transacciones.map(
-            t=>`
-
-            <tr class="${t.anulado?'cancelled':''}">
-
-              <td>${esc(t.hora)}</td>
-
-              <td>${esc(t.dni)}</td>
-
-              <td>
-                ${esc(
-                  t.nombre+
-                  ' '+
-                  t.apellido
-                )}
-              </td>
-
-              <td>
-                ${t.anulado ? 'ANULADO · ' : ''}
-                ${t.tipo==='buyin' ? 'Buy-in' : 'Re-Entry'}
-              </td>
-
-              <td>
-                ${money(t.monto)}
-              </td>
-
-              <td>
-                ${esc(t.cajero||'—')}
-              </td>
-
-              <td>
-                ${t.anulado
-                  ? `<span class="cancelled-by">Por ${esc(t.anuladoPor||'—')}</span>`
-                  : `<button class="btn danger edit" onclick='voidTransaction(${JSON.stringify(t)})'>Anular</button>`}
-              </td>
-
-            </tr>
-
-            `
-          ).join('')
-        : '';
+    controlTransaccionesCache=
+      d.transacciones;
 
 
-    $('controlEmpty')
-      .classList
-      .toggle(
-        'hidden',
-        d.transacciones.length>0
-      );
+    aplicarFiltrosControl();
 
 
   }catch(e){
@@ -2377,6 +2510,113 @@ async function loadControl(){
   }
 
 }
+
+
+let controlTransaccionesCache=[];
+
+
+function aplicarFiltrosControl(){
+
+  const tipo=
+    $('controlFiltroTipo').value;
+
+
+  const dni=
+    $('controlFiltroDni')
+      .value
+      .replace(/\D/g,'');
+
+
+  const filtradas=
+    controlTransaccionesCache.filter(t=>{
+
+      if(tipo && t.tipo!==tipo){
+        return false;
+      }
+
+      if(dni && !t.dni.includes(dni)){
+        return false;
+      }
+
+      return true;
+
+    });
+
+
+  renderControlTabla(filtradas);
+
+}
+
+
+function renderControlTabla(lista){
+
+  $('controlTbody').innerHTML=
+    lista.length
+      ? lista.map(
+          t=>`
+
+          <tr class="${t.anulado?'cancelled':''}">
+
+            <td>${esc(t.hora)}</td>
+
+            <td>${esc(t.dni)}</td>
+
+            <td>
+              ${esc(
+                t.nombre+
+                ' '+
+                t.apellido
+              )}
+            </td>
+
+            <td>
+              ${t.anulado ? 'ANULADO · ' : ''}
+              ${t.tipo==='buyin' ? 'Buy-in' : 'Re-Entry'}
+            </td>
+
+            <td>
+              ${money(t.monto)}
+            </td>
+
+            <td>
+              ${esc(t.cajero||'—')}
+            </td>
+
+            <td>
+              ${t.anulado
+                ? `<span class="cancelled-by">Por ${esc(t.anuladoPor||'—')}</span>`
+                : `<button class="btn danger edit" onclick='voidTransaction(${JSON.stringify(t)})'>Anular</button>`}
+            </td>
+
+          </tr>
+
+          `
+        ).join('')
+      : '';
+
+
+  $('controlEmpty').textContent=
+    controlTransaccionesCache.length===0
+      ? 'Todavía no se registraron movimientos.'
+      : 'Ningún movimiento coincide con el filtro elegido.';
+
+
+  $('controlEmpty')
+    .classList
+    .toggle(
+      'hidden',
+      lista.length>0
+    );
+
+}
+
+
+$('controlFiltroTipo').onchange=
+  aplicarFiltrosControl;
+
+
+$('controlFiltroDni').oninput=
+  aplicarFiltrosControl;
 
 
 $('refreshControl').onclick=
@@ -2420,10 +2660,41 @@ async function downloadExport(type){
 
   try{
 
+    const fechaSeleccionada=
+      $('controlTorneoSelect').value;
+
+
+    // El Excel del dia (export.xlsx) siempre exporta el dia actual
+    // en el backend, asi que no tiene sentido pedirlo con una fecha
+    // historica elegida en el selector.
+    if(
+      type==='xlsx'&&
+      fechaSeleccionada
+    ){
+
+      showToast(
+        'Elegí "Torneo actual (hoy)"',
+        'El Excel del día solo exporta la jornada en curso. Para una fecha anterior, usá "Exportar CSV".',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    const query=
+      (type==='csv'&&fechaSeleccionada)
+        ? '?desde='+encodeURIComponent(fechaSeleccionada)+
+          '&hasta='+encodeURIComponent(fechaSeleccionada)
+        : '';
+
+
     const r=
       await api(
         '/transactions/export.'+
-        type
+        type+
+        query
       );
 
 
@@ -2455,7 +2726,11 @@ async function downloadExport(type){
     a.download=
       type==='xlsx'
         ? 'operaciones.xlsx'
-        : 'operaciones.csv';
+        : (
+            fechaSeleccionada
+              ? `operaciones-${fechaSeleccionada}.csv`
+              : 'operaciones.csv'
+          );
 
 
     document.body.appendChild(a);
@@ -2493,63 +2768,7 @@ $('exportCsv').onclick=
 $('exportExcel').onclick=
   ()=>downloadExport('xlsx');
 
-$('exportExcel').onclick=
-  ()=>downloadExport('xlsx');
 
-
-/* =========================
-   HISTORIAL DE JUGADOR
-========================= */
-
-window.openHistorial = async (p) => {
-
-  $('historialTitle').textContent =
-    `Historial — ${p.nombre} ${p.apellido} (DNI ${p.dni})`;
-
-  $('historialContent').innerHTML =
-    '<div class="loading">Cargando...</div>';
-
-  $('historialModal').classList.remove('hidden');
-
-  try{
-
-    const r = await api('/players/'+p._id+'/historial');
-    const d = await r.json();
-    if(!r.ok) throw new Error(d.error);
-
-    if(d.movimientos.length === 0){
-      $('historialContent').innerHTML =
-        '<div class="empty">Este jugador todavía no tiene movimientos registrados.</div>';
-      return;
-    }
-
-    $('historialContent').innerHTML = `
-      <table>
-        <thead>
-          <tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Monto</th><th>Torneo</th><th>Cajero</th></tr>
-        </thead>
-        <tbody>
-          ${d.movimientos.map(m => `
-            <tr class="${m.anulado ? 'cancelled' : ''}">
-              <td>${esc(m.fecha)}</td>
-              <td>${esc(m.hora)}</td>
-              <td>${m.anulado ? 'ANULADO · ' : ''}${m.tipo === 'buyin' ? 'Buy-in' : 'Re-Entry'}</td>
-              <td>${money(m.monto)}</td>
-              <td>${esc(m.torneo)}</td>
-              <td>${esc(m.cajero || '—')}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
-
-  }catch(e){
-    $('historialContent').innerHTML =
-      '<div class="msg warn">'+esc(e.message)+'</div>';
-  }
-
-};
-
-$('closeHistorial').onclick = () =>
-  $('historialModal').classList.add('hidden');
 /* =========================
    ARRANQUE
 ========================= */

@@ -36,7 +36,13 @@ router.get(
   requireRole('direccion'),
   async (req, res) => {
     try {
-      const today = todayStr();
+      // Si viene ?fecha=YYYY-MM-DD (valida) se usa esa fecha para
+      // consultar un dia/torneo anterior. Si no viene, se comporta
+      // como siempre: el dia de hoy segun el calendario del servidor.
+      const fechaQuery = req.query.fecha;
+      const today = (fechaQuery && /^\d{4}-\d{2}-\d{2}$/.test(fechaQuery))
+        ? fechaQuery
+        : todayStr();
 
       const txs = await Transaction
         .find({ fecha: today })

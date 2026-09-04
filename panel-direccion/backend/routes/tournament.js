@@ -51,6 +51,34 @@ router.get('/', requireAuth, async (req, res) => {
 
 
 // ======================================================
+// HISTORIAL DE TORNEOS (para el selector de Direccion)
+// ======================================================
+// Devuelve todos los torneos guardados, mas reciente primero,
+// para que Direccion pueda elegir una fecha/torneo anterior
+// y consultar su Control operativo.
+// ======================================================
+
+router.get('/historial', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    const torneos = await Tournament
+      .find({})
+      .sort({ fecha: -1, createdAt: -1 })
+      .select('nombre fecha buyIn recompra rake activo')
+      .lean();
+
+    res.json(torneos);
+
+  } catch (err) {
+    console.error('Error obteniendo historial de torneos:', err);
+
+    res.status(500).json({
+      error: 'Error al obtener el historial de torneos.'
+    });
+  }
+});
+
+
+// ======================================================
 // CREAR / ACTIVAR TORNEO
 // ======================================================
 

@@ -14,6 +14,10 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
       { nombre: { $regex: safeQ, $options: 'i' } },
       { apellido: { $regex: safeQ, $options: 'i' } }
     ] } : { activo: { $ne: false } };
+    // Orden apellido -> nombre -> dni, con comparacion locale-aware para
+    // que tildes y enie ordenen correctamente en espanol (ej: "Nuñez"
+    // despues de "Nunez", "Álvarez" junto a "Alvarez"). strength:1 ignora
+    // mayusculas/minusculas y acentos para el orden.
     const players = await Player.find(filter)
       .collation({ locale: 'es', strength: 1 })
       .sort({ apellido: 1, nombre: 1, dni: 1 })
@@ -48,15 +52,25 @@ router.put('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'Error al editar el jugador.' }); }
 });
 
+// Elimina un jugador. Si NUNCA tuvo ninguna operacion registrada (ni
+// siquiera anulada), se borra de verdad de MongoDB. Si tiene historial,
+// no se borra (romperia la trazabilidad de esas operaciones): en su
+// lugar se desactiva, igual que antes.
 router.delete('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
   try {
-    const player = await Player.findOneAndUpdate(
-      { _id: req.params.id, activo: { $ne: false } },
-      { activo: false },
-      { new: true }
-    );
+    const player = await Player.findById(req.params.id);
     if (!player) return res.status(404).json({ error: 'Jugador no encontrado.' });
-    res.json({ ok: true });
+
+    const tieneOperaciones = await Transaction.exists({ dni: player.dni });
+
+    if (tieneOperaciones) {
+      await Player.findByIdAndUpdate(req.params.id, { activo: false });
+      return res.json({ ok: true, borradoReal: false });
+    }
+
+    await Player.deleteOne({ _id: req.params.id });
+    res.json({ ok: true, borradoReal: true });
+
   } catch (err) { res.status(500).json({ error: 'Error al eliminar el jugador.' }); }
 });
 
