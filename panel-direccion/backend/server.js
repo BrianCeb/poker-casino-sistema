@@ -28,6 +28,7 @@ async function startServer(port) {
   app.use('/api/tournament', tournamentRouter);
   app.use('/api/transactions', transactionsRouter);
   app.use('/api/reports', require('./routes/reports'));
+  app.use('/api/pagadores', require('./routes/pagadores'));
 
   // Panel Gerencia: se accede por su propia URL (no por Electron), ya
   // que es de uso exclusivo para el rol gerencia. Se sirve SOLO este

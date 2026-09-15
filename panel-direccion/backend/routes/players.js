@@ -9,11 +9,13 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
   try {
     const q = String(req.query.q || '').trim();
     const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const filter = q ? { activo: { $ne: false }, $or: [
-      { dni: { $regex: safeQ, $options: 'i' } },
-      { nombre: { $regex: safeQ, $options: 'i' } },
-      { apellido: { $regex: safeQ, $options: 'i' } }
-    ] } : { activo: { $ne: false } };
+    const filter = q ? {
+      activo: { $ne: false }, $or: [
+        { dni: { $regex: safeQ, $options: 'i' } },
+        { nombre: { $regex: safeQ, $options: 'i' } },
+        { apellido: { $regex: safeQ, $options: 'i' } }
+      ]
+    } : { activo: { $ne: false } };
     // Orden apellido -> nombre -> dni, con comparacion locale-aware para
     // que tildes y enie ordenen correctamente en espanol (ej: "Nuñez"
     // despues de "Nunez", "Álvarez" junto a "Alvarez"). strength:1 ignora
@@ -24,6 +26,47 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
       .lean();
     res.json(players);
   } catch (err) { res.status(500).json({ error: 'Error al listar jugadores.' }); }
+});
+
+
+// NUEVO: estadisticas acumuladas por jugador (para la pestana de ranking)
+// - totalGastado: suma de todas las compras (buy-in + re-entries) no anuladas
+// - operaciones: cantidad total de compras
+// - recurrencia: cantidad de fechas operativas DISTINTAS en las que jugo
+// - ultimaFecha: la fecha operativa mas reciente en la que jugo
+router.get('/estadisticas', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    const stats = await Transaction.aggregate([
+      { $match: { anulado: { $ne: true } } },
+      {
+        $group: {
+          _id: '$dni',
+          nombre: { $last: '$nombre' },
+          apellido: { $last: '$apellido' },
+          totalGastado: { $sum: '$monto' },
+          operaciones: { $sum: 1 },
+          fechasDistintas: { $addToSet: '$fecha' },
+          ultimaFecha: { $max: '$fecha' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          dni: '$_id',
+          nombre: 1,
+          apellido: 1,
+          totalGastado: 1,
+          operaciones: 1,
+          recurrencia: { $size: '$fechasDistintas' },
+          ultimaFecha: 1
+        }
+      },
+      { $sort: { apellido: 1 } }
+    ]);
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener las estadísticas.' });
+  }
 });
 
 router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {

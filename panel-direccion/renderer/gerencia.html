@@ -1,230 +1,647 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Gerencia — Torneo de Poker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0E1A15;--panel:#152420;--panel-2:#1B2E27;--border:#2B3E36;--border-2:#3A5148;
-    --gold:#C9A227;--gold-light:#E4C55E;--green:#3E8E63;--green-light:#5FB183;
-    --text:#F2EDE1;--text-dim:#9FB0A6;--danger:#C1503A;--danger-light:#E0755F;--radius:10px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;}
-  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
+  <title>Panel Gerencia — Torneo de Poker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0E1A15;
+      --panel: #152420;
+      --panel-2: #1B2E27;
+      --border: #2B3E36;
+      --border-2: #3A5148;
+      --gold: #C9A227;
+      --gold-light: #E4C55E;
+      --green: #3E8E63;
+      --green-light: #5FB183;
+      --text: #F2EDE1;
+      --text-dim: #9FB0A6;
+      --danger: #C1503A;
+      --danger-light: #E0755F;
+      --radius: 10px;
+    }
 
-  /* Login */
-  #loginBox{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
-  .login-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:32px 28px;}
-  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);text-align:center;display:block;margin-bottom:6px;}
-  .login-card h1{font-family:'Bebas Neue',sans-serif;font-size:28px;text-align:center;margin:0 0 24px;}
-  label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;font-weight:500;}
-  input{width:100%;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;color:var(--text);padding:12px 14px;font-size:15px;font-family:'Inter',sans-serif;margin-bottom:14px;}
-  input:focus{outline:none;border-color:var(--gold);}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border-2);background:var(--panel-2);color:var(--text);padding:11px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
-  .btn-gold{background:var(--gold);border-color:var(--gold);color:#2A2000;width:100%;padding:13px;}
-  .btn-gold:hover{background:var(--gold-light);}
-  .msg-warn{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;background:rgba(193,80,58,.14);border:1px solid var(--danger);color:var(--danger-light);}
+    * {
+      box-sizing: border-box;
+    }
 
-  /* Dashboard */
-  header.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-2);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
-  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.03em;margin:0;line-height:1;}
-  .btn-logout{background:none;border:1px solid var(--border-2);color:var(--text-dim);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-  .filtros{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:24px;}
-  .filtros div{min-width:150px;}
-  .filtros input[type=date]{margin-bottom:0;}
-  .chip-rango{display:flex;gap:6px;}
-  .chip-rango button{background:var(--panel-2);border:1px solid var(--border-2);color:var(--text-dim);border-radius:999px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;}
-  .chip-rango button.active{border-color:var(--gold);color:var(--gold-light);}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+    }
 
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px;}
-  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
-  .kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:8px;}
-  .kpi .val{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;color:var(--gold-light);}
-  .kpi .sub{font-size:12px;color:var(--text-dim);margin-top:4px;}
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
 
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:18px;}
-  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.03em;margin:0 0 18px;}
-  .chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding-top:10px;}
-  .chart .barra-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
-  .chart .barra{width:100%;max-width:36px;background:linear-gradient(180deg,var(--gold-light),var(--gold));border-radius:4px 4px 0 0;min-height:2px;}
-  .chart .barra-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:6px;white-space:nowrap;}
-  .chart .barra-valor{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold-light);margin-bottom:4px;}
-  .loading{color:var(--text-dim);font-size:13px;padding:20px 0;text-align:center;}
-  .hidden{display:none !important;}
-</style>
+    /* Login */
+    #loginBox {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 28px;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .login-card h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      text-align: center;
+      margin: 0 0 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--border-2);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2A2000;
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-light);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .msg-warn {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: rgba(193, 80, 58, .14);
+      border: 1px solid var(--danger);
+      color: var(--danger-light);
+    }
+
+    /* Dashboard */
+    header.top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-2);
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: .03em;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border-2);
+      color: var(--text-dim);
+      border-radius: 8px;
+      padding: 11px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .filtros div {
+      min-width: 150px;
+    }
+
+    .filtros input[type=date] {
+      margin-bottom: 0;
+    }
+
+    .chip-rango {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chip-rango button {
+      background: var(--panel-2);
+      border: 1px solid var(--border-2);
+      color: var(--text-dim);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chip-rango button.active {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      min-width: 0;
+    }
+
+    .kpi .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .kpi .val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: clamp(16px, 4vw, 28px);
+      font-weight: 600;
+      color: var(--gold-light);
+      overflow-wrap: break-word;
+      word-break: break-word;
+      line-height: 1.2;
+    }
+
+    .kpi .sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 18px;
+    }
+
+    .panel h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: .03em;
+      margin: 0 0 18px;
+    }
+
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 180px;
+      padding-top: 10px;
+    }
+
+    .chart .barra-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+    }
+
+    .chart .barra {
+      width: 100%;
+      max-width: 36px;
+      background: linear-gradient(180deg, var(--gold-light), var(--gold));
+      border-radius: 4px 4px 0 0;
+      min-height: 2px;
+    }
+
+    .chart .barra-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+
+    .chart .barra-valor {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gold-light);
+      margin-bottom: 4px;
+    }
+
+    .loading {
+      color: var(--text-dim);
+      font-size: 13px;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stacked-bar {
+      display: flex;
+      height: 38px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .stacked-bar .segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0E1A15;
+      white-space: nowrap;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .stacked-legend {
+      display: flex;
+      gap: 18px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-dim);
+      flex-wrap: wrap;
+    }
+
+    .stacked-legend .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="loginBox">
-  <div class="login-card">
-    <span class="eyebrow">Sistema de torneos</span>
-    <h1>Panel Gerencia</h1>
-    <label>Usuario</label>
-    <input type="text" id="username" autocomplete="username">
-    <label>Contraseña</label>
-    <input type="password" id="password" autocomplete="current-password">
-    <button class="btn btn-gold" id="btnLogin" type="button">Ingresar</button>
-    <div id="loginMsg"></div>
-  </div>
-</div>
-
-<div id="dashBox" class="wrap hidden">
-  <header class="top">
-    <div class="brand"><span class="eyebrow" style="display:block;margin-bottom:4px;">Resumen ejecutivo</span><h1>Panel Gerencia</h1></div>
-    <button class="btn-logout" id="btnLogout" type="button">Salir</button>
-  </header>
-
-  <div class="filtros">
-    <div class="chip-rango">
-      <button data-dias="7" class="active" type="button">7 días</button>
-      <button data-dias="30" type="button">30 días</button>
-      <button data-dias="90" type="button">90 días</button>
+  <div id="loginBox">
+    <div class="login-card">
+      <span class="eyebrow">Sistema de torneos</span>
+      <h1>Panel Gerencia</h1>
+      <label>Usuario</label>
+      <input type="text" id="username" autocomplete="username">
+      <label>Contraseña</label>
+      <input type="password" id="password" autocomplete="current-password">
+      <button class="btn btn-gold btn-block" id="btnLogin" type="button">Ingresar</button>
+      <div id="loginMsg"></div>
     </div>
-    <div><label>Desde</label><input type="date" id="fDesde"></div>
-    <div><label>Hasta</label><input type="date" id="fHasta"></div>
-    <div><button class="btn btn-gold" id="btnAplicar" type="button">Aplicar</button></div>
   </div>
 
-  <div id="contenido">
-    <div class="loading">Cargando datos...</div>
+  <div id="dashBox" class="wrap hidden">
+    <header class="top">
+      <div class="brand"><span class="eyebrow" style="display:block;margin-bottom:4px;">Resumen ejecutivo</span>
+        <h1>Panel Gerencia</h1>
+      </div>
+      <button class="btn-logout" id="btnLogout" type="button">Salir</button>
+    </header>
+
+    <div class="filtros">
+      <div class="chip-rango">
+        <button data-dias="7" class="active" type="button">7 días</button>
+        <button data-dias="30" type="button">30 días</button>
+        <button data-dias="90" type="button">90 días</button>
+      </div>
+      <div><label>Desde</label><input type="date" id="fDesde"></div>
+      <div><label>Hasta</label><input type="date" id="fHasta"></div>
+      <div><button class="btn btn-gold" id="btnAplicar" type="button">Aplicar</button></div>
+    </div>
+
+    <div id="contenido">
+      <div class="loading">Cargando datos...</div>
+    </div>
   </div>
-</div>
 
-<script>
-const API = window.location.protocol === 'file:' ? 'http://127.0.0.1:4001/api' : '/api';
+  <script>
+    const API = window.location.protocol === 'file:' ? 'http://127.0.0.1:4001/api' : '/api';
 
-function money(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
-function pad(n){ return String(n).padStart(2,'0'); }
-function fechaStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+    function money(n) { return '$' + (Number(n) || 0).toLocaleString('es-AR'); }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function fechaStr(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 
-let token = sessionStorage.getItem('gerencia_token');
+    let token = sessionStorage.getItem('gerencia_token');
+    let ultimoResumenData = null;
+    let gerenciaOrden = { campo: 'fecha', asc: false };
 
-function mostrarLogin(){
-  document.getElementById('loginBox').classList.remove('hidden');
-  document.getElementById('dashBox').classList.add('hidden');
-}
-function mostrarDashboard(){
-  document.getElementById('loginBox').classList.add('hidden');
-  document.getElementById('dashBox').classList.remove('hidden');
-  inicializarFechas();
-  cargarResumen();
-}
+    function thSort(campo, label) {
+      const activo = gerenciaOrden.campo === campo;
+      const arrow = activo ? (gerenciaOrden.asc ? ' ▲' : ' ▼') : ' ⇅';
+      const color = activo ? 'color:var(--gold-light);' : '';
+      return `<th style="padding:8px 10px;border-bottom:1px solid var(--border-2);cursor:pointer;${color}" data-sort="${campo}">${label}${arrow}</th>`;
+    }
 
-document.getElementById('btnLogin').addEventListener('click', async ()=>{
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const msgBox = document.getElementById('loginMsg');
-  msgBox.innerHTML = '';
-  if(!username || !password){ msgBox.innerHTML = '<div class="msg-warn">Completá usuario y contraseña.</div>'; return; }
+    function sortTorneos(lista, orden) {
+      const copia = [...lista];
+      copia.sort((a, b) => {
+        let va = a[orden.campo], vb = b[orden.campo];
+        if (orden.campo === 'fecha') { va = va || ''; vb = vb || ''; }
+        if (va < vb) return orden.asc ? -1 : 1;
+        if (va > vb) return orden.asc ? 1 : -1;
+        return 0;
+      });
+      return copia;
+    }
 
-  try{
-    const r = await fetch(API+'/auth/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ username, password, panel: 'gerencia' })
+    // Un solo listener, enganchado al contenedor estable (no se re-crea en
+    // cada render, solo cambia lo de adentro) - asi el click funciona
+    // siempre, sin importar cuantas veces se redibuje la tabla.
+    document.getElementById('contenido').addEventListener('click', (e) => {
+      const th = e.target.closest('th[data-sort]');
+      if (!th || !ultimoResumenData) return;
+      const campo = th.dataset.sort;
+      if (gerenciaOrden.campo === campo) {
+        gerenciaOrden.asc = !gerenciaOrden.asc;
+      } else {
+        gerenciaOrden = { campo, asc: false };
+      }
+      renderDashboard(ultimoResumenData);
     });
-    const data = await r.json();
-    if(!r.ok){ msgBox.innerHTML = '<div class="msg-warn">'+(data.error||'No se pudo iniciar sesión.')+'</div>'; return; }
-    token = data.token;
-    sessionStorage.setItem('gerencia_token', token);
-    mostrarDashboard();
-  }catch(e){
-    msgBox.innerHTML = '<div class="msg-warn">No se pudo conectar con el servidor.</div>';
-  }
-});
 
-document.getElementById('btnLogout').addEventListener('click', ()=>{
-  sessionStorage.removeItem('gerencia_token');
-  token = null;
-  mostrarLogin();
-});
+    function mostrarLogin() {
+      document.getElementById('loginBox').classList.remove('hidden');
+      document.getElementById('dashBox').classList.add('hidden');
+    }
+    function mostrarDashboard() {
+      document.getElementById('loginBox').classList.add('hidden');
+      document.getElementById('dashBox').classList.remove('hidden');
+      inicializarFechas();
+      cargarResumen();
+    }
 
-function inicializarFechas(){
-  const hoy = new Date();
-  const hace7 = new Date(); hace7.setDate(hoy.getDate()-6);
-  document.getElementById('fHasta').value = fechaStr(hoy);
-  document.getElementById('fDesde').value = fechaStr(hace7);
-}
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const msgBox = document.getElementById('loginMsg');
+      msgBox.innerHTML = '';
+      if (!username || !password) { msgBox.innerHTML = '<div class="msg-warn">Completá usuario y contraseña.</div>'; return; }
 
-document.querySelectorAll('.chip-rango button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.chip-rango button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const dias = Number(btn.dataset.dias);
-    const hoy = new Date();
-    const desde = new Date(); desde.setDate(hoy.getDate()-(dias-1));
-    document.getElementById('fHasta').value = fechaStr(hoy);
-    document.getElementById('fDesde').value = fechaStr(desde);
-    cargarResumen();
-  });
-});
-document.getElementById('btnAplicar').addEventListener('click', cargarResumen);
-
-async function cargarResumen(){
-  const contenido = document.getElementById('contenido');
-  contenido.innerHTML = '<div class="loading">Cargando datos...</div>';
-  const desde = document.getElementById('fDesde').value;
-  const hasta = document.getElementById('fHasta').value;
-
-  try{
-    const r = await fetch(`${API}/reports/resumen?desde=${desde}&hasta=${hasta}`, {
-      headers: { 'Authorization': 'Bearer '+token }
+      try {
+        const r = await fetch(API + '/auth/login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, panel: 'gerencia' })
+        });
+        const data = await r.json();
+        if (!r.ok) { msgBox.innerHTML = '<div class="msg-warn">' + (data.error || 'No se pudo iniciar sesión.') + '</div>'; return; }
+        token = data.token;
+        sessionStorage.setItem('gerencia_token', token);
+        mostrarDashboard();
+      } catch (e) {
+        msgBox.innerHTML = '<div class="msg-warn">No se pudo conectar con el servidor.</div>';
+      }
     });
-    if(r.status === 401){ sessionStorage.removeItem('gerencia_token'); mostrarLogin(); return; }
-    const data = await r.json();
-    if(!r.ok){ contenido.innerHTML = '<div class="loading">No se pudo cargar el resumen.</div>'; return; }
-    renderDashboard(data);
-  }catch(e){
-    contenido.innerHTML = '<div class="loading">No se pudo conectar con el servidor.</div>';
-  }
-}
 
-function renderDashboard(data){
-  const contenido = document.getElementById('contenido');
-  const maxTotal = Math.max(1, ...data.serieDiaria.map(d=>d.total));
-  const maxJug = Math.max(1, ...data.serieDiaria.map(d=>d.jugadores));
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      sessionStorage.removeItem('gerencia_token');
+      token = null;
+      mostrarLogin();
+    });
 
-  contenido.innerHTML = `
+    function inicializarFechas() {
+      const hoy = new Date();
+      const hace7 = new Date(); hace7.setDate(hoy.getDate() - 6);
+      document.getElementById('fHasta').value = fechaStr(hoy);
+      document.getElementById('fDesde').value = fechaStr(hace7);
+    }
+
+    document.querySelectorAll('.chip-rango button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.chip-rango button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const dias = Number(btn.dataset.dias);
+        const hoy = new Date();
+        const desde = new Date(); desde.setDate(hoy.getDate() - (dias - 1));
+        document.getElementById('fHasta').value = fechaStr(hoy);
+        document.getElementById('fDesde').value = fechaStr(desde);
+        cargarResumen();
+      });
+    });
+    document.getElementById('btnAplicar').addEventListener('click', cargarResumen);
+
+    async function cargarResumen() {
+      const contenido = document.getElementById('contenido');
+      contenido.innerHTML = '<div class="loading">Cargando datos...</div>';
+      const desde = document.getElementById('fDesde').value;
+      const hasta = document.getElementById('fHasta').value;
+
+      try {
+        const r = await fetch(`${API}/reports/resumen?desde=${desde}&hasta=${hasta}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (r.status === 401) { sessionStorage.removeItem('gerencia_token'); mostrarLogin(); return; }
+        const data = await r.json();
+        if (!r.ok) { contenido.innerHTML = '<div class="loading">No se pudo cargar el resumen.</div>'; return; }
+        ultimoResumenData = data;
+        renderDashboard(data);
+      } catch (e) {
+        contenido.innerHTML = '<div class="loading">No se pudo conectar con el servidor.</div>';
+      }
+    }
+
+    function renderDashboard(data) {
+      const contenido = document.getElementById('contenido');
+
+      // Los torneos se juegan solo domingos por ahora - un grafico "por
+      // dia" queda lleno de huecos. Se grafica "por torneo" en su lugar,
+      // en orden cronologico (el mas viejo a la izquierda).
+      const torneosOrdenados = [...data.torneosDetalle].reverse();
+      const maxRecaudado = Math.max(1, ...torneosOrdenados.map(t => t.recaudado));
+      const maxJugadores = Math.max(1, ...torneosOrdenados.map(t => t.jugadores || 0));
+
+      const totalRP = data.rakeAcumulado + data.premiosEntregados;
+      const pctRake = totalRP > 0 ? Math.round((data.rakeAcumulado / totalRP) * 100) : 0;
+      const pctPremios = 100 - pctRake;
+
+      const totalNR = data.jugadoresNuevos + data.jugadoresRecurrentes;
+      const pctNuevos = totalNR > 0 ? Math.round((data.jugadoresNuevos / totalNR) * 100) : 0;
+      const pctRecurrentes = 100 - pctNuevos;
+
+      contenido.innerHTML = `
     <div class="kpis">
       <div class="kpi"><div class="label">Total recaudado</div><div class="val">${money(data.totalRecaudado)}</div></div>
+      <div class="kpi"><div class="label">Rake (comisión)</div><div class="val">${money(data.rakeAcumulado)}</div></div>
+      <div class="kpi"><div class="label">Premios entregados</div><div class="val">${money(data.premiosEntregados)}</div></div>
       <div class="kpi"><div class="label">Jugadores en el período</div><div class="val">${data.totalJugadores}</div></div>
       <div class="kpi"><div class="label">Jugadores nuevos</div><div class="val">${data.jugadoresNuevos}</div><div class="sub">${data.jugadoresRecurrentes} recurrentes</div></div>
       <div class="kpi"><div class="label">Buy-ins</div><div class="val">${data.buyins}</div></div>
       <div class="kpi"><div class="label">Re-Entries</div><div class="val">${data.recompras}</div></div>
+      <div class="kpi"><div class="label">Tasa de recompra</div><div class="val">${data.tasaRecompra}%</div><div class="sub">de los que hicieron buy-in, volvieron a comprar</div></div>
     </div>
 
     <div class="panel">
-      <h2>Recaudación por día</h2>
+      <h2>Composición del recaudado</h2>
+      ${totalRP === 0 ? '<div class="loading">Sin movimientos en este período.</div>' : `
+        <div class="stacked-bar">
+          <div class="segment" style="width:${pctRake}%;background:linear-gradient(180deg,#E0755F,#C1503A);">${pctRake > 8 ? pctRake + '%' : ''}</div>
+          <div class="segment" style="width:${pctPremios}%;background:linear-gradient(180deg,var(--gold-light),var(--gold));">${pctPremios > 8 ? pctPremios + '%' : ''}</div>
+        </div>
+        <div class="stacked-legend">
+          <span><span class="dot" style="background:#C1503A;"></span>Rake — ${money(data.rakeAcumulado)} (${pctRake}%)</span>
+          <span><span class="dot" style="background:var(--gold);"></span>Premios — ${money(data.premiosEntregados)} (${pctPremios}%)</span>
+        </div>
+      `}
+    </div>
+
+    <div class="panel">
+      <h2>Nuevos vs. recurrentes</h2>
+      ${totalNR === 0 ? '<div class="loading">Sin jugadores en este período.</div>' : `
+        <div class="stacked-bar">
+          <div class="segment" style="width:${pctNuevos}%;background:linear-gradient(180deg,var(--green-light),var(--green));">${pctNuevos > 8 ? pctNuevos + '%' : ''}</div>
+          <div class="segment" style="width:${pctRecurrentes}%;background:linear-gradient(180deg,var(--gold-light),var(--gold));">${pctRecurrentes > 8 ? pctRecurrentes + '%' : ''}</div>
+        </div>
+        <div class="stacked-legend">
+          <span><span class="dot" style="background:var(--green);"></span>Nuevos — ${data.jugadoresNuevos} (${pctNuevos}%)</span>
+          <span><span class="dot" style="background:var(--gold);"></span>Recurrentes — ${data.jugadoresRecurrentes} (${pctRecurrentes}%)</span>
+        </div>
+      `}
+    </div>
+
+    <div class="panel">
+      <h2>Recaudación por torneo</h2>
       <div class="chart">
-        ${data.serieDiaria.map(d => `
+        ${torneosOrdenados.map(t => `
           <div class="barra-wrap">
-            <div class="barra-valor">${d.total >= 1000 ? Math.round(d.total/1000)+'k' : d.total}</div>
-            <div class="barra" style="height:${Math.max(4, (d.total/maxTotal)*140)}px"></div>
-            <div class="barra-label">${d.fecha.slice(5)}</div>
-          </div>`).join('') || '<div class="loading">Sin movimientos en este período.</div>'}
+            <div class="barra-valor">${t.recaudado >= 1000 ? Math.round(t.recaudado / 1000) + 'k' : t.recaudado}</div>
+            <div class="barra" style="height:${Math.max(4, (t.recaudado / maxRecaudado) * 140)}px" title="${t.nombre}"></div>
+            <div class="barra-label">${(t.fecha || '').slice(5)}</div>
+          </div>`).join('') || '<div class="loading">Sin torneos en este período.</div>'}
       </div>
     </div>
 
     <div class="panel">
-      <h2>Jugadores por día</h2>
+      <h2>Jugadores por torneo</h2>
       <div class="chart">
-        ${data.serieDiaria.map(d => `
+        ${torneosOrdenados.map(t => `
           <div class="barra-wrap">
-            <div class="barra-valor">${d.jugadores}</div>
-            <div class="barra" style="height:${Math.max(4, (d.jugadores/maxJug)*140)}px;background:linear-gradient(180deg,var(--green-light),var(--green));"></div>
-            <div class="barra-label">${d.fecha.slice(5)}</div>
-          </div>`).join('') || '<div class="loading">Sin movimientos en este período.</div>'}
+            <div class="barra-valor">${t.jugadores || 0}</div>
+            <div class="barra" style="height:${Math.max(4, ((t.jugadores || 0) / maxJugadores) * 140)}px;background:linear-gradient(180deg,var(--green-light),var(--green));" title="${t.nombre}"></div>
+            <div class="barra-label">${(t.fecha || '').slice(5)}</div>
+          </div>`).join('') || '<div class="loading">Sin torneos en este período.</div>'}
       </div>
+    </div>
+
+    <div class="panel">
+      <h2>Detalle por torneo</h2>
+      ${data.torneosDetalle.length === 0 ? '<div class="loading">Sin torneos en este período.</div>' : `
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="text-align:left;color:var(--text-dim);font-size:11px;text-transform:uppercase;">
+            ${thSort('nombre', 'Torneo')}
+            ${thSort('fecha', 'Fecha')}
+            ${thSort('recaudado', 'Recaudado')}
+            ${thSort('rake', 'Rake')}
+            ${thSort('premios', 'Premios')}
+          </tr>
+        </thead>
+        <tbody>
+          ${sortTorneos(data.torneosDetalle, gerenciaOrden).map(t => `
+            <tr>
+              <td style="padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;">${t.nombre}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;">${t.fecha || '—'}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;">${money(t.recaudado)}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;">${money(t.rake)}</td>
+              <td style="padding:9px 10px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;color:var(--gold-light);">${money(t.premios)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`}
     </div>
   `;
-}
+    }
 
-if(token){ mostrarDashboard(); } else { mostrarLogin(); }
-</script>
+    if (token) { mostrarDashboard(); } else { mostrarLogin(); }
+  </script>
 </body>
+
 </html>

@@ -1,1373 +1,1606 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>Panel Dirección — Torneo de Poker</title>
+  <meta charset="UTF-8">
+  <title>Panel Dirección — Torneo de Poker</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
-<style>
-:root{
-  --bg:#0E1A15;
-  --panel:#152420;
-  --panel2:#1B2E27;
-  --border:#2B3E36;
-  --border2:#3A5148;
-  --gold:#C9A227;
-  --gold2:#E4C55E;
-  --green:#3E8E63;
-  --green2:#5FB183;
-  --text:#F2EDE1;
-  --dim:#9FB0A6;
-  --danger:#C1503A;
-  --danger2:#E0755F
-}
+  <style>
+    :root {
+      --bg: #0E1A15;
+      --panel: #152420;
+      --panel2: #1B2E27;
+      --border: #2B3E36;
+      --border2: #3A5148;
+      --gold: #C9A227;
+      --gold2: #E4C55E;
+      --green: #3E8E63;
+      --green2: #5FB183;
+      --text: #F2EDE1;
+      --dim: #9FB0A6;
+      --danger: #C1503A;
+      --danger2: #E0755F
+    }
 
-*{box-sizing:border-box}
+    * {
+      box-sizing: border-box
+    }
 
-html,body{
-  margin:0;
-  padding:0
-}
+    html,
+    body {
+      margin: 0;
+      padding: 0
+    }
 
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter,system-ui,sans-serif;
-  min-height:100vh
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh
+    }
 
-.wrap{
-  max-width:1100px;
-  margin:auto;
-  padding:24px 20px 60px
-}
+    .wrap {
+      max-width: 1100px;
+      margin: auto;
+      padding: 24px 20px 60px
+    }
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid var(--border2);
-  padding-bottom:18px;
-  margin-bottom:22px;
-  gap:15px
-}
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border2);
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      gap: 15px
+    }
 
-.eyebrow{
-  font:11px 'IBM Plex Mono';
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--gold)
-}
+    .eyebrow {
+      font: 11px 'IBM Plex Mono';
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--gold)
+    }
 
-h1{
-  font:34px 'Bebas Neue';
-  margin:0
-}
+    h1 {
+      font: 34px 'Bebas Neue';
+      margin: 0
+    }
 
-h2{
-  font:22px 'Bebas Neue';
-  margin:0 0 4px
-}
+    h2 {
+      font: 22px 'Bebas Neue';
+      margin: 0 0 4px
+    }
 
-.conn{
-  font:12px 'IBM Plex Mono';
-  color:var(--dim)
-}
+    .conn {
+      font: 12px 'IBM Plex Mono';
+      color: var(--dim)
+    }
 
-.dot{
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  display:inline-block;
-  background:var(--dim);
-  margin-right:6px
-}
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--dim);
+      margin-right: 6px
+    }
 
-.dot.ok{background:var(--green2)}
-.dot.err{background:var(--danger2)}
+    .dot.ok {
+      background: var(--green2)
+    }
 
-.chip{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:999px;
-  padding:8px 16px;
-  font:13px 'IBM Plex Mono';
-  color:var(--dim);
-  margin-bottom:22px
-}
+    .dot.err {
+      background: var(--danger2)
+    }
 
-.chip b{
-  color:var(--gold2)
-}
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font: 13px 'IBM Plex Mono';
+      color: var(--dim);
+      margin-bottom: 22px
+    }
 
-nav{
-  display:flex;
-  gap:2px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:24px
-}
+    .chip b {
+      color: var(--gold2)
+    }
 
-nav button{
-  background:none;
-  border:0;
-  color:var(--dim);
-  font:19px 'Bebas Neue';
-  padding:10px 20px;
-  cursor:pointer;
-  border-bottom:3px solid transparent
-}
+    nav {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px
+    }
 
-nav button.active{
-  color:var(--gold2);
-  border-bottom-color:var(--gold)
-}
+    nav button {
+      background: none;
+      border: 0;
+      color: var(--dim);
+      font: 19px 'Bebas Neue';
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent
+    }
 
-.panel{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:22px 24px;
-  margin-bottom:18px
-}
+    nav button.active {
+      color: var(--gold2);
+      border-bottom-color: var(--gold)
+    }
 
-.sub{
-  font-size:13px;
-  color:var(--dim);
-  margin:0 0 18px
-}
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 18px
+    }
 
-.row{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap
-}
+    .sub {
+      font-size: 13px;
+      color: var(--dim);
+      margin: 0 0 18px
+    }
 
-.field{
-  flex:1;
-  min-width:150px
-}
+    .row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap
+    }
 
-label{
-  display:block;
-  font-size:12px;
-  color:var(--dim);
-  margin-bottom:5px
-}
+    .field {
+      flex: 1;
+      min-width: 150px
+    }
 
-input{
-  width:100%;
-  background:var(--bg);
-  border:1px solid var(--border2);
-  border-radius:8px;
-  color:var(--text);
-  padding:10px 12px;
-  font-size:14px
-}
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--dim);
+      margin-bottom: 5px
+    }
 
-input:focus{
-  outline:none;
-  border-color:var(--gold)
-}
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px
+    }
 
-button.btn{
-  border:1px solid var(--border2);
-  background:var(--panel2);
-  color:var(--text);
-  padding:11px 18px;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer
-}
+    input:focus {
+      outline: none;
+      border-color: var(--gold)
+    }
 
-button.btn:hover{
-  border-color:var(--gold)
-}
+    button.btn {
+      border: 1px solid var(--border2);
+      background: var(--panel2);
+      color: var(--text);
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer
+    }
 
-.gold{
-  background:var(--gold)!important;
-  color:#2A2000!important;
-  border-color:var(--gold)!important
-}
+    button.btn:hover {
+      border-color: var(--gold)
+    }
 
-.green{
-  background:var(--green)!important
-}
+    .gold {
+      background: var(--gold) !important;
+      color: #2A2000 !important;
+      border-color: var(--gold) !important
+    }
 
-.danger{
-  color:var(--danger2)
-}
+    .green {
+      background: var(--green) !important
+    }
 
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap
-}
+    .danger {
+      color: var(--danger2)
+    }
 
-.msg{
-  padding:13px 15px;
-  border-radius:8px;
-  font-size:14px;
-  margin-top:12px
-}
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
 
-.info{
-  background:rgba(63,142,99,.12);
-  border:1px solid var(--green);
-  color:var(--green2)
-}
+    .msg {
+      padding: 13px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 12px
+    }
 
-.warn{
-  background:rgba(193,80,58,.14);
-  border:1px solid var(--danger);
-  color:var(--danger2)
-}
+    .info {
+      background: rgba(63, 142, 99, .12);
+      border: 1px solid var(--green);
+      color: var(--green2)
+    }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px
-}
+    .warn {
+      background: rgba(193, 80, 58, .14);
+      border: 1px solid var(--danger);
+      color: var(--danger2)
+    }
 
-th{
-  text-align:left;
-  color:var(--dim);
-  font-size:11px;
-  text-transform:uppercase;
-  padding:8px 10px;
-  border-bottom:1px solid var(--border2)
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
 
-td{
-  padding:9px 10px;
-  border-bottom:1px solid var(--border);
-  font-family:'IBM Plex Mono'
-}
+    th {
+      text-align: left;
+      color: var(--dim);
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border2)
+    }
 
-td .edit{
-  padding:6px 10px;
-  font-size:12px
-}
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono'
+    }
 
-tr.cancelled{
-  opacity:.62
-}
+    td .edit {
+      padding: 6px 10px;
+      font-size: 12px
+    }
 
-.cancelled-by{
-  color:var(--danger2);
-  font:11px 'IBM Plex Mono'
-}
+    tr.cancelled {
+      opacity: .62
+    }
 
-.stats{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:12px;
-  margin-bottom:20px
-}
+    .cancelled-by {
+      color: var(--danger2);
+      font: 11px 'IBM Plex Mono'
+    }
 
-.stat{
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:14px 16px
-}
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px
+    }
 
-.stat .label{
-  font-size:11px;
-  text-transform:uppercase
-}
+    .stat {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px
+    }
 
-.val{
-  font:22px 'IBM Plex Mono';
-  color:var(--gold2)
-}
+    .stat .label {
+      font-size: 11px;
+      text-transform: uppercase
+    }
 
-.hidden{
-  display:none
-}
+    .val {
+      font: 22px 'IBM Plex Mono';
+      color: var(--gold2)
+    }
 
-.login{
-  max-width:420px;
-  margin:12vh auto
-}
+    .hidden {
+      display: none
+    }
 
-.login h1{
-  text-align:center
-}
+    .login {
+      max-width: 420px;
+      margin: 12vh auto
+    }
 
-.login .brand{
-  text-align:center;
-  margin-bottom:25px
-}
+    .login h1 {
+      text-align: center
+    }
 
-.loginbox{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:28px
-}
+    .login .brand {
+      text-align: center;
+      margin-bottom: 25px
+    }
 
-.loginbox .field{
-  margin-bottom:15px
-}
+    .loginbox {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px
+    }
 
-.right{
-  margin-left:auto
-}
+    .loginbox .field {
+      margin-bottom: 15px
+    }
 
-.userbar{
-  font:12px 'IBM Plex Mono';
-  color:var(--dim);
-  display:flex;
-  align-items:center;
-  gap:10px
-}
+    .right {
+      margin-left: auto
+    }
 
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px
-}
+    .userbar {
+      font: 12px 'IBM Plex Mono';
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
 
-.modal.hidden{
-  display:none
-}
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px
+    }
 
-.modalbox{
-  width:min(520px,100%);
-  background:var(--panel);
-  border:1px solid var(--border2);
-  border-radius:10px;
-  padding:24px
-}
+    .modal.hidden {
+      display: none
+    }
 
-/* =========================================
+    .modalbox {
+      width: min(520px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 24px
+    }
+
+    /* =========================================
    MODAL DE CONFIRMACION
 ========================================= */
 
-.modal-title{
-  font:26px 'Bebas Neue';
-  margin:0 0 10px
-}
+    .modal-title {
+      font: 26px 'Bebas Neue';
+      margin: 0 0 10px
+    }
 
-.modal-text{
-  color:var(--dim);
-  font-size:14px;
-  line-height:1.5;
-  margin-bottom:22px
-}
+    .modal-text {
+      color: var(--dim);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 22px
+    }
 
-.modal-actions{
-  display:flex;
-  gap:10px;
-  justify-content:flex-end
-}
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end
+    }
 
-.modal-actions button{
-  min-width:110px
-}
+    .modal-actions button {
+      min-width: 110px
+    }
 
-.btn-cancel{
-  background:var(--panel2)
-}
+    .btn-cancel {
+      background: var(--panel2)
+    }
 
-.btn-confirm{
-  background:var(--gold)!important;
-  color:#2A2000!important;
-  border-color:var(--gold)!important
-}
+    .btn-confirm {
+      background: var(--gold) !important;
+      color: #2A2000 !important;
+      border-color: var(--gold) !important
+    }
 
-/* =========================================
+    /* =========================================
    TOAST
 ========================================= */
 
-.toast-container{
-  position:fixed;
-  top:20px;
-  right:20px;
-  z-index:2000;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  pointer-events:none
-}
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none
+    }
 
-.toast{
-  min-width:280px;
-  max-width:380px;
-  background:var(--panel);
-  border:1px solid var(--green);
-  border-radius:10px;
-  padding:15px 18px;
-  box-shadow:0 12px 35px rgba(0,0,0,.35);
-  animation:toastIn .2s ease-out;
-  pointer-events:auto
-}
+    .toast {
+      min-width: 280px;
+      max-width: 380px;
+      background: var(--panel);
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      padding: 15px 18px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, .35);
+      animation: toastIn .2s ease-out;
+      pointer-events: auto
+    }
 
-.toast-title{
-  font-weight:700;
-  margin-bottom:4px
-}
+    .toast-title {
+      font-weight: 700;
+      margin-bottom: 4px
+    }
 
-.toast-text{
-  color:var(--dim);
-  font-size:13px
-}
+    .toast-text {
+      color: var(--dim);
+      font-size: 13px
+    }
 
-.toast.error{
-  border-color:var(--danger)
-}
+    .toast.error {
+      border-color: var(--danger)
+    }
 
-@keyframes toastIn{
-  from{ opacity:0; transform:translateY(-8px) }
-  to{ opacity:1; transform:translateY(0) }
-}
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
 
-@media(max-width:600px){
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
 
-  .modal-actions{
-    flex-direction:column-reverse
-  }
+    @media(max-width:600px) {
 
-  .modal-actions button{
-    width:100%
-  }
+      .modal-actions {
+        flex-direction: column-reverse
+      }
 
-  .toast-container{
-    left:14px;
-    right:14px;
-    top:14px
-  }
+      .modal-actions button {
+        width: 100%
+      }
 
-  .toast{
-    min-width:0;
-    max-width:none
-  }
+      .toast-container {
+        left: 14px;
+        right: 14px;
+        top: 14px
+      }
 
-}
+      .toast {
+        min-width: 0;
+        max-width: none
+      }
 
-.loading{
-  color:var(--dim);
-  padding:15px
-}
+    }
 
-.empty{
-  text-align:center;
-  color:var(--dim);
-  padding:25px
-}
+    .loading {
+      color: var(--dim);
+      padding: 15px
+    }
 
-.rake-help{
-  font-size:11px;
-  color:var(--dim);
-  margin-top:5px;
-  line-height:1.4
-}
-</style>
+    .empty {
+      text-align: center;
+      color: var(--dim);
+      padding: 25px
+    }
+
+    .rake-help {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 5px;
+      line-height: 1.4
+    }
+
+    .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .mesa-card {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .mesa-card.ocupada {
+      border-color: var(--gold);
+    }
+
+    .mesa-num {
+      font: 14px 'Bebas Neue';
+      letter-spacing: .03em;
+      color: var(--dim);
+    }
+
+    .mesa-pagador {
+      font-weight: 600;
+      margin: 6px 0 2px;
+    }
+
+    .mesa-libre {
+      color: var(--dim);
+      font-size: 13px;
+      padding: 14px 0;
+    }
+
+    .clock {
+      font-family: 'IBM Plex Mono';
+      font-size: 18px;
+      color: var(--gold2);
+      margin: 2px 0 8px;
+    }
+
+    .rotacion-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .rotacion-row:last-child {
+      border-bottom: none;
+    }
+
+    .rotacion-nombre {
+      flex: 1;
+      min-width: 120px;
+      font-weight: 600;
+    }
+
+    .rotacion-row select {
+      width: auto;
+      min-width: 100px;
+    }
+
+    .sugerido-box {
+      border: 1px solid var(--gold);
+      background: rgba(201, 162, 39, .08);
+    }
+
+    .sugerido-flecha {
+      color: var(--gold2);
+      font-size: 20px;
+      margin: 0 10px;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .search-mini {
+      max-width: 280px;
+      margin-bottom: 14px;
+    }
+
+    .edit-row {
+      background: var(--panel2);
+    }
+
+    .edit-row td {
+      padding: 16px 10px;
+    }
+
+    .pagador-card {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      transition: .12s;
+    }
+
+    .pagador-card:hover {
+      border-color: var(--gold);
+    }
+
+    .pagador-card.seleccionado {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, .12);
+      box-shadow: 0 0 0 2px var(--gold) inset;
+    }
+
+    .pagador-card .info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pagador-card .nombre {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .mesa-card.destino {
+      cursor: pointer;
+      border-color: var(--gold);
+      animation: pulseDestino 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseDestino {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(201, 162, 39, .5);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(201, 162, 39, 0);
+      }
+    }
+
+    .mesa-card.destino-reemplazo {
+      cursor: pointer;
+      border-color: var(--danger);
+      animation: pulseReemplazo 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseReemplazo {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(193, 80, 58, .5);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(193, 80, 58, 0);
+      }
+    }
+
+    .seleccion-banner {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--gold);
+      color: #2A2000;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 500;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, .35);
+    }
+
+    .seleccion-banner.hidden {
+      display: none;
+    }
+
+    .seleccion-banner button {
+      background: #2A2000;
+      color: var(--gold-light, var(--gold2));
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .rotacion-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .rotacion-sidebar {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+    }
+
+    @media (max-width: 900px) {
+      .rotacion-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .rotacion-sidebar {
+        position: static;
+        max-height: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginView" class="wrap login">
+  <!-- LOGIN -->
+  <div id="loginView" class="wrap login">
 
-  <div class="brand">
-    <span class="eyebrow">Sistema de torneos</span>
-    <h1>Panel Dirección</h1>
-  </div>
-
-  <div class="loginbox">
-
-    <h2>Iniciar sesión</h2>
-
-    <p class="sub">
-      Acceso exclusivo para Dirección.
-    </p>
-
-    <form id="loginForm">
-
-      <div class="field">
-        <label>Usuario</label>
-        <input
-          id="loginUser"
-          autocomplete="username"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label>Contraseña</label>
-        <input
-          id="loginPass"
-          type="password"
-          autocomplete="current-password"
-          required
-        >
-      </div>
-
-      <button
-        class="btn gold"
-        style="width:100%"
-        type="submit"
-      >
-        Ingresar
-      </button>
-
-      <div id="loginMsg"></div>
-
-    </form>
-
-  </div>
-</div>
-
-
-<!-- APP -->
-<div id="appView" class="wrap hidden">
-
-  <header class="top">
-
-    <div>
+    <div class="brand">
       <span class="eyebrow">Sistema de torneos</span>
       <h1>Panel Dirección</h1>
     </div>
 
-    <div class="userbar">
-      <span id="loggedUser"></span>
-      <button class="btn" id="logoutBtn">
-        Cerrar sesión
-      </button>
-    </div>
+    <div class="loginbox">
 
-  </header>
-
-
-  <!-- CONEXION -->
-  <div class="conn">
-    <span class="dot" id="statusDot"></span>
-    <span id="statusText">Conectando...</span>
-  </div>
-
-
-  <!-- RESUMEN TORNEO -->
-  <div class="chip">
-
-    <span>
-      Torneo:
-      <b id="torneoNombre">—</b>
-    </span>
-
-    <span>·</span>
-
-    <span>
-      Buy-in:
-      <b id="torneoBuyin">$0</b>
-    </span>
-
-    <span>·</span>
-
-    <span>
-      Re-Entry:
-      <b id="torneoRecompra">$0</b>
-    </span>
-
-  </div>
-
-
-  <!-- NAVEGACION -->
-  <nav>
-
-    <button
-      class="tab active"
-      data-tab="registro"
-    >
-      Registro
-    </button>
-
-    <button
-      class="tab"
-      data-tab="jugadores"
-    >
-      Jugadores
-    </button>
-
-    <button
-      class="tab"
-      data-tab="torneo"
-    >
-      Torneo
-    </button>
-
-    <button
-      class="tab"
-      data-tab="control"
-    >
-      Control
-    </button>
-
-  </nav>
-
-
-  <!-- REGISTRO -->
-  <section id="tab-registro">
-
-    <div class="panel">
-
-      <h2>Alta de jugador</h2>
+      <h2>Iniciar sesión</h2>
 
       <p class="sub">
-        El jugador queda disponible al instante en Caja.
+        Acceso exclusivo para Dirección.
       </p>
 
-      <div class="row">
+      <form id="loginForm">
 
         <div class="field">
-          <label>DNI</label>
-          <input id="regDni" maxlength="10">
+          <label>Usuario</label>
+          <input id="loginUser" autocomplete="username" required>
         </div>
 
         <div class="field">
-          <label>Nombre</label>
-          <input id="regNombre">
+          <label>Contraseña</label>
+          <input id="loginPass" type="password" autocomplete="current-password" required>
         </div>
 
-        <div class="field">
-          <label>Apellido</label>
-          <input id="regApellido">
+        <button class="btn gold" style="width:100%" type="submit">
+          Ingresar
+        </button>
+
+        <div id="loginMsg"></div>
+
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- APP -->
+  <div id="appView" class="wrap hidden">
+
+    <header class="top">
+
+      <div>
+        <span class="eyebrow">Sistema de torneos</span>
+        <h1>Panel Dirección</h1>
+      </div>
+
+      <div class="userbar">
+        <span id="loggedUser"></span>
+        <button class="btn" id="logoutBtn">
+          Cerrar sesión
+        </button>
+      </div>
+
+    </header>
+
+
+    <!-- CONEXION -->
+    <div class="conn">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Conectando...</span>
+    </div>
+
+
+    <!-- RESUMEN TORNEO -->
+    <div class="chip">
+
+      <span>
+        Torneo:
+        <b id="torneoNombre">—</b>
+      </span>
+
+      <span>·</span>
+
+      <span>
+        Buy-in:
+        <b id="torneoBuyin">$0</b>
+      </span>
+
+      <span>·</span>
+
+      <span>
+        Re-Entry:
+        <b id="torneoRecompra">$0</b>
+      </span>
+
+    </div>
+
+
+    <!-- NAVEGACION -->
+    <nav>
+
+      <button class="tab active" data-tab="registro">
+        Registro
+      </button>
+
+      <button class="tab" data-tab="jugadores">
+        Jugadores
+      </button>
+
+      <button class="tab" data-tab="estadisticas">
+        Estadísticas
+      </button>
+
+      <button class="tab" data-tab="torneo">
+        Torneo
+      </button>
+
+      <button class="tab" data-tab="control">
+        Control
+      </button>
+
+      <button class="tab" data-tab="rotacion">
+        Rotación
+      </button>
+
+    </nav>
+
+
+    <!-- REGISTRO -->
+    <section id="tab-registro">
+
+      <div class="panel">
+
+        <h2>Alta de jugador</h2>
+
+        <p class="sub">
+          El jugador queda disponible al instante en Caja.
+        </p>
+
+        <div class="row">
+
+          <div class="field">
+            <label>DNI</label>
+            <input id="regDni" maxlength="10">
+          </div>
+
+          <div class="field">
+            <label>Nombre</label>
+            <input id="regNombre">
+          </div>
+
+          <div class="field">
+            <label>Apellido</label>
+            <input id="regApellido">
+          </div>
+
+        </div>
+
+        <div class="row" style="margin-top:14px">
+
+          <div class="field">
+            <label>Teléfono</label>
+            <input id="regTelefono">
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input id="regEmail" type="email">
+          </div>
+
+        </div>
+
+        <div class="actions" style="margin-top:18px">
+
+          <button class="btn gold" id="btnRegistrar">
+            Registrar jugador
+          </button>
+
+        </div>
+
+        <div id="regMsg"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- JUGADORES -->
+    <section id="tab-jugadores" class="hidden">
+
+      <div class="panel">
+
+        <div class="actions" style="justify-content:space-between">
+
+          <div>
+
+            <h2>Jugadores registrados</h2>
+
+            <p class="sub">
+              Buscá por DNI, nombre o apellido.
+            </p>
+
+          </div>
+
+          <button class="btn" id="refreshPlayers">
+            Actualizar
+          </button>
+
+        </div>
+
+
+        <div class="row">
+
+          <div class="field">
+            <input id="playerSearch" placeholder="Buscar...">
+          </div>
+
+        </div>
+
+
+        <div style="overflow:auto;margin-top:15px">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th></th>
+              </tr>
+
+            </thead>
+
+            <tbody id="playersBody"></tbody>
+
+          </table>
+
         </div>
 
       </div>
+
+    </section>
+
+
+    <!-- ESTADISTICAS -->
+    <section id="tab-estadisticas" class="hidden">
+
+      <div class="panel">
+
+        <div class="actions" style="justify-content:space-between">
+
+          <div>
+
+            <h2>Estadísticas por jugador</h2>
+
+            <p class="sub">
+              Hacé clic en una columna para ordenar. Solo cuenta compras no anuladas.
+            </p>
+
+          </div>
+
+          <button class="btn" id="refreshEstadisticas">
+            Actualizar
+          </button>
+
+        </div>
+
+        <div style="overflow:auto;margin-top:15px">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th style="cursor:pointer" data-sort="apellido">Jugador ⇅</th>
+                <th>DNI</th>
+                <th style="cursor:pointer" data-sort="operaciones">Operaciones ⇅</th>
+                <th style="cursor:pointer" data-sort="totalGastado">Total gastado ⇅</th>
+                <th style="cursor:pointer" data-sort="recurrencia">Recurrencia ⇅</th>
+                <th style="cursor:pointer" data-sort="ultimaFecha">Última vez ⇅</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="estadisticasBody"></tbody>
+
+          </table>
+
+        </div>
+
+        <div id="estadisticasEmpty" class="empty hidden">
+          Todavía no hay movimientos registrados.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- TORNEO -->
+    <section id="tab-torneo" class="hidden">
+
+      <div class="panel">
+
+        <h2>Configurar torneo</h2>
+
+        <p class="sub">
+          Caja toma automáticamente esta configuración.
+        </p>
+
+
+        <!-- NOMBRE + FECHA -->
+        <div class="row">
+
+          <div class="field">
+
+            <label>Nombre</label>
+
+            <input id="torneoFormNombre">
+
+          </div>
+
+
+          <div class="field">
+
+            <label>Fecha</label>
+
+            <input id="torneoFormFecha" type="date">
+
+          </div>
+
+        </div>
+
+
+        <!-- BUY IN + RECOMPRA -->
+        <div class="row" style="margin-top:14px">
+
+          <div class="field">
+
+            <label>Buy-in total</label>
+
+            <input id="torneoFormBuyin" type="number" min="0" step="0.01">
+
+            <div class="rake-help">
+              Es el monto total que paga el jugador por una entrada.
+            </div>
+
+          </div>
+
+
+          <div class="field">
+
+            <label>Re-Entry total</label>
+
+            <input id="torneoFormRecompra" type="number" min="0" step="0.01">
+
+            <div class="rake-help">
+              Es el monto total que paga el jugador por cada Re-Entry.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- RAKE -->
+        <div class="row" style="margin-top:14px">
+
+          <div class="field">
+
+            <label>
+              Rake por entrada / reentrada
+            </label>
+
+            <input id="torneoFormRake" type="number" min="0" step="0.01" placeholder="Ej: 5000">
+
+            <div class="rake-help">
+              Monto fijo destinado al rake por cada Buy-in o Re-Entry.
+              No se calcula como porcentaje.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="actions" style="margin-top:18px">
+
+          <button class="btn gold" id="saveTournament">
+            Guardar torneo
+          </button>
+
+        </div>
+
+
+        <div id="torneoMsg"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONTROL -->
+    <section id="tab-control" class="hidden">
+
+      <div class="panel">
+
+        <div class="actions">
+
+          <button class="btn" id="refreshControl">
+            Actualizar
+          </button>
+
+          <button class="btn" id="exportCsv">
+            Exportar CSV
+          </button>
+
+          <button class="btn gold" id="exportExcel">
+            Exportar Excel
+          </button>
+
+        </div>
+
+
+        <h2 style="margin-top:18px">
+          Control operativo
+        </h2>
+
+        <div class="row" style="margin:14px 0 4px;align-items:flex-end">
+
+          <div class="field" style="max-width:340px">
+
+            <label>Torneo / fecha</label>
+
+            <select id="controlTorneoSelect">
+              <option value="">Torneo actual (hoy)</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        <p class="sub" id="controlFecha"></p>
+
+
+        <div class="stats" id="statsBox"></div>
+
+
+        <div class="row" style="margin-bottom:14px;align-items:flex-end">
+
+          <div class="field" style="max-width:220px">
+
+            <label>Tipo</label>
+
+            <select id="controlFiltroTipo">
+              <option value="">Todos</option>
+              <option value="buyin">Buy-ins</option>
+              <option value="recompra">Re-Entries</option>
+            </select>
+
+          </div>
+
+          <div class="field" style="max-width:220px">
+
+            <label>DNI</label>
+
+            <input id="controlFiltroDni" placeholder="Filtrar por DNI" maxlength="10">
+
+          </div>
+
+          <div class="field" style="max-width:220px">
+
+            <label>Nombre / Apellido</label>
+
+            <input id="controlFiltroNombre" placeholder="Filtrar por nombre">
+
+          </div>
+
+        </div>
+
+
+        <div style="overflow:auto">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Hora</th>
+                <th>DNI</th>
+                <th>Jugador</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+                <th>Cajero</th>
+                <th>Acción</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="controlTbody"></tbody>
+
+          </table>
+
+        </div>
+
+
+        <div id="controlEmpty" class="empty hidden">
+          Todavía no se registraron movimientos.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ROTACION -->
+    <section id="tab-rotacion" class="hidden">
+
+      <div class="panel">
+        <h2>Alta de pagador</h2>
+        <div class="row">
+          <div class="field">
+            <input id="rotNombre" placeholder="Nombre del pagador">
+          </div>
+          <div>
+            <button class="btn gold" id="btnAgregarPagador">Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rotacion-layout">
+
+        <div class="rotacion-main">
+
+          <div class="panel sugerido-box" id="sugeridoBox">
+            <h2>Relevo sugerido</h2>
+            <div id="sugeridoContent"></div>
+          </div>
+
+          <div class="panel">
+            <div class="actions" style="justify-content:space-between">
+              <h2>Mesas (1 a 13)</h2>
+              <button class="btn" id="refreshRotacion">Actualizar</button>
+            </div>
+            <div class="mesas-grid" id="mesasGrid"></div>
+          </div>
+
+        </div>
+
+        <div class="rotacion-sidebar">
+
+          <div class="panel">
+            <h2>En descanso</h2>
+            <div id="descansoList"></div>
+            <div id="descansoEmpty" class="empty hidden">Nadie está descansando ahora.</div>
+          </div>
+
+          <div class="panel">
+            <h2>Disponibles (sin asignar)</h2>
+            <div id="disponiblesList"></div>
+            <div id="disponiblesEmpty" class="empty hidden">No hay pagadores disponibles cargados.</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- MODAL EDITAR JUGADOR -->
+  <div id="editModal" class="modal hidden">
+
+    <div class="modalbox">
+
+      <div class="actions" style="justify-content:space-between">
+
+        <h2>Editar jugador</h2>
+
+        <button class="btn" id="closeModal">
+          Cerrar
+        </button>
+
+      </div>
+
+
+      <input type="hidden" id="editId">
+
+
+      <div class="row" style="margin-top:18px">
+
+        <div class="field">
+
+          <label>DNI</label>
+
+          <input id="editDni" disabled>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Nombre</label>
+
+          <input id="editNombre">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Apellido</label>
+
+          <input id="editApellido">
+
+        </div>
+
+      </div>
+
 
       <div class="row" style="margin-top:14px">
 
         <div class="field">
+
           <label>Teléfono</label>
-          <input id="regTelefono">
+
+          <input id="editTelefono">
+
         </div>
 
+
         <div class="field">
+
           <label>Email</label>
-          <input id="regEmail" type="email">
+
+          <input id="editEmail" type="email">
+
         </div>
 
       </div>
+
 
       <div class="actions" style="margin-top:18px">
 
-        <button
-          class="btn gold"
-          id="btnRegistrar"
-        >
-          Registrar jugador
+        <button class="btn gold" id="savePlayer">
+          Guardar cambios
         </button>
 
       </div>
 
-      <div id="regMsg"></div>
+
+      <div id="editMsg"></div>
 
     </div>
 
-  </section>
+  </div>
 
 
-  <!-- JUGADORES -->
-  <section id="tab-jugadores" class="hidden">
+  <!-- MODAL HISTORIAL -->
+  <div id="historialModal" class="modal hidden">
 
-    <div class="panel">
+    <div class="modalbox" style="max-width:700px">
 
-      <div
-        class="actions"
-        style="justify-content:space-between"
-      >
+      <div class="actions" style="justify-content:space-between">
 
-        <div>
+        <h2 id="historialTitle">Historial de jugador</h2>
 
-          <h2>Jugadores registrados</h2>
-
-          <p class="sub">
-            Buscá por DNI, nombre o apellido.
-          </p>
-
-        </div>
-
-        <button
-          class="btn"
-          id="refreshPlayers"
-        >
-          Actualizar
+        <button class="btn" id="closeHistorial">
+          Cerrar
         </button>
 
       </div>
 
+      <div class="row" style="margin-top:14px;align-items:flex-end">
 
-      <div class="row">
+        <div class="field" style="max-width:220px">
+          <label>Filtrar por fecha</label>
+          <input type="date" id="historialFecha">
+        </div>
 
-        <div class="field">
-          <input
-            id="playerSearch"
-            placeholder="Buscar..."
-          >
+        <div class="field" style="max-width:140px">
+          <button class="btn" id="historialLimpiarFecha" style="width:100%">Todas las fechas</button>
         </div>
 
       </div>
 
-
-      <div style="overflow:auto;margin-top:15px">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>DNI</th>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Teléfono</th>
-              <th>Email</th>
-              <th></th>
-            </tr>
-
-          </thead>
-
-          <tbody id="playersBody"></tbody>
-
-        </table>
-
-      </div>
+      <div id="historialContent" style="margin-top:18px;max-height:60vh;overflow:auto"></div>
 
     </div>
 
-  </section>
+  </div>
 
 
-  <!-- TORNEO -->
-  <section id="tab-torneo" class="hidden">
+  <!-- MODAL CONFIRMACION -->
+  <div id="confirmModal" class="modal hidden">
 
-    <div class="panel">
+    <div class="modalbox">
 
-      <h2>Configurar torneo</h2>
-
-      <p class="sub">
-        Caja toma automáticamente esta configuración.
-      </p>
-
-
-      <!-- NOMBRE + FECHA -->
-      <div class="row">
-
-        <div class="field">
-
-          <label>Nombre</label>
-
-          <input
-            id="torneoFormNombre"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label>Fecha</label>
-
-          <input
-            id="torneoFormFecha"
-            type="date"
-          >
-
-        </div>
-
-      </div>
-
-
-      <!-- BUY IN + RECOMPRA -->
-      <div
-        class="row"
-        style="margin-top:14px"
-      >
-
-        <div class="field">
-
-          <label>Buy-in total</label>
-
-          <input
-            id="torneoFormBuyin"
-            type="number"
-            min="0"
-            step="0.01"
-          >
-
-          <div class="rake-help">
-            Es el monto total que paga el jugador por una entrada.
-          </div>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>Re-Entry total</label>
-
-          <input
-            id="torneoFormRecompra"
-            type="number"
-            min="0"
-            step="0.01"
-          >
-
-          <div class="rake-help">
-            Es el monto total que paga el jugador por cada Re-Entry.
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- RAKE -->
-      <div
-        class="row"
-        style="margin-top:14px"
-      >
-
-        <div class="field">
-
-          <label>
-            Rake por entrada / reentrada
-          </label>
-
-          <input
-            id="torneoFormRake"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Ej: 5000"
-          >
-
-          <div class="rake-help">
-            Monto fijo destinado al rake por cada Buy-in o Re-Entry.
-            No se calcula como porcentaje.
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div
-        class="actions"
-        style="margin-top:18px"
-      >
-
-        <button
-          class="btn gold"
-          id="saveTournament"
-        >
-          Guardar torneo
-        </button>
-
-      </div>
-
-
-      <div id="torneoMsg"></div>
-
-    </div>
-
-  </section>
-
-
-  <!-- CONTROL -->
-  <section id="tab-control" class="hidden">
-
-    <div class="panel">
-
-      <div class="actions">
-
-        <button
-          class="btn"
-          id="refreshControl"
-        >
-          Actualizar
-        </button>
-
-        <button
-          class="btn"
-          id="exportCsv"
-        >
-          Exportar CSV
-        </button>
-
-        <button
-          class="btn gold"
-          id="exportExcel"
-        >
-          Exportar Excel
-        </button>
-
-      </div>
-
-
-      <h2 style="margin-top:18px">
-        Control operativo
+      <h2 id="confirmTitle" class="modal-title">
+        Confirmar operación
       </h2>
 
-      <div
-        class="row"
-        style="margin:14px 0 4px;align-items:flex-end"
-      >
-
-        <div class="field" style="max-width:340px">
-
-          <label>Torneo / fecha</label>
-
-          <select id="controlTorneoSelect">
-            <option value="">Torneo actual (hoy)</option>
-          </select>
-
-        </div>
-
+      <div id="confirmText" class="modal-text">
+        ¿Confirmar operación?
       </div>
 
-      <p
-        class="sub"
-        id="controlFecha"
-      ></p>
+      <div class="modal-actions">
 
+        <button id="confirmCancel" class="btn btn-cancel">
+          Cancelar
+        </button>
 
-      <div
-        class="stats"
-        id="statsBox"
-      ></div>
-
-
-      <div
-        class="row"
-        style="margin-bottom:14px;align-items:flex-end"
-      >
-
-        <div class="field" style="max-width:220px">
-
-          <label>Tipo</label>
-
-          <select id="controlFiltroTipo">
-            <option value="">Todos</option>
-            <option value="buyin">Buy-ins</option>
-            <option value="recompra">Re-Entries</option>
-          </select>
-
-        </div>
-
-        <div class="field" style="max-width:220px">
-
-          <label>DNI</label>
-
-          <input
-            id="controlFiltroDni"
-            placeholder="Filtrar por DNI"
-            maxlength="10"
-          >
-
-        </div>
+        <button id="confirmAccept" class="btn btn-confirm">
+          Confirmar
+        </button>
 
       </div>
-
-
-      <div style="overflow:auto">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>Hora</th>
-              <th>DNI</th>
-              <th>Jugador</th>
-              <th>Tipo</th>
-              <th>Monto</th>
-              <th>Cajero</th>
-              <th>Acción</th>
-            </tr>
-
-          </thead>
-
-          <tbody id="controlTbody"></tbody>
-
-        </table>
-
-      </div>
-
-
-      <div
-        id="controlEmpty"
-        class="empty hidden"
-      >
-        Todavía no se registraron movimientos.
-      </div>
-
-    </div>
-
-  </section>
-
-</div>
-
-
-<!-- MODAL EDITAR JUGADOR -->
-<div
-  id="editModal"
-  class="modal hidden"
->
-
-  <div class="modalbox">
-
-    <div
-      class="actions"
-      style="justify-content:space-between"
-    >
-
-      <h2>Editar jugador</h2>
-
-      <button
-        class="btn"
-        id="closeModal"
-      >
-        Cerrar
-      </button>
-
-    </div>
-
-
-    <input
-      type="hidden"
-      id="editId"
-    >
-
-
-    <div
-      class="row"
-      style="margin-top:18px"
-    >
-
-      <div class="field">
-
-        <label>DNI</label>
-
-        <input
-          id="editDni"
-          disabled
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label>Nombre</label>
-
-        <input id="editNombre">
-
-      </div>
-
-
-      <div class="field">
-
-        <label>Apellido</label>
-
-        <input id="editApellido">
-
-      </div>
-
-    </div>
-
-
-    <div
-      class="row"
-      style="margin-top:14px"
-    >
-
-      <div class="field">
-
-        <label>Teléfono</label>
-
-        <input id="editTelefono">
-
-      </div>
-
-
-      <div class="field">
-
-        <label>Email</label>
-
-        <input
-          id="editEmail"
-          type="email"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div
-      class="actions"
-      style="margin-top:18px"
-    >
-
-      <button
-        class="btn gold"
-        id="savePlayer"
-      >
-        Guardar cambios
-      </button>
-
-    </div>
-
-
-    <div id="editMsg"></div>
-
-  </div>
-
-</div>
-
-
-<!-- MODAL HISTORIAL -->
-<div
-  id="historialModal"
-  class="modal hidden"
->
-
-  <div class="modalbox" style="max-width:700px">
-
-    <div
-      class="actions"
-      style="justify-content:space-between"
-    >
-
-      <h2 id="historialTitle">Historial de jugador</h2>
-
-      <button
-        class="btn"
-        id="closeHistorial"
-      >
-        Cerrar
-      </button>
-
-    </div>
-
-    <div
-      id="historialContent"
-      style="margin-top:18px;max-height:60vh;overflow:auto"
-    ></div>
-
-  </div>
-
-</div>
-
-
-<!-- MODAL CONFIRMACION -->
-<div
-  id="confirmModal"
-  class="modal hidden"
->
-
-  <div class="modalbox">
-
-    <h2
-      id="confirmTitle"
-      class="modal-title"
-    >
-      Confirmar operación
-    </h2>
-
-    <div
-      id="confirmText"
-      class="modal-text"
-    >
-      ¿Confirmar operación?
-    </div>
-
-    <div class="modal-actions">
-
-      <button
-        id="confirmCancel"
-        class="btn btn-cancel"
-      >
-        Cancelar
-      </button>
-
-      <button
-        id="confirmAccept"
-        class="btn btn-confirm"
-      >
-        Confirmar
-      </button>
 
     </div>
 
   </div>
 
-</div>
+
+  <!-- TOASTS -->
+  <div id="toastContainer" class="toast-container"></div>
 
 
-<!-- TOASTS -->
-<div
-  id="toastContainer"
-  class="toast-container"
-></div>
+  <!-- BANNER DE SELECCION (ROTACION) -->
+  <div id="seleccionBanner" class="seleccion-banner hidden">
+    <span id="seleccionBannerTexto"></span>
+    <button id="btnCancelarSeleccion" type="button">Cancelar</button>
+  </div>
 
 
-<script>
+  <script>
 
-const API='http://127.0.0.1:4001/api';
+    const API = 'http://127.0.0.1:4001/api';
 
-let token=sessionStorage.getItem('direccion_token');
+    let token = sessionStorage.getItem('direccion_token');
 
-let config={};
-
-
-const $=id=>document.getElementById(id);
+    let config = {};
 
 
-const money=n=>
-  '$'+(Number(n)||0).toLocaleString('es-AR');
+    const $ = id => document.getElementById(id);
 
 
-const cleanDni=v=>
-  (v||'').replace(/\D/g,'');
+    const money = n =>
+      '$' + (Number(n) || 0).toLocaleString('es-AR');
 
 
-function authHeaders(extra={}){
-  return {
-    ...extra,
-    Authorization:'Bearer '+token
-  };
-}
+    const cleanDni = v =>
+      (v || '').replace(/\D/g, '');
 
 
-async function api(path,opt={}){
-
-  const headers=authHeaders(opt.headers||{});
-
-  const r=await fetch(
-    API+path,
-    {
-      ...opt,
-      headers
+    function authHeaders(extra = {}) {
+      return {
+        ...extra,
+        Authorization: 'Bearer ' + token
+      };
     }
-  );
-
-  if(r.status===401){
-
-    logout();
-
-    throw new Error('Sesión expirada.');
-
-  }
-
-  return r;
-}
 
 
-/* =========================================
-   MODAL DE CONFIRMACION
-========================================= */
+    async function api(path, opt = {}) {
 
-let confirmResolve=null;
+      const headers = authHeaders(opt.headers || {});
 
-function openConfirmModal({
-  title,
-  message,
-  confirmText='Confirmar'
-}){
+      const r = await fetch(
+        API + path,
+        {
+          ...opt,
+          headers
+        }
+      );
 
-  $('confirmTitle').textContent=title;
+      if (r.status === 401) {
 
-  $('confirmText').textContent=message;
+        logout();
 
-  $('confirmAccept').textContent=confirmText;
+        throw new Error('Sesión expirada.');
 
-  $('confirmModal').classList.remove('hidden');
+      }
 
-  return new Promise(resolve=>{
-
-    confirmResolve=resolve;
-
-  });
-
-}
+      return r;
+    }
 
 
-function closeConfirmModal(result){
+    /* =========================================
+       MODAL DE CONFIRMACION
+    ========================================= */
 
-  $('confirmModal').classList.add('hidden');
+    let confirmResolve = null;
 
-  if(confirmResolve){
+    function openConfirmModal({
+      title,
+      message,
+      confirmText = 'Confirmar'
+    }) {
 
-    const resolve=confirmResolve;
+      $('confirmTitle').textContent = title;
 
-    confirmResolve=null;
+      $('confirmText').textContent = message;
 
-    resolve(result);
+      $('confirmAccept').textContent = confirmText;
 
-  }
+      $('confirmModal').classList.remove('hidden');
 
-}
+      return new Promise(resolve => {
 
+        confirmResolve = resolve;
 
-$('confirmCancel').onclick=
-  ()=>closeConfirmModal(false);
+      });
 
-
-$('confirmAccept').onclick=
-  ()=>closeConfirmModal(true);
-
-
-$('confirmModal').onclick=e=>{
-
-  if(e.target===$('confirmModal')){
-
-    closeConfirmModal(false);
-
-  }
-
-};
+    }
 
 
-document.addEventListener('keydown',e=>{
+    function closeConfirmModal(result) {
 
-  if(
-    e.key==='Escape'&&
-    !$('confirmModal').classList.contains('hidden')
-  ){
+      $('confirmModal').classList.add('hidden');
 
-    closeConfirmModal(false);
+      if (confirmResolve) {
 
-  }
+        const resolve = confirmResolve;
 
-});
+        confirmResolve = null;
+
+        resolve(result);
+
+      }
+
+    }
 
 
-/* =========================================
-   TOAST
-========================================= */
+    $('confirmCancel').onclick =
+      () => closeConfirmModal(false);
 
-function showToast(title,message,type='success'){
 
-  const container=$('toastContainer');
+    $('confirmAccept').onclick =
+      () => closeConfirmModal(true);
 
-  const toast=document.createElement('div');
 
-  toast.className=
-    'toast'+(type==='error'?' error':'');
+    $('confirmModal').onclick = e => {
 
-  toast.innerHTML=`
+      if (e.target === $('confirmModal')) {
+
+        closeConfirmModal(false);
+
+      }
+
+    };
+
+
+    document.addEventListener('keydown', e => {
+
+      if (
+        e.key === 'Escape' &&
+        !$('confirmModal').classList.contains('hidden')
+      ) {
+
+        closeConfirmModal(false);
+
+      }
+
+    });
+
+
+    /* =========================================
+       TOAST
+    ========================================= */
+
+    function showToast(title, message, type = 'success') {
+
+      const container = $('toastContainer');
+
+      const toast = document.createElement('div');
+
+      toast.className =
+        'toast' + (type === 'error' ? ' error' : '');
+
+      toast.innerHTML = `
 
     <div class="toast-title">${esc(title)}</div>
 
@@ -1375,417 +1608,428 @@ function showToast(title,message,type='success'){
 
   `;
 
-  container.appendChild(toast);
+      container.appendChild(toast);
 
-  setTimeout(()=>toast.remove(),3500);
-
-}
-
-
-/* =========================
-   LOGIN
-========================= */
-
-function showApp(){
-
-  $('loginView').classList.add('hidden');
-
-  $('appView').classList.remove('hidden');
-
-  $('loggedUser').textContent=
-    sessionStorage.getItem('direccion_user')||'';
-
-  checkConexion();
-
-  loadConfig();
-
-}
-
-
-function logout(){
-
-  sessionStorage.removeItem('direccion_token');
-
-  sessionStorage.removeItem('direccion_user');
-
-  token=null;
-
-  $('appView').classList.add('hidden');
-
-  $('loginView').classList.remove('hidden');
-
-  $('loginPass').value='';
-
-}
-
-
-$('logoutBtn').onclick=logout;
-
-
-$('loginForm').onsubmit=async e=>{
-
-  e.preventDefault();
-
-  $('loginMsg').innerHTML='';
-
-  try{
-
-    const r=await fetch(
-      API+'/auth/login',
-      {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify({
-          username:$('loginUser').value,
-          password:$('loginPass').value,
-          panel:'direccion'
-        })
-      }
-    );
-
-    const d=await r.json();
-
-    if(!r.ok)
-      throw new Error(d.error);
-
-    token=d.token;
-
-    sessionStorage.setItem(
-      'direccion_token',
-      token
-    );
-
-    sessionStorage.setItem(
-      'direccion_user',
-      d.user.username
-    );
-
-    showApp();
-
-  }catch(err){
-
-    $('loginMsg').innerHTML=
-      '<div class="msg warn">'+
-      err.message+
-      '</div>';
-
-  }
-
-};
-
-
-/* =========================
-   CONEXION
-========================= */
-
-async function checkConexion(){
-
-  try{
-
-    const r=await api('/health');
-
-    $('statusDot').className=
-      'dot '+(r.ok?'ok':'err');
-
-    $('statusText').textContent=
-      r.ok
-        ? 'Backend conectado'
-        : 'Sin conexión';
-
-  }catch{
-
-    $('statusDot').className=
-      'dot err';
-
-    $('statusText').textContent=
-      'Sin conexión';
-
-  }
-
-}
-
-
-/* =========================
-   CONFIG TORNEO
-========================= */
-
-async function loadConfig(){
-
-  try{
-
-    const r=await api('/tournament');
-
-    config=await r.json();
-
-
-    $('torneoNombre').textContent=
-      config.nombre||'Sin configurar';
-
-    $('torneoBuyin').textContent=
-      money(config.buyIn);
-
-    $('torneoRecompra').textContent=
-      money(config.recompra);
-
-
-    $('torneoFormNombre').value=
-      config.nombre==='Sin configurar'
-        ? ''
-        : (config.nombre||'');
-
-
-    $('torneoFormFecha').value=
-      config.fecha||
-      new Date().toISOString().slice(0,10);
-
-
-    $('torneoFormBuyin').value=
-      config.buyIn!=null
-        ? config.buyIn
-        : '';
-
-
-    $('torneoFormRecompra').value=
-      config.recompra!=null
-        ? config.recompra
-        : '';
-
-
-    $('torneoFormRake').value=
-      config.rake!=null
-        ? config.rake
-        : '';
-
-  }catch(e){
-
-    console.error(
-      'Error cargando configuración:',
-      e
-    );
-
-  }
-
-}
-
-
-/* =========================
-   TABS
-========================= */
-
-function switchTab(name){
-
-  document
-    .querySelectorAll('.tab')
-    .forEach(b=>
-      b.classList.toggle(
-        'active',
-        b.dataset.tab===name
-      )
-    );
-
-
-  document
-    .querySelectorAll('section[id^=tab-]')
-    .forEach(s=>
-      s.classList.add('hidden')
-    );
-
-
-  $('tab-'+name)
-    .classList.remove('hidden');
-
-
-  if(name==='jugadores')
-    loadPlayers();
-
-
-  if(name==='control'){
-    loadTorneosHistorial();
-    loadControl();
-  }
-
-}
-
-
-document
-  .querySelectorAll('.tab')
-  .forEach(
-    b=>
-      b.onclick=
-      ()=>switchTab(b.dataset.tab)
-  );
-
-
-/* =========================
-   REGISTRAR JUGADOR
-========================= */
-
-$('btnRegistrar').onclick=async()=>{
-
-  const body={
-
-    dni:cleanDni(
-      $('regDni').value
-    ),
-
-    nombre:$('regNombre')
-      .value
-      .trim(),
-
-    apellido:$('regApellido')
-      .value
-      .trim(),
-
-    telefono:$('regTelefono')
-      .value
-      .trim(),
-
-    email:$('regEmail')
-      .value
-      .trim()
-
-  };
-
-
-  if(
-    !body.dni||
-    !body.nombre||
-    !body.apellido
-  ){
-
-    $('regMsg').innerHTML=
-      '<div class="msg warn">'+
-      'DNI, nombre y apellido son obligatorios.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  const confirmado=await openConfirmModal({
-
-    title:'¿Confirmar alta del jugador?',
-
-    message:
-      `Se va a registrar a ${body.nombre} ${body.apellido} `+
-      `(DNI ${body.dni}).`,
-
-    confirmText:'Registrar'
-
-  });
-
-
-  if(!confirmado) return;
-
-
-  try{
-
-    const r=await api(
-      '/players',
-      {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify(body)
-      }
-    );
-
-
-    const d=await r.json();
-
-
-    if(!r.ok)
-      throw new Error(d.error);
-
-
-    $('regMsg').innerHTML=
-      '<div class="msg info">'+
-      'Jugador registrado correctamente.'+
-      '</div>';
-
-
-    showToast(
-      'Jugador registrado',
-      `${body.nombre} ${body.apellido} (DNI ${body.dni}) fue registrado con éxito.`
-    );
-
-
-    [
-      'regDni',
-      'regNombre',
-      'regApellido',
-      'regTelefono',
-      'regEmail'
-    ].forEach(
-      x=>$(x).value=''
-    );
-
-
-  }catch(e){
-
-    $('regMsg').innerHTML=
-      '<div class="msg warn">'+
-      e.message+
-      '</div>';
-
-
-    showToast(
-      'No se pudo registrar el jugador',
-      e.message,
-      'error'
-    );
-
-  }
-
-};
-
-
-/* =========================
-   JUGADORES
-========================= */
-
-async function loadPlayers(){
-
-  const q=
-    encodeURIComponent(
-      $('playerSearch')
-        .value
-        .trim()
-    );
-
-
-  $('playersBody').innerHTML=
-    '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
-
-
-  try{
-
-    const r=await api(
-      '/players?q='+q
-    );
-
-    const data=await r.json();
-
-
-    if(!data.length){
-
-      $('playersBody').innerHTML=
-        '<tr><td colspan="6" class="empty">'+
-        'No se encontraron jugadores.'+
-        '</td></tr>';
-
-      return;
+      setTimeout(() => toast.remove(), 3500);
 
     }
 
 
-    $('playersBody').innerHTML=
-      data.map(
-        p=>`
+    /* =========================
+       LOGIN
+    ========================= */
+
+    function showApp() {
+
+      $('loginView').classList.add('hidden');
+
+      $('appView').classList.remove('hidden');
+
+      $('loggedUser').textContent =
+        sessionStorage.getItem('direccion_user') || '';
+
+      checkConexion();
+
+      loadConfig();
+
+    }
+
+
+    function logout() {
+
+      sessionStorage.removeItem('direccion_token');
+
+      sessionStorage.removeItem('direccion_user');
+
+      token = null;
+
+      $('appView').classList.add('hidden');
+
+      $('loginView').classList.remove('hidden');
+
+      $('loginPass').value = '';
+
+    }
+
+
+    $('logoutBtn').onclick = logout;
+
+
+    $('loginForm').onsubmit = async e => {
+
+      e.preventDefault();
+
+      $('loginMsg').innerHTML = '';
+
+      try {
+
+        const r = await fetch(
+          API + '/auth/login',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: $('loginUser').value,
+              password: $('loginPass').value,
+              panel: 'direccion'
+            })
+          }
+        );
+
+        const d = await r.json();
+
+        if (!r.ok)
+          throw new Error(d.error);
+
+        token = d.token;
+
+        sessionStorage.setItem(
+          'direccion_token',
+          token
+        );
+
+        sessionStorage.setItem(
+          'direccion_user',
+          d.user.username
+        );
+
+        showApp();
+
+      } catch (err) {
+
+        $('loginMsg').innerHTML =
+          '<div class="msg warn">' +
+          err.message +
+          '</div>';
+
+      }
+
+    };
+
+
+    /* =========================
+       CONEXION
+    ========================= */
+
+    async function checkConexion() {
+
+      try {
+
+        const r = await api('/health');
+
+        $('statusDot').className =
+          'dot ' + (r.ok ? 'ok' : 'err');
+
+        $('statusText').textContent =
+          r.ok
+            ? 'Backend conectado'
+            : 'Sin conexión';
+
+      } catch {
+
+        $('statusDot').className =
+          'dot err';
+
+        $('statusText').textContent =
+          'Sin conexión';
+
+      }
+
+    }
+
+
+    /* =========================
+       CONFIG TORNEO
+    ========================= */
+
+    async function loadConfig() {
+
+      try {
+
+        const r = await api('/tournament');
+
+        config = await r.json();
+
+
+        $('torneoNombre').textContent =
+          config.nombre || 'Sin configurar';
+
+        $('torneoBuyin').textContent =
+          money(config.buyIn);
+
+        $('torneoRecompra').textContent =
+          money(config.recompra);
+
+
+        $('torneoFormNombre').value =
+          config.nombre === 'Sin configurar'
+            ? ''
+            : (config.nombre || '');
+
+
+        $('torneoFormFecha').value =
+          config.fecha ||
+          new Date().toISOString().slice(0, 10);
+
+
+        $('torneoFormBuyin').value =
+          config.buyIn != null
+            ? config.buyIn
+            : '';
+
+
+        $('torneoFormRecompra').value =
+          config.recompra != null
+            ? config.recompra
+            : '';
+
+
+        $('torneoFormRake').value =
+          config.rake != null
+            ? config.rake
+            : '';
+
+      } catch (e) {
+
+        console.error(
+          'Error cargando configuración:',
+          e
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       TABS
+    ========================= */
+
+    function switchTab(name) {
+
+      document
+        .querySelectorAll('.tab')
+        .forEach(b =>
+          b.classList.toggle(
+            'active',
+            b.dataset.tab === name
+          )
+        );
+
+
+      document
+        .querySelectorAll('section[id^=tab-]')
+        .forEach(s =>
+          s.classList.add('hidden')
+        );
+
+
+      $('tab-' + name)
+        .classList.remove('hidden');
+
+
+      if (name === 'jugadores')
+        loadPlayers();
+
+
+      if (name === 'estadisticas')
+        loadEstadisticas();
+
+
+      if (name === 'control') {
+        loadTorneosHistorial();
+        loadControl();
+      }
+
+      detenerRotacionIntervals();
+
+      if (name === 'rotacion') {
+        loadTablero();
+        iniciarRotacionIntervals();
+      }
+
+    }
+
+
+    document
+      .querySelectorAll('.tab')
+      .forEach(
+        b =>
+          b.onclick =
+          () => switchTab(b.dataset.tab)
+      );
+
+
+    /* =========================
+       REGISTRAR JUGADOR
+    ========================= */
+
+    $('btnRegistrar').onclick = async () => {
+
+      const body = {
+
+        dni: cleanDni(
+          $('regDni').value
+        ),
+
+        nombre: $('regNombre')
+          .value
+          .trim(),
+
+        apellido: $('regApellido')
+          .value
+          .trim(),
+
+        telefono: $('regTelefono')
+          .value
+          .trim(),
+
+        email: $('regEmail')
+          .value
+          .trim()
+
+      };
+
+
+      if (
+        !body.dni ||
+        !body.nombre ||
+        !body.apellido
+      ) {
+
+        $('regMsg').innerHTML =
+          '<div class="msg warn">' +
+          'DNI, nombre y apellido son obligatorios.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const confirmado = await openConfirmModal({
+
+        title: '¿Confirmar alta del jugador?',
+
+        message:
+          `Se va a registrar a ${body.nombre} ${body.apellido} ` +
+          `(DNI ${body.dni}).`,
+
+        confirmText: 'Registrar'
+
+      });
+
+
+      if (!confirmado) return;
+
+
+      try {
+
+        const r = await api(
+          '/players',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+          }
+        );
+
+
+        const d = await r.json();
+
+
+        if (!r.ok)
+          throw new Error(d.error);
+
+
+        $('regMsg').innerHTML =
+          '<div class="msg info">' +
+          'Jugador registrado correctamente.' +
+          '</div>';
+
+
+        showToast(
+          'Jugador registrado',
+          `${body.nombre} ${body.apellido} (DNI ${body.dni}) fue registrado con éxito.`
+        );
+
+
+        [
+          'regDni',
+          'regNombre',
+          'regApellido',
+          'regTelefono',
+          'regEmail'
+        ].forEach(
+          x => $(x).value = ''
+        );
+
+
+      } catch (e) {
+
+        $('regMsg').innerHTML =
+          '<div class="msg warn">' +
+          e.message +
+          '</div>';
+
+
+        showToast(
+          'No se pudo registrar el jugador',
+          e.message,
+          'error'
+        );
+
+      }
+
+    };
+
+
+    /* =========================
+       JUGADORES
+    ========================= */
+
+    async function loadPlayers() {
+
+      const q =
+        encodeURIComponent(
+          $('playerSearch')
+            .value
+            .trim()
+        );
+
+
+      $('playersBody').innerHTML =
+        '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+
+
+      try {
+
+        const r = await api(
+          '/players?q=' + q
+        );
+
+        const data = await r.json();
+
+
+        if (!data.length) {
+
+          $('playersBody').innerHTML =
+            '<tr><td colspan="6" class="empty">' +
+            'No se encontraron jugadores.' +
+            '</td></tr>';
+
+          return;
+
+        }
+
+
+        $('playersBody').innerHTML =
+          data.map(
+            p => `
 
         <tr>
 
@@ -1795,649 +2039,759 @@ async function loadPlayers(){
 
           <td>${esc(p.apellido)}</td>
 
-          <td>${esc(p.telefono||'—')}</td>
+          <td>${esc(p.telefono || '—')}</td>
 
-          <td>${esc(p.email||'—')}</td>
+          <td>${esc(p.email || '—')}</td>
 
           <td>
 
-            <button
-              class="btn edit"
-              onclick='openEdit(${JSON.stringify(p)})'
-            >
-              Editar
-            </button>
+            <div class="actions" style="gap:8px">
 
-            <button
-              class="btn"
-              onclick='openHistorial(${JSON.stringify(p)})'
-            >
-              Historial
-            </button>
+              <button
+                class="btn btn-sm"
+                onclick='openEdit(${JSON.stringify(p)})'
+              >
+                Editar
+              </button>
 
-            <button
-              class="btn danger"
-              onclick='deletePlayer(${JSON.stringify(p)})'
-            >
-              Eliminar
-            </button>
+              <button
+                class="btn btn-sm"
+                onclick='openHistorial(${JSON.stringify(p)})'
+              >
+                Historial
+              </button>
+
+              <button
+                class="btn btn-sm danger"
+                onclick='deletePlayer(${JSON.stringify(p)})'
+              >
+                Eliminar
+              </button>
+
+            </div>
 
           </td>
 
         </tr>
 
         `
-      ).join('');
+          ).join('');
 
 
-  }catch(e){
+      } catch (e) {
 
-    $('playersBody').innerHTML=
-      '<tr><td colspan="6" class="danger">'+
-      e.message+
-      '</td></tr>';
+        $('playersBody').innerHTML =
+          '<tr><td colspan="6" class="danger">' +
+          e.message +
+          '</td></tr>';
 
-  }
+      }
 
-}
-
-
-function esc(v){
-
-  return String(v??'')
-    .replace(
-      /[&<>"']/g,
-      c=>({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        '"':'&quot;',
-        "'":'&#39;'
-      }[c])
-    );
-
-}
-
-
-$('playerSearch').oninput=
-  ()=>loadPlayers();
-
-
-$('refreshPlayers').onclick=
-  loadPlayers;
-
-
-/* =========================
-   EDITAR JUGADOR
-========================= */
-
-window.openEdit=p=>{
-
-  $('editId').value=p._id;
-
-  $('editDni').value=p.dni;
-
-  $('editNombre').value=p.nombre;
-
-  $('editApellido').value=p.apellido;
-
-  $('editTelefono').value=
-    p.telefono||'';
-
-  $('editEmail').value=
-    p.email||'';
-
-  $('editMsg').innerHTML='';
-
-  $('editModal')
-    .classList
-    .remove('hidden');
-
-};
-
-
-window.deletePlayer=async p=>{
-
-  const confirmado=await openConfirmModal({
-
-    title:'¿Eliminar jugador?',
-
-    message:
-      `Se va a eliminar a ${p.nombre} ${p.apellido} (DNI ${p.dni}). `+
-      `Si nunca tuvo operaciones registradas se borra por completo. `+
-      `Si ya tiene historial, se conserva y el jugador solo queda desactivado.`,
-
-    confirmText:'Eliminar'
-
-  });
-
-
-  if(!confirmado) return;
-
-
-  try{
-
-    const r=await api(
-      '/players/'+p._id,
-      {method:'DELETE'}
-    );
-
-    const d=await r.json();
-
-
-    if(!r.ok)
-      throw new Error(d.error);
-
-
-    showToast(
-      d.borradoReal
-        ? 'Jugador eliminado'
-        : 'Jugador desactivado',
-      d.borradoReal
-        ? `${p.nombre} ${p.apellido} se borró por completo (no tenía operaciones registradas).`
-        : `${p.nombre} ${p.apellido} tenía historial, así que se desactivó y se conservó su historial.`
-    );
-
-
-    loadPlayers();
-
-  }catch(e){
-
-    showToast(
-      'No se pudo eliminar el jugador',
-      e.message,
-      'error'
-    );
-
-  }
-
-};
-
-
-$('closeModal').onclick=()=>
-  $('editModal')
-    .classList
-    .add('hidden');
-
-
-/* =========================
-   HISTORIAL DE JUGADOR
-========================= */
-
-window.openHistorial = async (p) => {
-
-  $('historialTitle').textContent =
-    `Historial — ${p.nombre} ${p.apellido} (DNI ${p.dni})`;
-
-  $('historialContent').innerHTML =
-    '<div class="loading">Cargando...</div>';
-
-  $('historialModal').classList.remove('hidden');
-
-  try{
-
-    const r = await api('/players/'+p._id+'/historial');
-    const d = await r.json();
-    if(!r.ok) throw new Error(d.error);
-
-    if(d.movimientos.length === 0){
-      $('historialContent').innerHTML =
-        '<div class="empty">Este jugador todavía no tiene movimientos registrados.</div>';
-      return;
     }
 
-    $('historialContent').innerHTML = `
-      <table>
-        <thead>
-          <tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Monto</th><th>Torneo</th><th>Cajero</th></tr>
-        </thead>
-        <tbody>
-          ${d.movimientos.map(m => `
-            <tr class="${m.anulado ? 'cancelled' : ''}">
-              <td>${esc(m.fecha)}</td>
-              <td>${esc(m.hora)}</td>
-              <td>${m.anulado ? 'ANULADO · ' : ''}${m.tipo === 'buyin' ? 'Buy-in' : 'Re-Entry'}</td>
-              <td>${money(m.monto)}</td>
-              <td>${esc(m.torneo)}</td>
-              <td>${esc(m.cajero || '—')}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>`;
 
-  }catch(e){
-    $('historialContent').innerHTML =
-      '<div class="msg warn">'+esc(e.message)+'</div>';
-  }
+    function esc(v) {
 
-};
+      return String(v ?? '')
+        .replace(
+          /[&<>"']/g,
+          c => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          }[c])
+        );
 
-$('closeHistorial').onclick = () =>
-  $('historialModal').classList.add('hidden');
+    }
 
 
-$('savePlayer').onclick=async()=>{
-
-  const id=$('editId').value;
-
-
-  const body={
-
-    nombre:$('editNombre')
-      .value
-      .trim(),
-
-    apellido:$('editApellido')
-      .value
-      .trim(),
-
-    telefono:$('editTelefono')
-      .value
-      .trim(),
-
-    email:$('editEmail')
-      .value
-      .trim()
-
-  };
+    $('playerSearch').oninput =
+      () => loadPlayers();
 
 
-  const confirmado=await openConfirmModal({
-
-    title:'¿Confirmar edición del jugador?',
-
-    message:
-      `Se van a guardar los cambios de `+
-      `${body.nombre} ${body.apellido} `+
-      `(DNI ${$('editDni').value}).`,
-
-    confirmText:'Guardar cambios'
-
-  });
+    $('refreshPlayers').onclick =
+      loadPlayers;
 
 
-  if(!confirmado) return;
+    /* =========================
+       EDITAR JUGADOR
+    ========================= */
+
+    window.openEdit = p => {
+
+      $('editId').value = p._id;
+
+      $('editDni').value = p.dni;
+
+      $('editNombre').value = p.nombre;
+
+      $('editApellido').value = p.apellido;
+
+      $('editTelefono').value =
+        p.telefono || '';
+
+      $('editEmail').value =
+        p.email || '';
+
+      $('editMsg').innerHTML = '';
+
+      $('editModal')
+        .classList
+        .remove('hidden');
+
+    };
 
 
-  try{
+    window.deletePlayer = async p => {
 
-    const r=await api(
-      '/players/'+id,
-      {
-        method:'PUT',
-        headers:{
-          'Content-Type':
-            'application/json'
-        },
-        body:JSON.stringify(body)
+      const confirmado = await openConfirmModal({
+
+        title: '¿Eliminar jugador?',
+
+        message:
+          `Se va a eliminar a ${p.nombre} ${p.apellido} (DNI ${p.dni}). ` +
+          `Si nunca tuvo operaciones registradas se borra por completo. ` +
+          `Si ya tiene historial, se conserva y el jugador solo queda desactivado.`,
+
+        confirmText: 'Eliminar'
+
+      });
+
+
+      if (!confirmado) return;
+
+
+      try {
+
+        const r = await api(
+          '/players/' + p._id,
+          { method: 'DELETE' }
+        );
+
+        const d = await r.json();
+
+
+        if (!r.ok)
+          throw new Error(d.error);
+
+
+        showToast(
+          d.borradoReal
+            ? 'Jugador eliminado'
+            : 'Jugador desactivado',
+          d.borradoReal
+            ? `${p.nombre} ${p.apellido} se borró por completo (no tenía operaciones registradas).`
+            : `${p.nombre} ${p.apellido} tenía historial, así que se desactivó y se conservó su historial.`
+        );
+
+
+        loadPlayers();
+
+      } catch (e) {
+
+        showToast(
+          'No se pudo eliminar el jugador',
+          e.message,
+          'error'
+        );
+
       }
-    );
 
+    };
 
-    const d=await r.json();
 
+    $('closeModal').onclick = () =>
+      $('editModal')
+        .classList
+        .add('hidden');
 
-    if(!r.ok)
-      throw new Error(d.error);
 
+    /* =========================
+       HISTORIAL DE JUGADOR
+    ========================= */
 
-    $('editModal')
-      .classList
-      .add('hidden');
+    let historialMovimientosCache = [];
 
+    window.openHistorial = async (p) => {
 
-    showToast(
-      'Jugador actualizado',
-      `Los datos de ${body.nombre} ${body.apellido} se guardaron con éxito.`
-    );
+      $('historialTitle').textContent =
+        `Historial — ${p.nombre} ${p.apellido} (DNI ${p.dni})`;
 
+      $('historialContent').innerHTML =
+        '<div class="loading">Cargando...</div>';
 
-    loadPlayers();
+      $('historialFecha').value = '';
 
+      $('historialModal').classList.remove('hidden');
 
-  }catch(e){
+      try {
 
-    $('editMsg').innerHTML=
-      '<div class="msg warn">'+
-      e.message+
-      '</div>';
+        const r = await api('/players/' + p._id + '/historial');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
 
+        historialMovimientosCache = d.movimientos;
+        renderHistorialTabla(historialMovimientosCache);
 
-    showToast(
-      'No se pudo editar el jugador',
-      e.message,
-      'error'
-    );
-
-  }
-
-};
-
-
-/* =========================
-   GUARDAR TORNEO
-========================= */
-
-$('saveTournament').onclick=async()=>{
-
-  const nombre=
-    $('torneoFormNombre')
-      .value
-      .trim();
-
-  const fecha=
-    $('torneoFormFecha')
-      .value;
-
-  const buyIn=
-    Number(
-      $('torneoFormBuyin')
-        .value
-    );
-
-  const recompra=
-    Number(
-      $('torneoFormRecompra')
-        .value
-    );
-
-  const rake=
-    Number(
-      $('torneoFormRake')
-        .value
-    );
-
-
-  /* VALIDACIONES */
-
-  if(!nombre){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El nombre del torneo es obligatorio.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  if(!fecha){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'La fecha del torneo es obligatoria.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  if(
-    !Number.isFinite(buyIn)||
-    buyIn<0
-  ){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El buy-in no puede ser negativo.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  if(
-    !Number.isFinite(recompra)||
-    recompra<0
-  ){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El monto de Re-Entry no puede ser negativo.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  if(
-    !Number.isFinite(rake)||
-    rake<0
-  ){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El rake no puede ser negativo.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  /*
-    El rake no puede superar
-    el valor total de la entrada.
-  */
-
-  if(rake>buyIn){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El rake no puede ser mayor que el buy-in total.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  /*
-    El mismo rake se utiliza
-    para buy-in y recompra.
-  */
-
-  if(rake>recompra){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      'El rake tampoco puede ser mayor que el monto de Re-Entry.'+
-      '</div>';
-
-    return;
-
-  }
-
-
-  const body={
-
-    nombre,
-
-    fecha,
-
-    buyIn,
-
-    recompra,
-
-    rake
-
-  };
-
-
-  const confirmado=await openConfirmModal({
-
-    title:'¿Confirmar configuración del torneo?',
-
-    message:
-      `Se va a activar "${nombre}" (fecha ${fecha}) `+
-      `y se desactivará el torneo activo anterior, si había uno.`,
-
-    confirmText:'Guardar y activar'
-
-  });
-
-
-  if(!confirmado) return;
-
-
-  try{
-
-    const r=await api(
-      '/tournament',
-      {
-        method:'POST',
-        headers:{
-          'Content-Type':
-            'application/json'
-        },
-        body:JSON.stringify(body)
+      } catch (e) {
+        $('historialContent').innerHTML =
+          '<div class="msg warn">' + esc(e.message) + '</div>';
       }
-    );
+
+    };
+
+    function renderHistorialTabla(lista) {
+
+      if (lista.length === 0) {
+        $('historialContent').innerHTML =
+          '<div class="empty">No hay movimientos para mostrar.</div>';
+        return;
+      }
+
+      $('historialContent').innerHTML = `
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Monto</th><th>Torneo</th><th>Cajero</th></tr>
+      </thead>
+      <tbody>
+        ${lista.map(m => `
+          <tr class="${m.anulado ? 'cancelled' : ''}">
+            <td>${esc(m.fecha)}</td>
+            <td>${esc(m.hora)}</td>
+            <td>${m.anulado ? 'ANULADO · ' : ''}${m.tipo === 'buyin' ? 'Buy-in' : 'Re-Entry'}</td>
+            <td>${money(m.monto)}</td>
+            <td>${esc(m.torneo)}</td>
+            <td>${esc(m.cajero || '—')}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+    }
+
+    $('historialFecha').onchange = () => {
+      const fecha = $('historialFecha').value;
+      const filtrado = fecha
+        ? historialMovimientosCache.filter(m => m.fecha === fecha)
+        : historialMovimientosCache;
+      renderHistorialTabla(filtrado);
+    };
+
+    $('historialLimpiarFecha').onclick = () => {
+      $('historialFecha').value = '';
+      renderHistorialTabla(historialMovimientosCache);
+    };
+
+    $('closeHistorial').onclick = () =>
+      $('historialModal').classList.add('hidden');
 
 
-    const d=await r.json();
+    $('savePlayer').onclick = async () => {
+
+      const id = $('editId').value;
 
 
-    if(!r.ok)
-      throw new Error(d.error);
+      const body = {
+
+        nombre: $('editNombre')
+          .value
+          .trim(),
+
+        apellido: $('editApellido')
+          .value
+          .trim(),
+
+        telefono: $('editTelefono')
+          .value
+          .trim(),
+
+        email: $('editEmail')
+          .value
+          .trim()
+
+      };
 
 
-    $('torneoMsg').innerHTML=
-      '<div class="msg info">'+
-      'Torneo guardado y activado correctamente.'+
-      '</div>';
+      const confirmado = await openConfirmModal({
+
+        title: '¿Confirmar edición del jugador?',
+
+        message:
+          `Se van a guardar los cambios de ` +
+          `${body.nombre} ${body.apellido} ` +
+          `(DNI ${$('editDni').value}).`,
+
+        confirmText: 'Guardar cambios'
+
+      });
 
 
-    showToast(
-      'Torneo activado',
-      `"${nombre}" quedó configurado y activo.`
-    );
+      if (!confirmado) return;
 
 
-    await loadConfig();
+      try {
+
+        const r = await api(
+          '/players/' + id,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type':
+                'application/json'
+            },
+            body: JSON.stringify(body)
+          }
+        );
 
 
-  }catch(e){
-
-    $('torneoMsg').innerHTML=
-      '<div class="msg warn">'+
-      e.message+
-      '</div>';
+        const d = await r.json();
 
 
-    showToast(
-      'No se pudo guardar el torneo',
-      e.message,
-      'error'
-    );
-
-  }
-
-};
+        if (!r.ok)
+          throw new Error(d.error);
 
 
-/* =========================
-   CONTROL DEL DIA
-========================= */
-
-let torneosHistorialCache=[];
+        $('editModal')
+          .classList
+          .add('hidden');
 
 
-async function loadTorneosHistorial(){
-
-  try{
-
-    const r=
-      await api('/tournament/historial');
-
-    torneosHistorialCache=
-      await r.json();
+        showToast(
+          'Jugador actualizado',
+          `Los datos de ${body.nombre} ${body.apellido} se guardaron con éxito.`
+        );
 
 
-    const seleccionActual=
-      $('controlTorneoSelect').value;
+        loadPlayers();
 
 
-    $('controlTorneoSelect').innerHTML=
-      '<option value="">Torneo actual (hoy)</option>'+
-      torneosHistorialCache.map(
-        t=>`<option value="${esc(t.fecha)}">${esc(t.nombre)} — ${esc(t.fecha)}</option>`
-      ).join('');
+      } catch (e) {
+
+        $('editMsg').innerHTML =
+          '<div class="msg warn">' +
+          e.message +
+          '</div>';
 
 
-    $('controlTorneoSelect').value=
-      seleccionActual;
+        showToast(
+          'No se pudo editar el jugador',
+          e.message,
+          'error'
+        );
+
+      }
+
+    };
 
 
-  }catch(e){
+    /* =========================
+       ESTADISTICAS DE JUGADORES
+    ========================= */
 
-    console.error(
-      'Error cargando historial de torneos:',
-      e
-    );
+    let estadisticasCache = [];
+    let estadisticasOrden = { campo: 'apellido', asc: true };
 
-  }
+    async function loadEstadisticas() {
 
-}
+      $('estadisticasBody').innerHTML =
+        '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+
+      try {
+
+        const r = await api('/players/estadisticas');
+        const data = await r.json();
+
+        if (!r.ok || !Array.isArray(data)) {
+          throw new Error(data.error || 'El servidor no devolvió una lista válida.');
+        }
+
+        estadisticasCache = data;
+        renderEstadisticas();
+
+      } catch (e) {
+
+        $('estadisticasBody').innerHTML =
+          '<tr><td colspan="6" class="danger">' + esc(e.message) + '</td></tr>';
+
+      }
+
+    }
+
+    function renderEstadisticas() {
+
+      const empty = $('estadisticasEmpty');
+
+      if (estadisticasCache.length === 0) {
+        $('estadisticasBody').innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      const { campo, asc } = estadisticasOrden;
+
+      const ordenados = [...estadisticasCache].sort((a, b) => {
+        let va = a[campo], vb = b[campo];
+        if (campo === 'apellido') {
+          va = (a.apellido + ' ' + a.nombre).toLowerCase();
+          vb = (b.apellido + ' ' + b.nombre).toLowerCase();
+        }
+        if (va < vb) return asc ? -1 : 1;
+        if (va > vb) return asc ? 1 : -1;
+        return 0;
+      });
+
+      $('estadisticasBody').innerHTML = ordenados.map(p => `
+    <tr>
+      <td>${esc(p.apellido)}, ${esc(p.nombre)}</td>
+      <td>${esc(p.dni)}</td>
+      <td>${p.operaciones}</td>
+      <td>${money(p.totalGastado)}</td>
+      <td>${p.recurrencia}</td>
+      <td>${esc(p.ultimaFecha || '—')}</td>
+    </tr>`).join('');
+
+    }
+
+    document.querySelectorAll('#tab-estadisticas th[data-sort]').forEach(th => {
+      th.onclick = () => {
+        const campo = th.dataset.sort;
+        if (estadisticasOrden.campo === campo) {
+          estadisticasOrden.asc = !estadisticasOrden.asc;
+        } else {
+          estadisticasOrden = { campo, asc: true };
+        }
+        renderEstadisticas();
+      };
+    });
+
+    $('refreshEstadisticas').onclick = loadEstadisticas;
 
 
-$('controlTorneoSelect').onchange=
-  loadControl;
+    /* =========================
+       GUARDAR TORNEO
+    ========================= */
+
+    $('saveTournament').onclick = async () => {
+
+      const nombre =
+        $('torneoFormNombre')
+          .value
+          .trim();
+
+      const fecha =
+        $('torneoFormFecha')
+          .value;
+
+      const buyIn =
+        Number(
+          $('torneoFormBuyin')
+            .value
+        );
+
+      const recompra =
+        Number(
+          $('torneoFormRecompra')
+            .value
+        );
+
+      const rake =
+        Number(
+          $('torneoFormRake')
+            .value
+        );
 
 
-async function loadControl(){
+      /* VALIDACIONES */
 
-  try{
+      if (!nombre) {
 
-    const fechaSeleccionada=
-      $('controlTorneoSelect').value;
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El nombre del torneo es obligatorio.' +
+          '</div>';
 
+        return;
 
-    const query=
-      fechaSeleccionada
-        ? '?fecha='+encodeURIComponent(fechaSeleccionada)
-        : '';
-
-
-    const r=
-      await api(
-        '/transactions/today'+query
-      );
+      }
 
 
-    const d=
-      await r.json();
+      if (!fecha) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'La fecha del torneo es obligatoria.' +
+          '</div>';
+
+        return;
+
+      }
 
 
-    // Si se eligio una fecha historica, mostramos el nombre de ESE
-    // torneo (buscado en el historial). Si no, el torneo activo actual.
-    const torneoDeLaFecha=
-      fechaSeleccionada
-        ? torneosHistorialCache.find(
-            t=>t.fecha===fechaSeleccionada
-          )
-        : null;
+      if (
+        !Number.isFinite(buyIn) ||
+        buyIn < 0
+      ) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El buy-in no puede ser negativo.' +
+          '</div>';
+
+        return;
+
+      }
 
 
-    $('controlFecha').textContent=
-      'Fecha: '+
-      d.fecha+
-      ' · Torneo: '+
-      (
-        (torneoDeLaFecha
-          ? torneoDeLaFecha.nombre
-          : config.nombre)||
-        'Sin configurar'
-      );
+      if (
+        !Number.isFinite(recompra) ||
+        recompra < 0
+      ) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El monto de Re-Entry no puede ser negativo.' +
+          '</div>';
+
+        return;
+
+      }
 
 
-    const s=d.stats;
+      if (
+        !Number.isFinite(rake) ||
+        rake < 0
+      ) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El rake no puede ser negativo.' +
+          '</div>';
+
+        return;
+
+      }
 
 
-    $('statsBox').innerHTML=`
+      /*
+        El rake no puede superar
+        el valor total de la entrada.
+      */
+
+      if (rake > buyIn) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El rake no puede ser mayor que el buy-in total.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      /*
+        El mismo rake se utiliza
+        para buy-in y recompra.
+      */
+
+      if (rake > recompra) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          'El rake tampoco puede ser mayor que el monto de Re-Entry.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const body = {
+
+        nombre,
+
+        fecha,
+
+        buyIn,
+
+        recompra,
+
+        rake
+
+      };
+
+
+      const confirmado = await openConfirmModal({
+
+        title: '¿Confirmar configuración del torneo?',
+
+        message:
+          `Se va a activar "${nombre}" (fecha ${fecha}) ` +
+          `y se desactivará el torneo activo anterior, si había uno.`,
+
+        confirmText: 'Guardar y activar'
+
+      });
+
+
+      if (!confirmado) return;
+
+
+      try {
+
+        const r = await api(
+          '/tournament',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type':
+                'application/json'
+            },
+            body: JSON.stringify(body)
+          }
+        );
+
+
+        const d = await r.json();
+
+
+        if (!r.ok)
+          throw new Error(d.error);
+
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg info">' +
+          'Torneo guardado y activado correctamente.' +
+          '</div>';
+
+
+        showToast(
+          'Torneo activado',
+          `"${nombre}" quedó configurado y activo.`
+        );
+
+
+        await loadConfig();
+
+
+      } catch (e) {
+
+        $('torneoMsg').innerHTML =
+          '<div class="msg warn">' +
+          e.message +
+          '</div>';
+
+
+        showToast(
+          'No se pudo guardar el torneo',
+          e.message,
+          'error'
+        );
+
+      }
+
+    };
+
+
+    /* =========================
+       CONTROL DEL DIA
+    ========================= */
+
+    let torneosHistorialCache = [];
+
+
+    async function loadTorneosHistorial() {
+
+      try {
+
+        const r =
+          await api('/tournament/historial');
+
+        torneosHistorialCache =
+          await r.json();
+
+
+        const seleccionActual =
+          $('controlTorneoSelect').value;
+
+
+        $('controlTorneoSelect').innerHTML =
+          '<option value="">Torneo actual (hoy)</option>' +
+          torneosHistorialCache.map(
+            t => `<option value="${esc(t.fecha)}">${esc(t.nombre)} — ${esc(t.fecha)}</option>`
+          ).join('');
+
+
+        $('controlTorneoSelect').value =
+          seleccionActual;
+
+
+      } catch (e) {
+
+        console.error(
+          'Error cargando historial de torneos:',
+          e
+        );
+
+      }
+
+    }
+
+
+    $('controlTorneoSelect').onchange =
+      loadControl;
+
+
+    async function loadControl() {
+
+      try {
+
+        const fechaSeleccionada =
+          $('controlTorneoSelect').value;
+
+
+        const query =
+          fechaSeleccionada
+            ? '?fecha=' + encodeURIComponent(fechaSeleccionada)
+            : '';
+
+
+        const r =
+          await api(
+            '/transactions/today' + query
+          );
+
+
+        const d =
+          await r.json();
+
+
+        const torneoDeLaFecha =
+          fechaSeleccionada
+            ? torneosHistorialCache.find(
+              t => t.fecha === fechaSeleccionada
+            )
+            : null;
+
+
+        $('controlFecha').textContent =
+          'Fecha: ' +
+          d.fecha +
+          ' · Torneo: ' +
+          (
+            (torneoDeLaFecha
+              ? torneoDeLaFecha.nombre
+              : config.nombre) ||
+            'Sin configurar'
+          );
+
+
+        const s = d.stats;
+
+
+        $('statsBox').innerHTML = `
 
       <div class="stat">
 
@@ -2493,69 +2847,85 @@ async function loadControl(){
     `;
 
 
-    controlTransaccionesCache=
-      d.transacciones;
+        controlTransaccionesCache =
+          d.transacciones;
 
 
-    aplicarFiltrosControl();
+        aplicarFiltrosControl();
 
 
-  }catch(e){
+      } catch (e) {
 
-    console.error(
-      'Error cargando control:',
-      e
-    );
+        console.error(
+          'Error cargando control:',
+          e
+        );
 
-  }
-
-}
-
-
-let controlTransaccionesCache=[];
-
-
-function aplicarFiltrosControl(){
-
-  const tipo=
-    $('controlFiltroTipo').value;
-
-
-  const dni=
-    $('controlFiltroDni')
-      .value
-      .replace(/\D/g,'');
-
-
-  const filtradas=
-    controlTransaccionesCache.filter(t=>{
-
-      if(tipo && t.tipo!==tipo){
-        return false;
       }
 
-      if(dni && !t.dni.includes(dni)){
-        return false;
-      }
-
-      return true;
-
-    });
+    }
 
 
-  renderControlTabla(filtradas);
-
-}
+    let controlTransaccionesCache = [];
 
 
-function renderControlTabla(lista){
+    function aplicarFiltrosControl() {
 
-  $('controlTbody').innerHTML=
-    lista.length
-      ? lista.map(
-          t=>`
+      const tipo =
+        $('controlFiltroTipo').value;
 
-          <tr class="${t.anulado?'cancelled':''}">
+
+      const dni =
+        $('controlFiltroDni')
+          .value
+          .replace(/\D/g, '');
+
+
+      const nombreQuery =
+        $('controlFiltroNombre')
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const filtradas =
+        controlTransaccionesCache.filter(t => {
+
+          if (tipo && t.tipo !== tipo) {
+            return false;
+          }
+
+          if (dni && !t.dni.includes(dni)) {
+            return false;
+          }
+
+          if (
+            nombreQuery &&
+            !(t.nombre + ' ' + t.apellido)
+              .toLowerCase()
+              .includes(nombreQuery)
+          ) {
+            return false;
+          }
+
+          return true;
+
+        });
+
+
+      renderControlTabla(filtradas);
+
+    }
+
+
+    function renderControlTabla(lista) {
+
+      $('controlTbody').innerHTML =
+        lista.length
+          ? lista.map(
+            t => `
+
+          <tr class="${t.anulado ? 'cancelled' : ''}">
 
             <td>${esc(t.hora)}</td>
 
@@ -2563,15 +2933,15 @@ function renderControlTabla(lista){
 
             <td>
               ${esc(
-                t.nombre+
-                ' '+
-                t.apellido
-              )}
+              t.nombre +
+              ' ' +
+              t.apellido
+            )}
             </td>
 
             <td>
               ${t.anulado ? 'ANULADO · ' : ''}
-              ${t.tipo==='buyin' ? 'Buy-in' : 'Re-Entry'}
+              ${t.tipo === 'buyin' ? 'Buy-in' : 'Re-Entry'}
             </td>
 
             <td>
@@ -2579,204 +2949,516 @@ function renderControlTabla(lista){
             </td>
 
             <td>
-              ${esc(t.cajero||'—')}
+              ${esc(t.cajero || '—')}
             </td>
 
             <td>
               ${t.anulado
-                ? `<span class="cancelled-by">Por ${esc(t.anuladoPor||'—')}</span>`
+                ? `<span class="cancelled-by">Por ${esc(t.anuladoPor || '—')}</span>`
                 : `<button class="btn danger edit" onclick='voidTransaction(${JSON.stringify(t)})'>Anular</button>`}
             </td>
 
           </tr>
 
           `
-        ).join('')
-      : '';
+          ).join('')
+          : '';
 
 
-  $('controlEmpty').textContent=
-    controlTransaccionesCache.length===0
-      ? 'Todavía no se registraron movimientos.'
-      : 'Ningún movimiento coincide con el filtro elegido.';
+      $('controlEmpty').textContent =
+        controlTransaccionesCache.length === 0
+          ? 'Todavía no se registraron movimientos.'
+          : 'Ningún movimiento coincide con el filtro elegido.';
 
 
-  $('controlEmpty')
-    .classList
-    .toggle(
-      'hidden',
-      lista.length>0
-    );
-
-}
-
-
-$('controlFiltroTipo').onchange=
-  aplicarFiltrosControl;
-
-
-$('controlFiltroDni').oninput=
-  aplicarFiltrosControl;
-
-
-$('refreshControl').onclick=
-  loadControl;
-
-
-window.voidTransaction=async t=>{
-
-  const confirmado=await openConfirmModal({
-    title:'¿Anular movimiento?',
-    message:
-      `Se anulará el ${t.tipo==='buyin'?'buy-in':'Re-Entry'} de `+
-      `${t.nombre} ${t.apellido} por ${money(t.monto)}. `+
-      'Quedará registrado, pero no contará en los totales.',
-    confirmText:'Anular'
-  });
-
-  if(!confirmado) return;
-
-  try{
-    const r=await api(
-      '/transactions/'+t._id+'/anular',
-      {method:'PATCH'}
-    );
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error);
-    showToast('Movimiento anulado', 'La operación quedó registrada y excluida del conteo.');
-    loadControl();
-  }catch(e){
-    showToast('No se pudo anular el movimiento', e.message, 'error');
-  }
-
-};
-
-
-/* =========================
-   EXPORTACIONES
-========================= */
-
-async function downloadExport(type){
-
-  try{
-
-    const fechaSeleccionada=
-      $('controlTorneoSelect').value;
-
-
-    // El Excel del dia (export.xlsx) siempre exporta el dia actual
-    // en el backend, asi que no tiene sentido pedirlo con una fecha
-    // historica elegida en el selector.
-    if(
-      type==='xlsx'&&
-      fechaSeleccionada
-    ){
-
-      showToast(
-        'Elegí "Torneo actual (hoy)"',
-        'El Excel del día solo exporta la jornada en curso. Para una fecha anterior, usá "Exportar CSV".',
-        'error'
-      );
-
-      return;
+      $('controlEmpty')
+        .classList
+        .toggle(
+          'hidden',
+          lista.length > 0
+        );
 
     }
 
 
-    const query=
-      (type==='csv'&&fechaSeleccionada)
-        ? '?desde='+encodeURIComponent(fechaSeleccionada)+
-          '&hasta='+encodeURIComponent(fechaSeleccionada)
-        : '';
+    $('controlFiltroTipo').onchange =
+      aplicarFiltrosControl;
 
 
-    const r=
-      await api(
-        '/transactions/export.'+
-        type+
-        query
-      );
+    $('controlFiltroDni').oninput =
+      aplicarFiltrosControl;
 
 
-    if(!r.ok){
-
-      const d=
-        await r.json();
-
-      throw new Error(
-        d.error||
-        'No se pudo exportar.'
-      );
-
-    }
+    $('controlFiltroNombre').oninput =
+      aplicarFiltrosControl;
 
 
-    const blob=
-      await r.blob();
+    $('refreshControl').onclick =
+      loadControl;
 
 
-    const a=
-      document.createElement('a');
+    window.voidTransaction = async t => {
+
+      const confirmado = await openConfirmModal({
+        title: '¿Anular movimiento?',
+        message:
+          `Se anulará el ${t.tipo === 'buyin' ? 'buy-in' : 'Re-Entry'} de ` +
+          `${t.nombre} ${t.apellido} por ${money(t.monto)}. ` +
+          'Quedará registrado, pero no contará en los totales.',
+        confirmText: 'Anular'
+      });
+
+      if (!confirmado) return;
+
+      try {
+        const r = await api(
+          '/transactions/' + t._id + '/anular',
+          { method: 'PATCH' }
+        );
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Movimiento anulado', 'La operación quedó registrada y excluida del conteo.');
+        loadControl();
+      } catch (e) {
+        showToast('No se pudo anular el movimiento', e.message, 'error');
+      }
+
+    };
 
 
-    a.href=
-      URL.createObjectURL(blob);
+    /* =========================
+       EXPORTACIONES
+    ========================= */
+
+    async function downloadExport(type) {
+
+      try {
+
+        const fechaSeleccionada =
+          $('controlTorneoSelect').value;
 
 
-    a.download=
-      type==='xlsx'
-        ? 'operaciones.xlsx'
-        : (
-            fechaSeleccionada
-              ? `operaciones-${fechaSeleccionada}.csv`
-              : 'operaciones.csv'
+        const query =
+          !fechaSeleccionada
+            ? ''
+            : type === 'xlsx'
+              ? '?fecha=' + encodeURIComponent(fechaSeleccionada)
+              : '?desde=' + encodeURIComponent(fechaSeleccionada) +
+              '&hasta=' + encodeURIComponent(fechaSeleccionada);
+
+
+        const r =
+          await api(
+            '/transactions/export.' +
+            type +
+            query
           );
 
 
-    document.body.appendChild(a);
+        if (!r.ok) {
 
-    a.click();
+          const d =
+            await r.json();
 
-    a.remove();
+          throw new Error(
+            d.error ||
+            'No se pudo exportar.'
+          );
 
-
-    setTimeout(
-      ()=>{
-        URL.revokeObjectURL(a.href);
-      },
-      1000
-    );
+        }
 
 
-  }catch(e){
-
-    showToast(
-      'No se pudo exportar',
-      e.message,
-      'error'
-    );
-
-  }
-
-}
+        const blob =
+          await r.blob();
 
 
-$('exportCsv').onclick=
-  ()=>downloadExport('csv');
+        const a =
+          document.createElement('a');
 
 
-$('exportExcel').onclick=
-  ()=>downloadExport('xlsx');
+        a.href =
+          URL.createObjectURL(blob);
 
 
-/* =========================
-   ARRANQUE
-========================= */
+        a.download =
+          type === 'xlsx'
+            ? (
+              fechaSeleccionada
+                ? `operaciones-${fechaSeleccionada}.xlsx`
+                : 'operaciones.xlsx'
+            )
+            : (
+              fechaSeleccionada
+                ? `operaciones-${fechaSeleccionada}.csv`
+                : 'operaciones.csv'
+            );
 
-if(token)
-  showApp();
 
-</script>
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+
+        setTimeout(
+          () => {
+            URL.revokeObjectURL(a.href);
+          },
+          1000
+        );
+
+
+      } catch (e) {
+
+        showToast(
+          'No se pudo exportar',
+          e.message,
+          'error'
+        );
+
+      }
+
+    }
+
+
+    $('exportCsv').onclick =
+      () => downloadExport('csv');
+
+
+    $('exportExcel').onclick =
+      () => downloadExport('xlsx');
+
+
+    /* =========================
+       ROTACION DE PAGADORES
+    ========================= */
+
+    let tableroData = { mesas: [], enMesa: [], enDescanso: [], disponibles: [], sugerido: null };
+    let rotacionRefreshInterval = null;
+    let rotacionTickInterval = null;
+    let pagadorSeleccionado = null; // { id, nombre } o null
+
+    function formatElapsed(desde) {
+      if (!desde) return '--:--:--';
+      const diffMs = Date.now() - new Date(desde).getTime();
+      const totalSec = Math.max(0, Math.floor(diffMs / 1000));
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function iniciarRotacionIntervals() {
+      detenerRotacionIntervals();
+      rotacionTickInterval = setInterval(tickRotacionClocks, 1000);
+      rotacionRefreshInterval = setInterval(loadTablero, 20000);
+    }
+
+    function detenerRotacionIntervals() {
+      if (rotacionTickInterval) { clearInterval(rotacionTickInterval); rotacionTickInterval = null; }
+      if (rotacionRefreshInterval) { clearInterval(rotacionRefreshInterval); rotacionRefreshInterval = null; }
+      cancelarSeleccion();
+    }
+
+    function tickRotacionClocks() {
+      document.querySelectorAll('#tab-rotacion .clock[data-desde]').forEach(el => {
+        el.textContent = formatElapsed(el.dataset.desde);
+      });
+    }
+
+    async function loadTablero() {
+      try {
+        const r = await api('/pagadores/tablero');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        tableroData = d;
+        renderMesas();
+        renderSugerido();
+        renderDescanso();
+        renderDisponibles();
+      } catch (e) {
+        console.error('Error cargando tablero:', e);
+      }
+    }
+
+
+    /* =========================================
+       SELECCION "TOCAR Y TOCAR" (pensado para tablet)
+       1) Se toca un pagador de Descanso o Disponibles -> queda seleccionado
+       2) Se toca una mesa libre -> se asigna ahi
+       3) Se toca una mesa ocupada -> reemplaza directo (el ocupante pasa
+          a descanso y el seleccionado entra en su lugar)
+    ========================================= */
+
+    function seleccionarPagador(id, nombre) {
+      if (pagadorSeleccionado && pagadorSeleccionado.id === id) {
+        cancelarSeleccion();
+        return;
+      }
+      pagadorSeleccionado = { id, nombre };
+      renderMesas();
+      renderDescanso();
+      renderDisponibles();
+      actualizarBannerSeleccion();
+    }
+
+    function cancelarSeleccion() {
+      if (!pagadorSeleccionado) return;
+      pagadorSeleccionado = null;
+      renderMesas();
+      renderDescanso();
+      renderDisponibles();
+      actualizarBannerSeleccion();
+    }
+
+    function actualizarBannerSeleccion() {
+      const banner = $('seleccionBanner');
+      if (!pagadorSeleccionado) {
+        banner.classList.add('hidden');
+        return;
+      }
+      $('seleccionBannerTexto').textContent =
+        `${pagadorSeleccionado.nombre} seleccionado — tocá una mesa libre para asignarlo, o una ocupada para reemplazar`;
+      banner.classList.remove('hidden');
+    }
+
+    $('btnCancelarSeleccion').onclick = cancelarSeleccion;
+
+
+    function renderMesas() {
+      $('mesasGrid').innerHTML = tableroData.mesas.map(m => {
+        if (!m.pagador) {
+          const esDestino = !!pagadorSeleccionado;
+          return `
+        <div class="mesa-card${esDestino ? ' destino' : ''}" ${esDestino ? `onclick="asignarAMesaSeleccionada(${m.mesa})"` : ''}>
+          <div class="mesa-num">Mesa ${m.mesa}</div>
+          <div class="mesa-libre">${esDestino ? 'Tocar para asignar' : 'Libre'}</div>
+        </div>`;
+        }
+        const p = m.pagador;
+        const puedeReemplazar = pagadorSeleccionado && pagadorSeleccionado.id !== p._id;
+        const nombreEscapado = esc(p.nombre).replace(/'/g, "\\'");
+        return `
+      <div class="mesa-card ocupada${puedeReemplazar ? ' destino-reemplazo' : ''}" ${puedeReemplazar ? `onclick="reemplazarEnMesa(${m.mesa}, '${p._id}', '${nombreEscapado}')"` : ''}>
+        <div class="mesa-num">Mesa ${m.mesa}</div>
+        <div class="mesa-pagador">${esc(p.nombre)}</div>
+        <div class="clock" data-desde="${p.desde}">${formatElapsed(p.desde)}</div>
+        ${puedeReemplazar
+            ? `<div class="mesa-libre" style="color:var(--danger2);padding:4px 0;">Tocar para reemplazar</div>`
+            : `<button class="btn danger btn-sm" onclick="enviarDescanso('${p._id}')">A descanso</button>`
+          }
+      </div>`;
+      }).join('');
+    }
+
+    window.asignarAMesaSeleccionada = async (mesa) => {
+      if (!pagadorSeleccionado) return;
+      const { id, nombre } = pagadorSeleccionado;
+
+      const confirmado = await openConfirmModal({
+        title: '¿Asignar a mesa?',
+        message: `Se va a asignar a ${nombre} a la Mesa ${mesa}.`,
+        confirmText: 'Asignar'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/' + id + '/asignar-mesa', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mesa })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Mesa asignada', `${nombre} quedó asignado a la Mesa ${mesa}.`);
+        cancelarSeleccion();
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo asignar', e.message, 'error');
+      }
+    };
+
+    window.reemplazarEnMesa = async (mesa, ocupanteId, ocupanteNombre) => {
+      if (!pagadorSeleccionado) return;
+      const { id, nombre } = pagadorSeleccionado;
+
+      const confirmado = await openConfirmModal({
+        title: '¿Reemplazar en la mesa?',
+        message: `${ocupanteNombre} va a pasar a descanso, y ${nombre} va a entrar en su lugar en la Mesa ${mesa}.`,
+        confirmText: 'Reemplazar'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r1 = await api('/pagadores/' + ocupanteId + '/descanso', { method: 'POST' });
+        const d1 = await r1.json();
+        if (!r1.ok) throw new Error(d1.error);
+
+        const r2 = await api('/pagadores/' + id + '/asignar-mesa', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mesa })
+        });
+        const d2 = await r2.json();
+        if (!r2.ok) throw new Error(d2.error);
+
+        showToast('Mesa reemplazada', `${nombre} entró a la Mesa ${mesa}, ${ocupanteNombre} pasó a descanso.`);
+        cancelarSeleccion();
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo reemplazar', e.message, 'error');
+      }
+    };
+
+    function renderSugerido() {
+      const box = $('sugeridoContent');
+      const s = tableroData.sugerido;
+      if (!s) {
+        box.innerHTML = '<p class="sub">No hay relevo sugerido en este momento (falta gente en mesa o en descanso).</p>';
+        return;
+      }
+      box.innerHTML = `
+    <p class="sub" style="margin-bottom:14px">
+      <b>${esc(s.relevado.nombre)}</b> lleva <span class="clock" data-desde="${s.relevado.desde}">${formatElapsed(s.relevado.desde)}</span> en la Mesa ${s.relevado.mesa}
+      <span class="sugerido-flecha">→</span>
+      lo relevaría <b>${esc(s.relevador.nombre)}</b>, que descansa hace <span class="clock" data-desde="${s.relevador.desde}">${formatElapsed(s.relevador.desde)}</span>
+    </p>
+    <button class="btn gold" onclick="confirmarRelevo('${s.relevado._id}','${s.relevador._id}')">Confirmar relevo</button>
+  `;
+    }
+
+    function renderDescanso() {
+      const lista = tableroData.enDescanso;
+      const empty = $('descansoEmpty');
+      if (lista.length === 0) {
+        $('descansoList').innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      $('descansoList').innerHTML = lista.map(p => {
+        const seleccionado = pagadorSeleccionado && pagadorSeleccionado.id === p._id;
+        return `
+    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="seleccionarPagador('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
+      <div class="info">
+        <span class="nombre">${esc(p.nombre)}</span>
+        <span class="clock" data-desde="${p.desde}" style="margin:0">${formatElapsed(p.desde)}</span>
+      </div>
+      <button class="btn btn-sm" onclick="event.stopPropagation(); marcarDisponible('${p._id}')">Fin de jornada</button>
+    </div>`;
+      }).join('');
+    }
+
+    function renderDisponibles() {
+      const lista = tableroData.disponibles;
+      const empty = $('disponiblesEmpty');
+      if (lista.length === 0) {
+        $('disponiblesList').innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      $('disponiblesList').innerHTML = lista.map(p => {
+        const seleccionado = pagadorSeleccionado && pagadorSeleccionado.id === p._id;
+        return `
+    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="seleccionarPagador('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
+      <div class="info">
+        <span class="nombre">${esc(p.nombre)}</span>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    $('btnAgregarPagador').onclick = async () => {
+      const nombre = $('rotNombre').value.trim();
+      if (!nombre) { showToast('Falta el nombre', 'Ingresá el nombre del pagador.', 'error'); return; }
+      try {
+        const r = await api('/pagadores', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Pagador agregado', `${nombre} quedó disponible para asignar.`);
+        $('rotNombre').value = '';
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo agregar', e.message, 'error');
+      }
+    };
+
+    $('refreshRotacion').onclick = loadTablero;
+
+    window.enviarDescanso = async (id) => {
+      const confirmado = await openConfirmModal({
+        title: '¿Enviar a descanso?',
+        message: 'El pagador va a quedar en la cola de descanso y la mesa queda libre.',
+        confirmText: 'Enviar a descanso'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/' + id + '/descanso', { method: 'POST' });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Enviado a descanso', 'La mesa quedó libre.');
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo enviar a descanso', e.message, 'error');
+      }
+    };
+
+    window.marcarDisponible = async (id) => {
+      const confirmado = await openConfirmModal({
+        title: '¿Finalizar jornada?',
+        message: 'El pagador sale de la rotación (ni en mesa ni en descanso) hasta que se lo vuelva a asignar.',
+        confirmText: 'Finalizar'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/' + id + '/disponible', { method: 'POST' });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Jornada finalizada', 'El pagador quedó fuera de la rotación.');
+        if (pagadorSeleccionado && pagadorSeleccionado.id === id) cancelarSeleccion();
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo actualizar', e.message, 'error');
+      }
+    };
+
+    window.confirmarRelevo = async (relevadoId, relevadorId) => {
+      const confirmado = await openConfirmModal({
+        title: '¿Confirmar relevo?',
+        message: 'Se intercambian los estados: el de la mesa pasa a descanso, y el de descanso entra a esa mesa.',
+        confirmText: 'Confirmar relevo'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/relevo', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ relevadoId, relevadorId })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Relevo realizado', 'Se actualizó el tablero.');
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo hacer el relevo', e.message, 'error');
+      }
+    };
+
+
+    /* =========================
+       ARRANQUE
+    ========================= */
+
+    if (token)
+      showApp();
+
+  </script>
 
 </body>
+
 </html>

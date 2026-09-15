@@ -1,20 +1,9 @@
 const express = require('express');
 const Tournament = require('../models/Tournament');
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { diaOperativo } = require('../utils/diaOperativo');
 
 const router = express.Router();
-
-function todayStr() {
-  const d = new Date();
-
-  return (
-    d.getFullYear() +
-    '-' +
-    String(d.getMonth() + 1).padStart(2, '0') +
-    '-' +
-    String(d.getDate()).padStart(2, '0')
-  );
-}
 
 
 // ======================================================
@@ -33,7 +22,7 @@ router.get('/', requireAuth, async (req, res) => {
         buyIn: 0,
         recompra: 0,
         rake: 0,
-        fecha: todayStr(),
+        fecha: diaOperativo(),
         activo: false
       });
     }
@@ -52,10 +41,6 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ======================================================
 // HISTORIAL DE TORNEOS (para el selector de Direccion)
-// ======================================================
-// Devuelve todos los torneos guardados, mas reciente primero,
-// para que Direccion pueda elegir una fecha/torneo anterior
-// y consultar su Control operativo.
 // ======================================================
 
 router.get('/historial', requireAuth, requireRole('direccion'), async (req, res) => {
@@ -93,11 +78,11 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
       fecha
     } = req.body || {};
 
-    const torneoFecha = fecha || todayStr();
-
-    // ----------------------------------------------
-    // Validaciones
-    // ----------------------------------------------
+    // Si no mandan fecha, usamos el dia operativo (no medianoche calendario)
+    // asi un torneo cargado a las 2 AM se atribuye al dia que realmente
+    // corresponde en la operatoria del casino - y coincide con la fecha
+    // que van a tener las transacciones que se carguen esa madrugada.
+    const torneoFecha = fecha || diaOperativo();
 
     if (
       !nombre ||
@@ -134,35 +119,22 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
       });
     }
 
-    // El rake no puede ser mayor que el buy-in
     if (rakeNum > buyInNum) {
       return res.status(400).json({
         error: 'El rake no puede ser mayor que el buy-in.'
       });
     }
 
-    // Como el rake es el mismo para las recompras,
-    // tampoco puede ser mayor que el monto de la recompra.
     if (recompraNum > 0 && rakeNum > recompraNum) {
       return res.status(400).json({
         error: 'El rake no puede ser mayor que el monto de la recompra.'
       });
     }
 
-
-    // ----------------------------------------------
-    // Desactivar torneo anterior
-    // ----------------------------------------------
-
     await Tournament.updateMany(
       { activo: true },
       { $set: { activo: false } }
     );
-
-
-    // ----------------------------------------------
-    // Crear nuevo torneo
-    // ----------------------------------------------
 
     const nuevo = await Tournament.create({
       nombre: String(nombre).trim(),
@@ -172,7 +144,6 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
       fecha: torneoFecha,
       activo: true
     });
-
 
     res.status(201).json(nuevo);
 

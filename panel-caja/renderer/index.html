@@ -1,1046 +1,1078 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<title>Panel Caja — Torneo de Poker</title>
+  <meta charset="UTF-8">
+  <title>Panel Caja — Torneo de Poker</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
-<style>
-:root{
-  --bg:#0E1A15;
-  --panel:#152420;
-  --p2:#1B2E27;
-  --b:#2B3E36;
-  --b2:#3A5148;
-  --g:#C9A227;
-  --g2:#E4C55E;
-  --green:#3E8E63;
-  --green2:#5FB183;
-  --t:#F2EDE1;
-  --d:#9FB0A6;
-  --red:#C1503A;
-  --red2:#E0755F
-}
+  <style>
+    :root {
+      --bg: #0E1A15;
+      --panel: #152420;
+      --p2: #1B2E27;
+      --b: #2B3E36;
+      --b2: #3A5148;
+      --g: #C9A227;
+      --g2: #E4C55E;
+      --green: #3E8E63;
+      --green2: #5FB183;
+      --t: #F2EDE1;
+      --d: #9FB0A6;
+      --red: #C1503A;
+      --red2: #E0755F
+    }
 
-*{
-  box-sizing:border-box
-}
+    * {
+      box-sizing: border-box
+    }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--t);
-  font-family:Inter,system-ui
-}
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--t);
+      font-family: Inter, system-ui
+    }
 
-.wrap{
-  max-width:800px;
-  margin:auto;
-  padding:24px 20px 60px
-}
+    .wrap {
+      max-width: 800px;
+      margin: auto;
+      padding: 24px 20px 60px
+    }
 
-.login{
-  max-width:420px;
-  margin:12vh auto
-}
+    .login {
+      max-width: 420px;
+      margin: 12vh auto
+    }
 
-.brand{
-  text-align:center;
-  margin-bottom:25px
-}
+    .brand {
+      text-align: center;
+      margin-bottom: 25px
+    }
 
-.ey{
-  font:11px 'IBM Plex Mono';
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--green2)
-}
+    .ey {
+      font: 11px 'IBM Plex Mono';
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--green2)
+    }
 
-h1{
-  font:34px 'Bebas Neue';
-  margin:0
-}
+    h1 {
+      font: 34px 'Bebas Neue';
+      margin: 0
+    }
 
-h2{
-  font:22px 'Bebas Neue';
-  margin:0 0 4px
-}
+    h2 {
+      font: 22px 'Bebas Neue';
+      margin: 0 0 4px
+    }
 
-.loginbox,
-.panel{
-  background:var(--panel);
-  border:1px solid var(--b);
-  border-radius:10px;
-  padding:22px 24px;
-  margin-bottom:18px
-}
+    .loginbox,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--b);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 18px
+    }
 
-.sub,
-label{
-  font-size:13px;
-  color:var(--d)
-}
+    .sub,
+    label {
+      font-size: 13px;
+      color: var(--d)
+    }
 
-label{
-  display:block;
-  font-size:12px;
-  margin-bottom:5px
-}
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 5px
+    }
 
-.field{
-  margin-bottom:15px
-}
+    .field {
+      margin-bottom: 15px
+    }
 
-input{
-  width:100%;
-  background:var(--bg);
-  border:1px solid var(--b2);
-  border-radius:8px;
-  color:var(--t);
-  padding:11px 12px;
-  font-size:14px
-}
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--b2);
+      border-radius: 8px;
+      color: var(--t);
+      padding: 11px 12px;
+      font-size: 14px
+    }
 
-button{
-  border:1px solid var(--b2);
-  background:var(--p2);
-  color:var(--t);
-  padding:11px 18px;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer
-}
+    button {
+      border: 1px solid var(--b2);
+      background: var(--p2);
+      color: var(--t);
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer
+    }
 
-button:hover{
-  border-color:var(--g)
-}
+    button:hover {
+      border-color: var(--g)
+    }
 
-.gold{
-  background:var(--g);
-  color:#2A2000;
-  border-color:var(--g)
-}
+    .gold {
+      background: var(--g);
+      color: #2A2000;
+      border-color: var(--g)
+    }
 
-.green{
-  background:var(--green);
-  border-color:var(--green)
-}
+    .green {
+      background: var(--green);
+      border-color: var(--green)
+    }
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid var(--b2);
-  padding-bottom:18px;
-  margin-bottom:22px;
-  gap:15px
-}
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--b2);
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      gap: 15px
+    }
 
-.user{
-  font:12px 'IBM Plex Mono';
-  color:var(--d)
-}
+    .user {
+      font: 12px 'IBM Plex Mono';
+      color: var(--d)
+    }
 
-.chip{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  background:var(--p2);
-  border:1px solid var(--b);
-  border-radius:999px;
-  padding:8px 16px;
-  font:13px 'IBM Plex Mono';
-  color:var(--d);
-  margin-bottom:18px
-}
+    .chip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--p2);
+      border: 1px solid var(--b);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font: 13px 'IBM Plex Mono';
+      color: var(--d);
+      margin-bottom: 18px
+    }
 
-.chip b{
-  color:var(--g2)
-}
+    .chip b {
+      color: var(--g2)
+    }
 
-.row{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap
-}
+    .row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap
+    }
 
-.row .field{
-  flex:1;
-  min-width:150px
-}
+    .row .field {
+      flex: 1;
+      min-width: 150px
+    }
 
-.search{
-  display:flex;
-  gap:10px
-}
+    .search {
+      display: flex;
+      gap: 10px
+    }
 
-.search input{
-  flex:1;
-  font:22px 'IBM Plex Mono';
-  padding:15px
-}
+    .search input {
+      flex: 1;
+      font: 22px 'IBM Plex Mono';
+      padding: 15px
+    }
 
-.msg{
-  padding:14px;
-  border-radius:8px;
-  margin-top:15px
-}
+    .suggest-box {
+      position: relative;
+    }
 
-.warn{
-  background:rgba(193,80,58,.14);
-  border:1px solid var(--red);
-  color:var(--red2)
-}
+    .suggest-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--panel);
+      border: 1px solid var(--b2);
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 50;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+    }
 
-.info{
-  background:rgba(63,142,99,.12);
-  border:1px solid var(--green);
-  color:var(--green2)
-}
+    .suggest-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid var(--b);
+    }
 
-.card{
-  background:var(--p2);
-  border:1px solid var(--b);
-  border-radius:8px;
-  padding:18px;
-  margin-top:16px
-}
+    .suggest-item:last-child {
+      border-bottom: none;
+    }
 
-.name{
-  font-size:19px;
-  font-weight:600
-}
+    .suggest-item:hover {
+      background: var(--p2);
+    }
 
-.dni{
-  font:13px 'IBM Plex Mono';
-  color:var(--d);
-  margin-top:3px
-}
+    .suggest-item .sdni {
+      font: 11px 'IBM Plex Mono';
+      color: var(--d);
+      margin-top: 2px;
+    }
 
-.status{
-  margin-top:10px;
-  color:var(--d);
-  font-size:13px
-}
+    .msg {
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 15px
+    }
 
-.action{
-  border-top:1px dashed var(--b2);
-  margin-top:16px;
-  padding-top:16px
-}
+    .warn {
+      background: rgba(193, 80, 58, .14);
+      border: 1px solid var(--red);
+      color: var(--red2)
+    }
 
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap
-}
+    .info {
+      background: rgba(63, 142, 99, .12);
+      border: 1px solid var(--green);
+      color: var(--green2)
+    }
 
-.ticket{
-  margin-top:18px;
-  background:var(--bg);
-  border:1px dashed var(--g);
-  padding:16px;
-  border-radius:8px;
-  font:13px 'IBM Plex Mono';
-  color:var(--d)
-}
+    .card {
+      background: var(--p2);
+      border: 1px solid var(--b);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px
+    }
 
-.ticket b{
-  color:var(--t)
-}
+    .name {
+      font-size: 19px;
+      font-weight: 600
+    }
 
-.hidden{
-  display:none
-}
+    .dni {
+      font: 13px 'IBM Plex Mono';
+      color: var(--d);
+      margin-top: 3px
+    }
 
-.dot{
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  display:inline-block;
-  background:var(--d);
-  margin-right:6px
-}
+    .status {
+      margin-top: 10px;
+      color: var(--d);
+      font-size: 13px
+    }
 
-.ok{
-  background:var(--green2)
-}
+    .action {
+      border-top: 1px dashed var(--b2);
+      margin-top: 16px;
+      padding-top: 16px
+    }
 
-.err{
-  background:var(--red2)
-}
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .ticket {
+      margin-top: 18px;
+      background: var(--bg);
+      border: 1px dashed var(--g);
+      padding: 16px;
+      border-radius: 8px;
+      font: 13px 'IBM Plex Mono';
+      color: var(--d)
+    }
+
+    .ticket b {
+      color: var(--t)
+    }
+
+    .hidden {
+      display: none
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--d);
+      margin-right: 6px
+    }
+
+    .ok {
+      background: var(--green2)
+    }
+
+    .err {
+      background: var(--red2)
+    }
 
 
-/* =========================================
+    /* =========================================
    PESTAÑAS
 ========================================= */
 
-.tabs{
-  display:flex;
-  gap:2px;
-  margin-bottom:20px;
-  border-bottom:1px solid var(--b);
-}
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--b);
+    }
 
-.tabs button{
-  background:none;
-  border:none;
-  color:var(--d);
-  font:19px 'Bebas Neue';
-  letter-spacing:.04em;
-  padding:10px 18px;
-  cursor:pointer;
-  border-bottom:3px solid transparent;
-  border-radius:0;
-}
+    .tabs button {
+      background: none;
+      border: none;
+      color: var(--d);
+      font: 19px 'Bebas Neue';
+      letter-spacing: .04em;
+      padding: 10px 18px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+    }
 
-.tabs button:hover{
-  color:var(--t);
-  border-color:transparent;
-}
+    .tabs button:hover {
+      color: var(--t);
+      border-color: transparent;
+    }
 
-.tabs button.active{
-  color:var(--g2);
-  border-bottom-color:var(--g);
-}
+    .tabs button.active {
+      color: var(--g2);
+      border-bottom-color: var(--g);
+    }
 
 
-/* =========================================
+    /* =========================================
    TABLA DE JUGADORES
 ========================================= */
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
 
-th{
-  text-align:left;
-  color:var(--d);
-  font-weight:500;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-  padding:8px 10px;
-  border-bottom:1px solid var(--b2);
-}
+    th {
+      text-align: left;
+      color: var(--d);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--b2);
+    }
 
-td{
-  padding:9px 10px;
-  border-bottom:1px solid var(--b);
-  font:13px 'IBM Plex Mono';
-}
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--b);
+      font: 13px 'IBM Plex Mono';
+    }
 
-.btn-sm{
-  padding:6px 12px;
-  font-size:12px;
-}
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
 
-.search-mini{
-  max-width:280px;
-  margin-bottom:14px;
-}
+    .search-mini {
+      max-width: 280px;
+      margin-bottom: 14px;
+    }
 
-.edit-row{
-  background:var(--p2);
-}
+    .edit-row {
+      background: var(--p2);
+    }
 
-.edit-row td{
-  padding:16px 10px;
-}
+    .edit-row td {
+      padding: 16px 10px;
+    }
 
-.edit-row .row{
-  margin-bottom:10px;
-}
+    .edit-row .row {
+      margin-bottom: 10px;
+    }
 
-.empty{
-  padding:26px 10px;
-  text-align:center;
-  color:var(--d);
-  font-size:13px;
-}
+    .empty {
+      padding: 26px 10px;
+      text-align: center;
+      color: var(--d);
+      font-size: 13px;
+    }
 
 
-/* =========================================
+    /* =========================================
    MODAL
 ========================================= */
 
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.72);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  z-index:1000;
-}
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
 
-.modal.hidden{
-  display:none;
-}
+    .modal.hidden {
+      display: none;
+    }
 
-.modalbox{
-  width:100%;
-  max-width:430px;
-  background:var(--panel);
-  border:1px solid var(--b2);
-  border-radius:12px;
-  padding:24px;
-  box-shadow:0 20px 60px rgba(0,0,0,.45);
-}
+    .modalbox {
+      width: 100%;
+      max-width: 430px;
+      background: var(--panel);
+      border: 1px solid var(--b2);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+    }
 
-.modal-title{
-  font:26px 'Bebas Neue';
-  margin:0 0 10px;
-}
+    .modal-title {
+      font: 26px 'Bebas Neue';
+      margin: 0 0 10px;
+    }
 
-.modal-text{
-  color:var(--d);
-  font-size:14px;
-  line-height:1.5;
-  margin-bottom:22px;
-}
+    .modal-text {
+      color: var(--d);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
 
-.modal-actions{
-  display:flex;
-  gap:10px;
-  justify-content:flex-end;
-}
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
 
-.modal-actions button{
-  min-width:110px;
-}
+    .modal-actions button {
+      min-width: 110px;
+    }
 
-.btn-cancel{
-  background:var(--p2);
-}
+    .btn-cancel {
+      background: var(--p2);
+    }
 
-.btn-confirm{
-  background:var(--g);
-  color:#2A2000;
-  border-color:var(--g);
-}
+    .btn-confirm {
+      background: var(--g);
+      color: #2A2000;
+      border-color: var(--g);
+    }
 
 
-/* =========================================
+    /* =========================================
    TOAST
 ========================================= */
 
-.toast-container{
-  position:fixed;
-  top:20px;
-  right:20px;
-  z-index:2000;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  pointer-events:none;
-}
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
 
-.toast{
-  min-width:280px;
-  max-width:380px;
-  background:var(--panel);
-  border:1px solid var(--green);
-  border-radius:10px;
-  padding:15px 18px;
-  box-shadow:0 12px 35px rgba(0,0,0,.35);
-  animation:toastIn .2s ease-out;
-  pointer-events:auto;
-}
+    .toast {
+      min-width: 280px;
+      max-width: 380px;
+      background: var(--panel);
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      padding: 15px 18px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, .35);
+      animation: toastIn .2s ease-out;
+      pointer-events: auto;
+    }
 
-.toast-title{
-  font-weight:700;
-  margin-bottom:4px;
-}
+    .toast-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
 
-.toast-text{
-  color:var(--d);
-  font-size:13px;
-}
+    .toast-text {
+      color: var(--d);
+      font-size: 13px;
+    }
 
-.toast.error{
-  border-color:var(--red);
-}
+    .toast.error {
+      border-color: var(--red);
+    }
 
-@keyframes toastIn{
-  from{
-    opacity:0;
-    transform:translateY(-8px);
-  }
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
 
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-@media(max-width:600px){
+    @media(max-width:600px) {
 
-  .wrap{
-    padding:18px 14px 40px
-  }
+      .wrap {
+        padding: 18px 14px 40px
+      }
 
-  .top{
-    align-items:flex-start;
-  }
+      .top {
+        align-items: flex-start;
+      }
 
-  .search{
-    flex-direction:column;
-  }
+      .search {
+        flex-direction: column;
+      }
 
-  .search button{
-    width:100%;
-  }
+      .search button {
+        width: 100%;
+      }
 
-  .modal-actions{
-    flex-direction:column-reverse;
-  }
+      .modal-actions {
+        flex-direction: column-reverse;
+      }
 
-  .modal-actions button{
-    width:100%;
-  }
+      .modal-actions button {
+        width: 100%;
+      }
 
-  .toast-container{
-    left:14px;
-    right:14px;
-    top:14px;
-  }
+      .toast-container {
+        left: 14px;
+        right: 14px;
+        top: 14px;
+      }
 
-  .toast{
-    min-width:0;
-    max-width:none;
-  }
+      .toast {
+        min-width: 0;
+        max-width: none;
+      }
 
-}
-</style>
+    }
+  </style>
 </head>
 
 <body>
 
 
-<!-- =========================
+  <!-- =========================
      LOGIN
 ========================= -->
 
-<div id="loginView" class="wrap login">
+  <div id="loginView" class="wrap login">
 
-  <div class="brand">
-    <span class="ey">Sector caja</span>
-    <h1>Panel Caja</h1>
-  </div>
+    <div class="brand">
+      <span class="ey">Sector caja</span>
+      <h1>Panel Caja</h1>
+    </div>
 
-  <div class="loginbox">
+    <div class="loginbox">
 
-    <h2>Iniciar sesión</h2>
+      <h2>Iniciar sesión</h2>
 
-    <p class="sub">
-      Acceso exclusivo para Caja.
-    </p>
+      <p class="sub">
+        Acceso exclusivo para Caja.
+      </p>
 
-    <form id="loginForm">
+      <form id="loginForm">
 
-      <div class="field">
+        <div class="field">
 
-        <label>Usuario</label>
+          <label>Usuario</label>
 
-        <input
-          id="loginUser"
-          autocomplete="username"
-          required
-        >
+          <input id="loginUser" autocomplete="username" required>
 
-      </div>
+        </div>
 
 
-      <div class="field">
+        <div class="field">
 
-        <label>Contraseña</label>
+          <label>Contraseña</label>
 
-        <input
-          id="loginPass"
-          type="password"
-          autocomplete="current-password"
-          required
-        >
+          <input id="loginPass" type="password" autocomplete="current-password" required>
 
-      </div>
+        </div>
 
 
-      <button
-        type="submit"
-        class="gold"
-        style="width:100%"
-      >
-        Ingresar
-      </button>
+        <button type="submit" class="gold" style="width:100%">
+          Ingresar
+        </button>
 
-      <div id="loginMsg"></div>
+        <div id="loginMsg"></div>
 
-    </form>
+      </form>
+
+    </div>
 
   </div>
 
-</div>
 
 
-
-<!-- =========================
+  <!-- =========================
      APP
 ========================= -->
 
-<div id="appView" class="wrap hidden">
+  <div id="appView" class="wrap hidden">
 
-  <header class="top">
+    <header class="top">
 
-    <div>
+      <div>
 
-      <span class="ey">
-        Sector caja
-      </span>
+        <span class="ey">
+          Sector caja
+        </span>
 
-      <h1>
-        Panel Caja
-      </h1>
+        <h1>
+          Panel Caja
+        </h1>
 
-    </div>
-
-
-    <div class="user">
-
-      <span id="loggedUser"></span>
-
-      ·
-
-      <button id="logout">
-        Salir
-      </button>
-
-    </div>
-
-  </header>
+      </div>
 
 
-  <div>
+      <div class="user">
 
-    <span
-      class="dot"
-      id="dot"
-    ></span>
+        <span id="loggedUser"></span>
 
-    <span id="status">
-      Conectando...
-    </span>
+        ·
 
-  </div>
-
-
-  <div class="chip">
-
-    <span>
-      Torneo:
-      <b id="torneoNombre">—</b>
-    </span>
-
-    <span>·</span>
-
-    <span>
-      Buy-in
-      <b id="torneoBuyin">$0</b>
-    </span>
-
-    <span>·</span>
-
-    <span>
-      Re-Entry
-      <b id="torneoRecompra">$0</b>
-    </span>
-
-  </div>
-
-
-  <nav class="tabs">
-    <button id="tabCobrarBtn" class="active" type="button">Cobrar</button>
-    <button id="tabJugadoresBtn" type="button">Jugadores</button>
-  </nav>
-
-
-  <div id="viewCobrar">
-
-    <div class="panel">
-
-      <h2>
-        Buscar jugador
-      </h2>
-
-      <p class="sub">
-        Ingresá el DNI para verificar inscripción y habilitar la operación.
-      </p>
-
-
-      <div class="search">
-
-        <input
-          id="dni"
-          maxlength="10"
-          placeholder="Número de DNI"
-        >
-
-        <button
-          class="gold"
-          id="buscar"
-        >
-          Buscar
+        <button id="logout">
+          Salir
         </button>
 
       </div>
 
+    </header>
 
-      <div id="result"></div>
+
+    <div>
+
+      <span class="dot" id="dot"></span>
+
+      <span id="status">
+        Conectando...
+      </span>
+
+    </div>
+
+
+    <div class="chip">
+
+      <span>
+        Torneo:
+        <b id="torneoNombre">—</b>
+      </span>
+
+      <span>·</span>
+
+      <span>
+        Buy-in
+        <b id="torneoBuyin">$0</b>
+      </span>
+
+      <span>·</span>
+
+      <span>
+        Re-Entry
+        <b id="torneoRecompra">$0</b>
+      </span>
+
+    </div>
+
+
+    <nav class="tabs">
+      <button id="tabCobrarBtn" class="active" type="button">Cobrar</button>
+      <button id="tabJugadoresBtn" type="button">Jugadores</button>
+    </nav>
+
+
+    <div id="viewCobrar">
+
+      <div class="panel">
+
+        <h2>
+          Buscar jugador
+        </h2>
+
+        <p class="sub">
+          Ingresá el DNI para verificar inscripción y habilitar la operación.
+        </p>
+
+
+        <div class="search">
+
+          <div class="suggest-box" style="flex:1">
+            <input id="dni" placeholder="DNI, nombre o apellido">
+            <div id="sugerencias" class="suggest-list hidden"></div>
+          </div>
+
+          <button class="gold" id="buscar">
+            Buscar
+          </button>
+
+        </div>
+
+
+        <div id="result"></div>
+      </div>
+
+    </div>
+
+
+    <div id="viewJugadores" class="hidden">
+
+      <div class="panel">
+        <h2>Alta de jugador</h2>
+        <p class="sub">Se carga una única vez por jugador.</p>
+
+        <div class="row">
+          <div class="field"><label>DNI</label><input id="altaDni" maxlength="10" placeholder="Ej: 30123456"></div>
+          <div class="field"><label>Nombre</label><input id="altaNombre" placeholder="Nombre"></div>
+          <div class="field"><label>Apellido</label><input id="altaApellido" placeholder="Apellido"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Teléfono (opcional)</label><input id="altaTelefono" placeholder="Ej: 261 555 1234">
+          </div>
+          <div class="field"><label>Email (opcional)</label><input id="altaEmail" placeholder="jugador@mail.com"></div>
+        </div>
+
+        <button class="gold" id="btnAlta" type="button">Registrar jugador</button>
+      </div>
+
+      <div class="panel">
+        <h2>Jugadores registrados</h2>
+        <p class="sub">Buscá para corregir un dato mal cargado.</p>
+
+        <input id="filtroJugadores" class="search-mini" placeholder="Buscar por DNI, nombre o apellido...">
+
+        <table>
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="jugadoresTbody"></tbody>
+        </table>
+
+        <div id="jugadoresEmpty" class="empty hidden">Todavía no hay jugadores registrados.</div>
+      </div>
 
     </div>
 
   </div>
 
 
-  <div id="viewJugadores" class="hidden">
 
-    <div class="panel">
-      <h2>Alta de jugador</h2>
-      <p class="sub">Se carga una única vez por jugador.</p>
-
-      <div class="row">
-        <div class="field"><label>DNI</label><input id="altaDni" maxlength="10" placeholder="Ej: 30123456"></div>
-        <div class="field"><label>Nombre</label><input id="altaNombre" placeholder="Nombre"></div>
-        <div class="field"><label>Apellido</label><input id="altaApellido" placeholder="Apellido"></div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Teléfono (opcional)</label><input id="altaTelefono" placeholder="Ej: 261 555 1234"></div>
-        <div class="field"><label>Email (opcional)</label><input id="altaEmail" placeholder="jugador@mail.com"></div>
-      </div>
-
-      <button class="gold" id="btnAlta" type="button">Registrar jugador</button>
-    </div>
-
-    <div class="panel">
-      <h2>Jugadores registrados</h2>
-      <p class="sub">Buscá para corregir un dato mal cargado.</p>
-
-      <input id="filtroJugadores" class="search-mini" placeholder="Buscar por DNI, nombre o apellido...">
-
-      <table>
-        <thead>
-          <tr><th>DNI</th><th>Nombre</th><th>Apellido</th><th>Teléfono</th><th>Email</th><th></th></tr>
-        </thead>
-        <tbody id="jugadoresTbody"></tbody>
-      </table>
-
-      <div id="jugadoresEmpty" class="empty hidden">Todavía no hay jugadores registrados.</div>
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- =========================
+  <!-- =========================
      MODAL CONFIRMACIÓN
 ========================= -->
 
-<div
-  id="confirmModal"
-  class="modal hidden"
->
+  <div id="confirmModal" class="modal hidden">
 
-  <div class="modalbox">
+    <div class="modalbox">
 
-    <h2
-      id="confirmTitle"
-      class="modal-title"
-    >
-      Confirmar operación
-    </h2>
+      <h2 id="confirmTitle" class="modal-title">
+        Confirmar operación
+      </h2>
 
-    <div
-      id="confirmText"
-      class="modal-text"
-    >
-      ¿Confirmar operación?
-    </div>
+      <div id="confirmText" class="modal-text">
+        ¿Confirmar operación?
+      </div>
 
-    <div class="modal-actions">
+      <div class="modal-actions">
 
-      <button
-        id="confirmCancel"
-        class="btn-cancel"
-      >
-        Cancelar
-      </button>
+        <button id="confirmCancel" class="btn-cancel">
+          Cancelar
+        </button>
 
-      <button
-        id="confirmAccept"
-        class="btn-confirm"
-      >
-        Confirmar
-      </button>
+        <button id="confirmAccept" class="btn-confirm">
+          Confirmar
+        </button>
+
+      </div>
 
     </div>
 
   </div>
 
-</div>
 
 
-
-<!-- =========================
+  <!-- =========================
      TOASTS
 ========================= -->
 
-<div
-  id="toastContainer"
-  class="toast-container"
-></div>
+  <div id="toastContainer" class="toast-container"></div>
 
 
 
-<script>
+  <script>
 
-/* =========================================
-   CONFIGURACIÓN
-========================================= */
+    /* =========================================
+       CONFIGURACIÓN
+    ========================================= */
 
-const API =
-  'http://127.0.0.1:4002/api';
-
-
-
-/* =========================================
-   ESTADO DE SESIÓN
-========================================= */
-
-let token =
-  sessionStorage.getItem('caja_token');
+    const API =
+      'http://127.0.0.1:4002/api';
 
 
 
-/* =========================================
-   HELPERS
-========================================= */
+    /* =========================================
+       ESTADO DE SESIÓN
+    ========================================= */
 
-const $ =
-  id => document.getElementById(id);
-
-
-const money =
-  n =>
-    '$' +
-    (Number(n) || 0)
-      .toLocaleString('es-AR');
-
-
-const clean =
-  v =>
-    (v || '').replace(/\D/g, '');
+    let token =
+      sessionStorage.getItem('caja_token');
 
 
 
-function h(extra = {}){
+    /* =========================================
+       HELPERS
+    ========================================= */
 
-  return {
-    ...extra,
-    Authorization:
-      'Bearer ' + token
-  };
-
-}
+    const $ =
+      id => document.getElementById(id);
 
 
+    const money =
+      n =>
+        '$' +
+        (Number(n) || 0)
+          .toLocaleString('es-AR');
 
-/* =========================================
-   API
-========================================= */
 
-async function api(
-  path,
-  opt = {}
-){
+    const clean =
+      v =>
+        (v || '').replace(/\D/g, '');
 
-  const r =
-    await fetch(
-      API + path,
-      {
-        ...opt,
 
-        headers:
-          h(
-            opt.headers || {}
-          )
+    function esc(v) {
+
+      return String(
+        v ?? ''
+      ).replace(
+        /[&<>"']/g,
+
+        c => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[c])
+
+      );
+
+    }
+
+
+
+    function h(extra = {}) {
+
+      return {
+        ...extra,
+        Authorization:
+          'Bearer ' + token
+      };
+
+    }
+
+
+
+    /* =========================================
+       API
+    ========================================= */
+
+    async function api(
+      path,
+      opt = {}
+    ) {
+
+      const r =
+        await fetch(
+          API + path,
+          {
+            ...opt,
+
+            headers:
+              h(
+                opt.headers || {}
+              )
+          }
+        );
+
+
+      if (r.status === 401) {
+
+        logout();
+
+        throw new Error(
+          'Sesión expirada.'
+        );
+
+      }
+
+
+      return r;
+
+    }
+
+
+
+    /* =========================================
+       MODAL DE CONFIRMACIÓN
+    ========================================= */
+
+    let confirmResolve = null;
+
+
+    function openConfirmModal({
+      title,
+      message,
+      confirmText = 'Confirmar'
+    }) {
+
+      $('confirmTitle')
+        .textContent = title;
+
+      $('confirmText')
+        .textContent = message;
+
+      $('confirmAccept')
+        .textContent = confirmText;
+
+      $('confirmModal')
+        .classList
+        .remove('hidden');
+
+
+      return new Promise(resolve => {
+
+        confirmResolve = resolve;
+
+      });
+
+    }
+
+
+
+    function closeConfirmModal(
+      result
+    ) {
+
+      $('confirmModal')
+        .classList
+        .add('hidden');
+
+
+      if (confirmResolve) {
+
+        const resolve =
+          confirmResolve;
+
+        confirmResolve =
+          null;
+
+        resolve(result);
+
+      }
+
+    }
+
+
+
+    $('confirmCancel').onclick =
+      () => {
+
+        closeConfirmModal(false);
+
+      };
+
+
+    $('confirmAccept').onclick =
+      () => {
+
+        closeConfirmModal(true);
+
+      };
+
+
+    $('confirmModal').onclick =
+      e => {
+
+        if (
+          e.target ===
+          $('confirmModal')
+        ) {
+
+          closeConfirmModal(false);
+
+        }
+
+      };
+
+
+    document.addEventListener(
+      'keydown',
+      e => {
+
+        if (
+          e.key === 'Escape' &&
+          !$('confirmModal')
+            .classList
+            .contains('hidden')
+        ) {
+
+          closeConfirmModal(false);
+
+        }
+
       }
     );
 
 
-  if(r.status === 401){
 
-    logout();
+    /* =========================================
+       TOAST
+    ========================================= */
 
-    throw new Error(
-      'Sesión expirada.'
-    );
+    function showToast(
+      title,
+      message,
+      type = 'success'
+    ) {
 
-  }
-
-
-  return r;
-
-}
-
+      const container =
+        $('toastContainer');
 
 
-/* =========================================
-   MODAL DE CONFIRMACIÓN
-========================================= */
+      const toast =
+        document.createElement('div');
 
-let confirmResolve = null;
-
-
-function openConfirmModal({
-  title,
-  message,
-  confirmText = 'Confirmar'
-}){
-
-  $('confirmTitle')
-    .textContent = title;
-
-  $('confirmText')
-    .textContent = message;
-
-  $('confirmAccept')
-    .textContent = confirmText;
-
-  $('confirmModal')
-    .classList
-    .remove('hidden');
+      toast.className =
+        'toast' +
+        (
+          type === 'error'
+            ? ' error'
+            : ''
+        );
 
 
-  return new Promise(resolve => {
-
-    confirmResolve = resolve;
-
-  });
-
-}
-
-
-
-function closeConfirmModal(
-  result
-){
-
-  $('confirmModal')
-    .classList
-    .add('hidden');
-
-
-  if(confirmResolve){
-
-    const resolve =
-      confirmResolve;
-
-    confirmResolve =
-      null;
-
-    resolve(result);
-
-  }
-
-}
-
-
-
-$('confirmCancel').onclick =
-  () => {
-
-    closeConfirmModal(false);
-
-  };
-
-
-$('confirmAccept').onclick =
-  () => {
-
-    closeConfirmModal(true);
-
-  };
-
-
-$('confirmModal').onclick =
-  e => {
-
-    if(
-      e.target ===
-      $('confirmModal')
-    ){
-
-      closeConfirmModal(false);
-
-    }
-
-  };
-
-
-document.addEventListener(
-  'keydown',
-  e => {
-
-    if(
-      e.key === 'Escape' &&
-      !$('confirmModal')
-        .classList
-        .contains('hidden')
-    ){
-
-      closeConfirmModal(false);
-
-    }
-
-  }
-);
-
-
-
-/* =========================================
-   TOAST
-========================================= */
-
-function showToast(
-  title,
-  message,
-  type = 'success'
-){
-
-  const container =
-    $('toastContainer');
-
-
-  const toast =
-    document.createElement('div');
-
-  toast.className =
-    'toast' +
-    (
-      type === 'error'
-        ? ' error'
-        : ''
-    );
-
-
-  toast.innerHTML = `
+      toast.innerHTML = `
 
     <div class="toast-title">
       ${esc(title)}
@@ -1053,409 +1085,409 @@ function showToast(
   `;
 
 
-  container.appendChild(toast);
+      container.appendChild(toast);
 
 
-  setTimeout(
-    () => {
+      setTimeout(
+        () => {
 
-      toast.remove();
+          toast.remove();
 
-    },
-    3500
-  );
-
-}
-
-
-
-/* =========================================
-   MOSTRAR PANEL
-========================================= */
-
-function show(){
-
-  $('loginView')
-    .classList
-    .add('hidden');
-
-
-  $('appView')
-    .classList
-    .remove('hidden');
-
-
-  $('loggedUser')
-    .textContent =
-      sessionStorage
-        .getItem('caja_user') || '';
-
-
-  conexion();
-
-  config();
-
-}
-
-
-
-/* =========================================
-   CERRAR SESIÓN
-========================================= */
-
-function logout(){
-
-  sessionStorage
-    .removeItem('caja_token');
-
-
-  sessionStorage
-    .removeItem('caja_user');
-
-
-  token = null;
-
-
-  $('appView')
-    .classList
-    .add('hidden');
-
-
-  $('loginView')
-    .classList
-    .remove('hidden');
-
-
-  $('loginUser')
-    .value = '';
-
-
-  $('loginPass')
-    .value = '';
-
-
-  $('loginMsg')
-    .innerHTML = '';
-
-}
-
-
-
-/* =========================================
-   LOGOUT BUTTON
-========================================= */
-
-$('logout').onclick =
-  logout;
-
-
-
-/* =========================================
-   LOGIN
-========================================= */
-
-$('loginForm').onsubmit =
-  async e => {
-
-    e.preventDefault();
-
-
-    $('loginMsg')
-      .innerHTML = '';
-
-
-    try{
-
-      const username =
-        $('loginUser')
-          .value
-          .trim();
-
-
-      const password =
-        $('loginPass')
-          .value;
-
-
-      const r =
-        await fetch(
-          API + '/auth/login',
-          {
-            method:'POST',
-
-            headers:{
-              'Content-Type':
-                'application/json'
-            },
-
-            body:
-              JSON.stringify({
-                username,
-                password,
-                panel:'caja'
-              })
-
-          }
-        );
-
-
-      const d =
-        await r.json();
-
-
-      if(!r.ok){
-
-        throw new Error(
-          d.error ||
-          'Error al iniciar sesión.'
-        );
-
-      }
-
-
-      if(!d.token){
-
-        throw new Error(
-          'El servidor no devolvió el token de sesión.'
-        );
-
-      }
-
-
-      if(
-        !d.user ||
-        !d.user.username
-      ){
-
-        throw new Error(
-          'El servidor no devolvió los datos del usuario.'
-        );
-
-      }
-
-
-      token =
-        d.token;
-
-
-      sessionStorage.setItem(
-        'caja_token',
-        token
+        },
+        3500
       );
-
-
-      sessionStorage.setItem(
-        'caja_user',
-        d.user.username
-      );
-
-
-      show();
-
-
-    }catch(e){
-
-      console.error(
-        'Error de login:',
-        e
-      );
-
-
-      $('loginMsg')
-        .innerHTML =
-          '<div class="msg warn">' +
-          esc(e.message) +
-          '</div>';
 
     }
 
-  };
+
+
+    /* =========================================
+       MOSTRAR PANEL
+    ========================================= */
+
+    function show() {
+
+      $('loginView')
+        .classList
+        .add('hidden');
+
+
+      $('appView')
+        .classList
+        .remove('hidden');
+
+
+      $('loggedUser')
+        .textContent =
+        sessionStorage
+          .getItem('caja_user') || '';
+
+
+      conexion();
+
+      config();
+
+    }
 
 
 
-/* =========================================
-   CONEXIÓN CON BACKEND
-========================================= */
+    /* =========================================
+       CERRAR SESIÓN
+    ========================================= */
 
-async function conexion(){
+    function logout() {
 
-  try{
-
-    const r =
-      await api('/health');
+      sessionStorage
+        .removeItem('caja_token');
 
 
-    $('dot')
-      .className =
-        'dot ' +
-        (r.ok ? 'ok' : 'err');
+      sessionStorage
+        .removeItem('caja_user');
 
 
-    $('status')
-      .textContent =
-        r.ok
-          ? 'Backend conectado'
-          : 'Sin conexión';
+      token = null;
 
 
-  }catch(e){
-
-    console.error(
-      'Error de conexión:',
-      e
-    );
+      $('appView')
+        .classList
+        .add('hidden');
 
 
-    $('dot')
-      .className =
-        'dot err';
+      $('loginView')
+        .classList
+        .remove('hidden');
 
 
-    $('status')
-      .textContent =
-        'Sin conexión';
+      $('loginUser')
+        .value = '';
 
-  }
 
-}
+      $('loginPass')
+        .value = '';
+
+
+      $('loginMsg')
+        .innerHTML = '';
+
+    }
 
 
 
-/* =========================================
-   CONFIGURACIÓN DEL TORNEO
-========================================= */
+    /* =========================================
+       LOGOUT BUTTON
+    ========================================= */
 
-async function config(){
-
-  try{
-
-    const r =
-      await api('/tournament');
-
-
-    const d =
-      await r.json();
-
-
-    $('torneoNombre')
-      .textContent =
-        d.nombre || '—';
-
-
-    $('torneoBuyin')
-      .textContent =
-        money(d.buyIn);
-
-
-    $('torneoRecompra')
-      .textContent =
-        money(d.recompra);
-
-
-  }catch(e){
-
-    console.error(
-      'Error cargando torneo:',
-      e
-    );
-
-  }
-
-}
+    $('logout').onclick =
+      logout;
 
 
 
-/* =========================================
-   PESTAÑAS: COBRAR / JUGADORES
-========================================= */
+    /* =========================================
+       LOGIN
+    ========================================= */
 
-$('tabCobrarBtn').onclick = () => {
-  $('tabCobrarBtn').classList.add('active');
-  $('tabJugadoresBtn').classList.remove('active');
-  $('viewCobrar').classList.remove('hidden');
-  $('viewJugadores').classList.add('hidden');
-};
+    $('loginForm').onsubmit =
+      async e => {
 
-$('tabJugadoresBtn').onclick = () => {
-  $('tabJugadoresBtn').classList.add('active');
-  $('tabCobrarBtn').classList.remove('active');
-  $('viewJugadores').classList.remove('hidden');
-  $('viewCobrar').classList.add('hidden');
-  loadJugadores();
-};
+        e.preventDefault();
 
 
-
-/* =========================================
-   ALTA DE JUGADOR (desde Caja)
-========================================= */
-
-$('btnAlta').onclick = async () => {
-  const dni = clean($('altaDni').value);
-  const nombre = $('altaNombre').value.trim();
-  const apellido = $('altaApellido').value.trim();
-  const telefono = $('altaTelefono').value.trim();
-  const email = $('altaEmail').value.trim();
-
-  if (!dni || dni.length < 6 || !nombre || !apellido) {
-    showToast('Datos incompletos', 'DNI, nombre y apellido son obligatorios.', 'error');
-    return;
-  }
-
-  const confirmado = await openConfirmModal({
-    title: '¿Registrar jugador?',
-    message: `Se va a dar de alta a ${nombre} ${apellido} (DNI ${dni}).`,
-    confirmText: 'Registrar'
-  });
-  if (!confirmado) return;
-
-  try {
-    const r = await api('/players', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dni, nombre, apellido, telefono, email })
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'No se pudo registrar el jugador.');
-
-    showToast('Jugador registrado', `${nombre} ${apellido} (DNI ${dni}) se registró con éxito.`);
-    ['altaDni','altaNombre','altaApellido','altaTelefono','altaEmail'].forEach(id => $(id).value = '');
-    loadJugadores();
-  } catch (e) {
-    showToast('No se pudo registrar', e.message, 'error');
-  }
-};
+        $('loginMsg')
+          .innerHTML = '';
 
 
+        try {
 
-/* =========================================
-   LISTADO Y EDICIÓN DE JUGADORES
-========================================= */
+          const username =
+            $('loginUser')
+              .value
+              .trim();
 
-let jugadoresCache = [];
 
-async function loadJugadores(){
-  const tbody = $('jugadoresTbody');
-  tbody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
-  try{
-    const r = await api('/players');
-    jugadoresCache = await r.json();
-    renderJugadores(jugadoresCache);
-  }catch(e){
-    tbody.innerHTML = '<tr><td colspan="6">No se pudo cargar el listado.</td></tr>';
-  }
-}
+          const password =
+            $('loginPass')
+              .value;
 
-function renderJugadores(lista){
-  const tbody = $('jugadoresTbody');
-  const empty = $('jugadoresEmpty');
-  if (lista.length === 0){
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-  tbody.innerHTML = lista.map(p => `
+
+          const r =
+            await fetch(
+              API + '/auth/login',
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
+
+                body:
+                  JSON.stringify({
+                    username,
+                    password,
+                    panel: 'caja'
+                  })
+
+              }
+            );
+
+
+          const d =
+            await r.json();
+
+
+          if (!r.ok) {
+
+            throw new Error(
+              d.error ||
+              'Error al iniciar sesión.'
+            );
+
+          }
+
+
+          if (!d.token) {
+
+            throw new Error(
+              'El servidor no devolvió el token de sesión.'
+            );
+
+          }
+
+
+          if (
+            !d.user ||
+            !d.user.username
+          ) {
+
+            throw new Error(
+              'El servidor no devolvió los datos del usuario.'
+            );
+
+          }
+
+
+          token =
+            d.token;
+
+
+          sessionStorage.setItem(
+            'caja_token',
+            token
+          );
+
+
+          sessionStorage.setItem(
+            'caja_user',
+            d.user.username
+          );
+
+
+          show();
+
+
+        } catch (e) {
+
+          console.error(
+            'Error de login:',
+            e
+          );
+
+
+          $('loginMsg')
+            .innerHTML =
+            '<div class="msg warn">' +
+            esc(e.message) +
+            '</div>';
+
+        }
+
+      };
+
+
+
+    /* =========================================
+       CONEXIÓN CON BACKEND
+    ========================================= */
+
+    async function conexion() {
+
+      try {
+
+        const r =
+          await api('/health');
+
+
+        $('dot')
+          .className =
+          'dot ' +
+          (r.ok ? 'ok' : 'err');
+
+
+        $('status')
+          .textContent =
+          r.ok
+            ? 'Backend conectado'
+            : 'Sin conexión';
+
+
+      } catch (e) {
+
+        console.error(
+          'Error de conexión:',
+          e
+        );
+
+
+        $('dot')
+          .className =
+          'dot err';
+
+
+        $('status')
+          .textContent =
+          'Sin conexión';
+
+      }
+
+    }
+
+
+
+    /* =========================================
+       CONFIGURACIÓN DEL TORNEO
+    ========================================= */
+
+    async function config() {
+
+      try {
+
+        const r =
+          await api('/tournament');
+
+
+        const d =
+          await r.json();
+
+
+        $('torneoNombre')
+          .textContent =
+          d.nombre || '—';
+
+
+        $('torneoBuyin')
+          .textContent =
+          money(d.buyIn);
+
+
+        $('torneoRecompra')
+          .textContent =
+          money(d.recompra);
+
+
+      } catch (e) {
+
+        console.error(
+          'Error cargando torneo:',
+          e
+        );
+
+      }
+
+    }
+
+
+
+    /* =========================================
+       PESTAÑAS: COBRAR / JUGADORES
+    ========================================= */
+
+    $('tabCobrarBtn').onclick = () => {
+      $('tabCobrarBtn').classList.add('active');
+      $('tabJugadoresBtn').classList.remove('active');
+      $('viewCobrar').classList.remove('hidden');
+      $('viewJugadores').classList.add('hidden');
+    };
+
+    $('tabJugadoresBtn').onclick = () => {
+      $('tabJugadoresBtn').classList.add('active');
+      $('tabCobrarBtn').classList.remove('active');
+      $('viewJugadores').classList.remove('hidden');
+      $('viewCobrar').classList.add('hidden');
+      loadJugadores();
+    };
+
+
+
+    /* =========================================
+       ALTA DE JUGADOR (desde Caja)
+    ========================================= */
+
+    $('btnAlta').onclick = async () => {
+      const dni = clean($('altaDni').value);
+      const nombre = $('altaNombre').value.trim();
+      const apellido = $('altaApellido').value.trim();
+      const telefono = $('altaTelefono').value.trim();
+      const email = $('altaEmail').value.trim();
+
+      if (!dni || dni.length < 6 || !nombre || !apellido) {
+        showToast('Datos incompletos', 'DNI, nombre y apellido son obligatorios.', 'error');
+        return;
+      }
+
+      const confirmado = await openConfirmModal({
+        title: '¿Registrar jugador?',
+        message: `Se va a dar de alta a ${nombre} ${apellido} (DNI ${dni}).`,
+        confirmText: 'Registrar'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dni, nombre, apellido, telefono, email })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudo registrar el jugador.');
+
+        showToast('Jugador registrado', `${nombre} ${apellido} (DNI ${dni}) se registró con éxito.`);
+        ['altaDni', 'altaNombre', 'altaApellido', 'altaTelefono', 'altaEmail'].forEach(id => $(id).value = '');
+        loadJugadores();
+      } catch (e) {
+        showToast('No se pudo registrar', e.message, 'error');
+      }
+    };
+
+
+
+    /* =========================================
+       LISTADO Y EDICIÓN DE JUGADORES
+    ========================================= */
+
+    let jugadoresCache = [];
+
+    async function loadJugadores() {
+      const tbody = $('jugadoresTbody');
+      tbody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+      try {
+        const r = await api('/players');
+        jugadoresCache = await r.json();
+        renderJugadores(jugadoresCache);
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6">No se pudo cargar el listado.</td></tr>';
+      }
+    }
+
+    function renderJugadores(lista) {
+      const tbody = $('jugadoresTbody');
+      const empty = $('jugadoresEmpty');
+      if (lista.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = lista.map(p => `
     <tr id="fila-${esc(p._id)}">
       <td>${esc(p.dni)}</td>
       <td style="font-family:Inter,system-ui;">${esc(p.nombre)}</td>
@@ -1465,17 +1497,17 @@ function renderJugadores(lista){
       <td><button class="btn-sm" data-editar="${esc(p._id)}" type="button">Editar</button></td>
     </tr>`).join('');
 
-  tbody.querySelectorAll('[data-editar]').forEach(btn => {
-    btn.onclick = () => abrirEdicionJugador(btn.dataset.editar);
-  });
-}
+      tbody.querySelectorAll('[data-editar]').forEach(btn => {
+        btn.onclick = () => abrirEdicionJugador(btn.dataset.editar);
+      });
+    }
 
-function abrirEdicionJugador(id){
-  const player = jugadoresCache.find(p => p._id === id);
-  if (!player) return;
-  const fila = $('fila-' + id);
-  fila.className = 'edit-row';
-  fila.innerHTML = `
+    function abrirEdicionJugador(id) {
+      const player = jugadoresCache.find(p => p._id === id);
+      if (!player) return;
+      const fila = $('fila-' + id);
+      fila.className = 'edit-row';
+      fila.innerHTML = `
     <td colspan="6">
       <div class="row">
         <div class="field"><label>DNI</label><input value="${esc(player.dni)}" disabled></div>
@@ -1483,8 +1515,8 @@ function abrirEdicionJugador(id){
         <div class="field"><label>Apellido</label><input id="editApellido" value="${esc(player.apellido)}"></div>
       </div>
       <div class="row">
-        <div class="field"><label>Teléfono</label><input id="editTelefono" value="${esc(player.telefono||'')}"></div>
-        <div class="field"><label>Email</label><input id="editEmail" value="${esc(player.email||'')}"></div>
+        <div class="field"><label>Teléfono</label><input id="editTelefono" value="${esc(player.telefono || '')}"></div>
+        <div class="field"><label>Email</label><input id="editEmail" value="${esc(player.email || '')}"></div>
       </div>
       <div class="actions">
         <button class="gold btn-sm" id="btnGuardarEdicion" type="button">Guardar cambios</button>
@@ -1492,158 +1524,302 @@ function abrirEdicionJugador(id){
       </div>
     </td>`;
 
-  $('btnCancelarEdicion').onclick = () => renderJugadores(jugadoresCache);
+      $('btnCancelarEdicion').onclick = () => renderJugadores(jugadoresCache);
 
-  $('btnGuardarEdicion').onclick = async () => {
-    const nombre = $('editNombre').value.trim();
-    const apellido = $('editApellido').value.trim();
-    const telefono = $('editTelefono').value.trim();
-    const email = $('editEmail').value.trim();
+      $('btnGuardarEdicion').onclick = async () => {
+        const nombre = $('editNombre').value.trim();
+        const apellido = $('editApellido').value.trim();
+        const telefono = $('editTelefono').value.trim();
+        const email = $('editEmail').value.trim();
 
-    if (!nombre || !apellido) {
-      showToast('Datos incompletos', 'Nombre y apellido son obligatorios.', 'error');
-      return;
+        if (!nombre || !apellido) {
+          showToast('Datos incompletos', 'Nombre y apellido son obligatorios.', 'error');
+          return;
+        }
+
+        const confirmado = await openConfirmModal({
+          title: '¿Guardar cambios?',
+          message: `Se van a actualizar los datos de ${nombre} ${apellido}.`,
+          confirmText: 'Guardar'
+        });
+        if (!confirmado) return;
+
+        try {
+          const r = await api('/players/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, apellido, telefono, email })
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || 'No se pudo editar el jugador.');
+          showToast('Jugador actualizado', `Los datos de ${nombre} ${apellido} se guardaron con éxito.`);
+          loadJugadores();
+        } catch (e) {
+          showToast('No se pudo guardar', e.message, 'error');
+        }
+      };
     }
 
-    const confirmado = await openConfirmModal({
-      title: '¿Guardar cambios?',
-      message: `Se van a actualizar los datos de ${nombre} ${apellido}.`,
-      confirmText: 'Guardar'
+    $('filtroJugadores').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) { renderJugadores(jugadoresCache); return; }
+      renderJugadores(jugadoresCache.filter(p =>
+        p.dni.includes(q) || p.nombre.toLowerCase().includes(q) || p.apellido.toLowerCase().includes(q)
+      ));
     });
-    if (!confirmado) return;
 
-    try{
-      const r = await api('/players/' + id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, apellido, telefono, email })
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || 'No se pudo editar el jugador.');
-      showToast('Jugador actualizado', `Los datos de ${nombre} ${apellido} se guardaron con éxito.`);
-      loadJugadores();
-    }catch(e){
-      showToast('No se pudo guardar', e.message, 'error');
+
+
+    /* =========================================
+       ALTA RAPIDA (usada tanto desde busqueda por
+       DNI como desde busqueda por nombre)
+       - Declarada a nivel global, UNA sola vez, asi
+       cualquier otro bloque de codigo (el listener de
+       sugerencias, buscar(), etc.) la puede llamar sin
+       problema. Antes vivia adentro de buscar(), por
+       eso el click del desplegable no hacia nada: no
+       podia ver esta funcion desde afuera.
+    ========================================= */
+
+    function renderAltaRapida({ dni = '', nombre = '' } = {}) {
+
+      $('result').innerHTML = `
+    <div class="msg warn">
+      El jugador no está registrado. Completá los datos para darlo de alta y cobrar .
+    </div>
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>DNI</label><input id="altaRapidaDni" value="${esc(dni)}" maxlength="10"></div>
+        <div class="field"><label>Nombre</label><input id="altaRapidaNombre" value="${esc(nombre)}" placeholder="Nombre"></div>
+        <div class="field"><label>Apellido</label><input id="altaRapidaApellido" placeholder="Apellido"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Teléfono (opcional)</label><input id="altaRapidaTelefono" placeholder="Ej: 261 555 1234"></div>
+        <div class="field"><label>Email (opcional)</label><input id="altaRapidaEmail" placeholder="jugador@mail.com"></div>
+      </div>
+      <button class="gold" id="btnAltaRapida" style="width:100%;margin-top:10px" type="button">Registrar y cobrar</button>
+    </div>`;
+
+      $('btnAltaRapida').onclick = async () => {
+
+        const dniAlta = clean($('altaRapidaDni').value);
+        const nombreAlta = $('altaRapidaNombre').value.trim();
+        const apellidoAlta = $('altaRapidaApellido').value.trim();
+        const telefono = $('altaRapidaTelefono').value.trim();
+        const email = $('altaRapidaEmail').value.trim();
+
+        if (!dniAlta || dniAlta.length < 6 || !nombreAlta || !apellidoAlta) {
+          showToast('Datos incompletos', 'DNI, nombre y apellido son obligatorios.', 'error');
+          return;
+        }
+
+        const confirmado = await openConfirmModal({
+          title: '¿Registrar jugador?',
+          message: `Se va a dar de alta a ${nombreAlta} ${apellidoAlta} (DNI ${dniAlta}) y se va a continuar con el cobro.`,
+          confirmText: 'Registrar y cobrar'
+        });
+        if (!confirmado) return;
+
+        try {
+          const r2 = await api('/players', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dni: dniAlta, nombre: nombreAlta, apellido: apellidoAlta, telefono, email })
+          });
+          const d2 = await r2.json();
+          if (!r2.ok) throw new Error(d2.error || 'No se pudo registrar el jugador.');
+
+          showToast('Jugador registrado', `${nombreAlta} ${apellidoAlta} (DNI ${dniAlta}) se registró con éxito.`);
+          $('dni').value = dniAlta;
+          buscar();
+        } catch (e) {
+          showToast('No se pudo registrar', e.message, 'error');
+        }
+      };
+
     }
-  };
-}
-
-$('filtroJugadores').addEventListener('input', (e) => {
-  const q = e.target.value.toLowerCase().trim();
-  if (!q) { renderJugadores(jugadoresCache); return; }
-  renderJugadores(jugadoresCache.filter(p =>
-    p.dni.includes(q) || p.nombre.toLowerCase().includes(q) || p.apellido.toLowerCase().includes(q)
-  ));
-});
 
 
 
-/* =========================================
-   BUSCAR JUGADOR
-========================================= */
+    /* =========================================
+       BUSCAR JUGADOR
+    ========================================= */
 
-$('buscar').onclick =
-  buscar;
+    $('buscar').onclick =
+      buscar;
 
 
 
-$('dni').onkeydown =
-  e => {
+    $('dni').onkeydown = e => {
+      if (e.key === 'Enter') {
+        const box = $('sugerencias');
+        const primera = box.querySelector('[data-dni]');
+        if (!box.classList.contains('hidden') && primera) {
+          primera.click();
+        } else {
+          buscar();
+        }
+      }
+    };
 
-    if(e.key === 'Enter'){
 
-      buscar();
+    /* =========================================
+       SUGERENCIAS POR NOMBRE/APELLIDO
+    ========================================= */
 
+    let sugerenciasTimeout = null;
+
+    $('dni').addEventListener('input', () => {
+      const valor = $('dni').value.trim();
+      clearTimeout(sugerenciasTimeout);
+
+      const soloNumeros = /^\d+$/.test(valor);
+      if (!valor || (soloNumeros && valor.length >= 7)) {
+        ocultarSugerencias();
+        return;
+      }
+
+      sugerenciasTimeout = setTimeout(async () => {
+        try {
+          const r = await api('/players?q=' + encodeURIComponent(valor));
+          const lista = await r.json();
+          mostrarSugerencias(lista.slice(0, 6), valor);
+        } catch (e) {
+          ocultarSugerencias();
+        }
+      }, 300);
+    });
+
+    function mostrarSugerencias(lista, textoBuscado) {
+      const box = $('sugerencias');
+
+      if (lista.length === 0) {
+        const pareceNombre = /[a-zA-ZÀ-ÿ]/.test(textoBuscado || '');
+        if (!pareceNombre) { ocultarSugerencias(); return; }
+
+        box.innerHTML = `
+      <div class="suggest-item" id="sugerenciaAltaRapida" data-texto="${esc(textoBuscado)}" style="color:var(--g2);font-weight:600;">
+        No se encontró "${esc(textoBuscado)}" — click para registrarlo
+      </div>`;
+        box.classList.remove('hidden');
+        return;
+      }
+
+      box.innerHTML = lista.map(p => `
+    <div class="suggest-item" data-dni="${esc(p.dni)}">
+      ${esc(p.apellido)}, ${esc(p.nombre)}
+      <div class="sdni">DNI ${esc(p.dni)}</div>
+    </div>`).join('');
+      box.classList.remove('hidden');
     }
 
-  };
+    // Un solo listener para todo el desplegable, en vez de re-engancharlo
+    // cada vez que se redibuja el contenido - mas solido, no depende de
+    // timing entre el innerHTML y el bindeo del click.
+    $('sugerencias').addEventListener('click', (e) => {
+
+      const itemDni = e.target.closest('[data-dni]');
+      if (itemDni) {
+        $('dni').value = itemDni.dataset.dni;
+        ocultarSugerencias();
+        buscar();
+        return;
+      }
+
+      const itemAlta = e.target.closest('#sugerenciaAltaRapida');
+      if (itemAlta) {
+        const texto = itemAlta.dataset.texto || '';
+        ocultarSugerencias();
+        renderAltaRapida({ nombre: texto });
+      }
+
+    });
+
+    function ocultarSugerencias() {
+      $('sugerencias').classList.add('hidden');
+      $('sugerencias').innerHTML = '';
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.suggest-box')) ocultarSugerencias();
+    });
 
 
 
-async function buscar(){
+    async function buscar() {
 
-  const dni =
-    clean(
-      $('dni').value
-    );
-
-
-  if(
-    !dni ||
-    dni.length < 6
-  ){
-
-    $('result')
-      .innerHTML =
-        '<div class="msg warn">' +
-        'Ingresá un DNI válido.' +
-        '</div>';
-
-    return;
-
-  }
+      const dni =
+        clean(
+          $('dni').value
+        );
 
 
-  $('result')
-    .textContent =
-      'Buscando...';
+      if (
+        !dni ||
+        dni.length < 6
+      ) {
 
-
-  try{
-
-    const r =
-      await api(
-        '/players/' + dni
-      );
-
-
-    if(r.status === 404){
-
-      $('result')
-        .innerHTML =
+        $('result')
+          .innerHTML =
           '<div class="msg warn">' +
-          'El jugador no está registrado. ' +
-          'Podés registrarlo en la pestaña Jugadores.' +
+          'Ingresá un DNI válido.' +
           '</div>';
 
-      return;
+        return;
 
-    }
-
-
-    const d =
-      await r.json();
+      }
 
 
-    if(!r.ok){
-
-      throw new Error(
-        d.error ||
-        'Error buscando jugador.'
-      );
-
-    }
+      $('result')
+        .textContent =
+        'Buscando...';
 
 
-    const p =
-      d.player;
+      try {
+
+        const r =
+          await api(
+            '/players/' + dni
+          );
+
+        if (r.status === 404) {
+          renderAltaRapida({ dni });
+          return;
+        }
+
+        const d =
+          await r.json();
 
 
-    const buy =
-      !d.yaCompro;
+        if (!r.ok) {
+
+          throw new Error(
+            d.error ||
+            'Error buscando jugador.'
+          );
+
+        }
 
 
-    $('result')
-      .innerHTML = `
+        const p =
+          d.player;
+
+
+        const buy =
+          !d.yaCompro;
+
+
+        $('result')
+          .innerHTML = `
 
         <div class="card">
 
           <div class="name">
             ${esc(
-              p.nombre +
-              ' ' +
-              p.apellido
-            )}
+            p.nombre +
+            ' ' +
+            p.apellido
+          )}
           </div>
 
 
@@ -1654,11 +1830,10 @@ async function buscar(){
 
           <div class="status">
 
-            ${
-              buy
-                ? 'Sin buy-in hoy · corresponde BUY-IN'
-                : `Ya tiene buy-in hoy · ${d.recomprasCount} Re-Entry(s) · corresponde RE-ENTRY`
-            }
+            ${buy
+            ? 'Sin buy-in hoy · corresponde BUY-IN'
+            : `Ya tiene buy-in hoy · ${d.recomprasCount} Re-Entry(s) · corresponde RE-ENTRY`
+          }
 
           </div>
 
@@ -1687,11 +1862,10 @@ async function buscar(){
               style="width:100%"
             >
 
-              ${
-                buy
-                  ? 'Registrar Buy-in'
-                  : 'Registrar Re-Entry'
-              }
+              ${buy
+            ? 'Registrar Buy-in'
+            : 'Registrar Re-Entry'
+          }
 
             </button>
 
@@ -1703,140 +1877,140 @@ async function buscar(){
 
 
 
-    await config();
+        await config();
 
 
 
-    const buyinTexto =
-      $('torneoBuyin')
-        .textContent
-        .replace(/\D/g, '');
+        const buyinTexto =
+          $('torneoBuyin')
+            .textContent
+            .replace(/\D/g, '');
 
 
-    const recompraTexto =
-      $('torneoRecompra')
-        .textContent
-        .replace(/\D/g, '');
+        const recompraTexto =
+          $('torneoRecompra')
+            .textContent
+            .replace(/\D/g, '');
 
 
-    $('monto').value =
-      buy
-        ? buyinTexto
-        : recompraTexto;
-
-
-
-    $('operar').onclick =
-      async () => {
-
-        try{
-
-          const monto =
-            Number(
-              $('monto').value
-            );
-
-
-          if(
-            !monto ||
-            monto <= 0
-          ){
-
-            throw new Error(
-              'El monto debe ser mayor a cero.'
-            );
-
-          }
+        $('monto').value =
+          buy
+            ? buyinTexto
+            : recompraTexto;
 
 
 
-          const tipoTexto =
-            buy
-              ? 'Buy-in'
-              : 'Re-Entry';
+        $('operar').onclick =
+          async () => {
+
+            try {
+
+              const monto =
+                Number(
+                  $('monto').value
+                );
 
 
-          const confirmado =
-            await openConfirmModal({
+              if (
+                !monto ||
+                monto <= 0
+              ) {
 
-              title:
-                `¿Confirmar ${tipoTexto}?`,
-
-              message:
-                `${tipoTexto} de ${money(monto)} para ${p.nombre} ${p.apellido} (DNI ${p.dni}).`,
-
-              confirmText:
-                'Confirmar'
-
-            });
-
-
-          if(!confirmado){
-
-            return;
-
-          }
-
-
-
-          const r2 =
-            await api(
-              '/transactions',
-              {
-                method:'POST',
-
-                headers:{
-                  'Content-Type':
-                    'application/json'
-                },
-
-                body:
-                  JSON.stringify({
-
-                    dni:
-                      p.dni,
-
-                    monto,
-
-                    cajero:
-                      sessionStorage
-                        .getItem(
-                          'caja_user'
-                        ) || ''
-
-                  })
+                throw new Error(
+                  'El monto debe ser mayor a cero.'
+                );
 
               }
-            );
-
-
-          const tx =
-            await r2.json();
-
-
-          if(!r2.ok){
-
-            throw new Error(
-              tx.error ||
-              'No se pudo registrar la operación.'
-            );
-
-          }
 
 
 
-          showToast(
-            `${tipoTexto} realizado`,
-            `${tipoTexto} realizado con éxito para ${p.nombre} ${p.apellido}.`
-          );
+              const tipoTexto =
+                buy
+                  ? 'Buy-in'
+                  : 'Re-Entry';
+
+
+              const confirmado =
+                await openConfirmModal({
+
+                  title:
+                    `¿Confirmar ${tipoTexto}?`,
+
+                  message:
+                    `${tipoTexto} de ${money(monto)} para ${p.nombre} ${p.apellido} (DNI ${p.dni}).`,
+
+                  confirmText:
+                    'Confirmar'
+
+                });
+
+
+              if (!confirmado) {
+
+                return;
+
+              }
 
 
 
-          $('result')
-            .insertAdjacentHTML(
-              'beforeend',
+              const r2 =
+                await api(
+                  '/transactions',
+                  {
+                    method: 'POST',
 
-              `
+                    headers: {
+                      'Content-Type':
+                        'application/json'
+                    },
+
+                    body:
+                      JSON.stringify({
+
+                        dni:
+                          p.dni,
+
+                        monto,
+
+                        cajero:
+                          sessionStorage
+                            .getItem(
+                              'caja_user'
+                            ) || ''
+
+                      })
+
+                  }
+                );
+
+
+              const tx =
+                await r2.json();
+
+
+              if (!r2.ok) {
+
+                throw new Error(
+                  tx.error ||
+                  'No se pudo registrar la operación.'
+                );
+
+              }
+
+
+
+              showToast(
+                `${tipoTexto} realizado`,
+                `${tipoTexto} realizado con éxito para ${p.nombre} ${p.apellido}.`
+              );
+
+
+
+              $('result')
+                .insertAdjacentHTML(
+                  'beforeend',
+
+                  `
 
               <div class="ticket">
 
@@ -1844,11 +2018,10 @@ async function buscar(){
 
                   <b>
 
-                    ${
-                      tx.tipo === 'buyin'
-                        ? 'Buy-in realizado con éxito'
-                        : 'Re-Entry realizado con éxito'
-                    }
+                    ${tx.tipo === 'buyin'
+                    ? 'Buy-in realizado con éxito'
+                    : 'Re-Entry realizado con éxito'
+                  }
 
                   </b>
 
@@ -1861,10 +2034,10 @@ async function buscar(){
 
                   <b>
                     ${esc(
-                      p.nombre +
-                      ' ' +
-                      p.apellido
-                    )}
+                    p.nombre +
+                    ' ' +
+                    p.apellido
+                  )}
                   </b>
 
                 </div>
@@ -1917,100 +2090,76 @@ async function buscar(){
 
               `
 
-            );
+                );
 
 
 
-          buscar();
+              buscar();
 
 
-        }catch(e){
+            } catch (e) {
 
-          console.error(
-            'Error registrando operación:',
-            e
-          );
-
-
-          showToast(
-            'No se pudo realizar la operación',
-            e.message,
-            'error'
-          );
+              console.error(
+                'Error registrando operación:',
+                e
+              );
 
 
-          $('result')
-            .insertAdjacentHTML(
-
-              'beforeend',
-
-              '<div class="msg warn">' +
-              esc(e.message) +
-              '</div>'
-
-            );
-
-        }
-
-      };
+              showToast(
+                'No se pudo realizar la operación',
+                e.message,
+                'error'
+              );
 
 
-  }catch(e){
+              $('result')
+                .insertAdjacentHTML(
 
-    console.error(
-      'Error buscando jugador:',
-      e
-    );
+                  'beforeend',
 
+                  '<div class="msg warn">' +
+                  esc(e.message) +
+                  '</div>'
 
-    $('result')
-      .innerHTML =
-        '<div class="msg warn">' +
-        esc(e.message) +
-        '</div>';
+                );
 
-  }
+            }
 
-}
+          };
 
 
+      } catch (e) {
 
-/* =========================================
-   ESCAPAR HTML
-========================================= */
+        console.error(
+          'Error buscando jugador:',
+          e
+        );
 
-function esc(v){
 
-  return String(
-    v ?? ''
-  ).replace(
-    /[&<>"']/g,
+        $('result')
+          .innerHTML =
+          '<div class="msg warn">' +
+          esc(e.message) +
+          '</div>';
 
-    c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
+      }
 
-  );
-
-}
+    }
 
 
 
-/* =========================================
-   RESTAURAR SESIÓN
-========================================= */
+    /* =========================================
+       RESTAURAR SESIÓN
+    ========================================= */
 
-if(token){
+    if (token) {
 
-  show();
+      show();
 
-}
+    }
 
-</script>
+  </script>
 
 </body>
+
 </html>

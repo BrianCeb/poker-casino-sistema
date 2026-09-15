@@ -5,25 +5,9 @@ const Transaction = require('../models/Transaction');
 const Tournament = require('../models/Tournament');
 
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { diaOperativo } = require('../utils/diaOperativo');
 
 const router = express.Router();
-
-
-// ======================================================
-// FECHA ACTUAL
-// ======================================================
-
-function todayStr() {
-  const d = new Date();
-
-  return (
-    d.getFullYear() +
-    '-' +
-    String(d.getMonth() + 1).padStart(2, '0') +
-    '-' +
-    String(d.getDate()).padStart(2, '0')
-  );
-}
 
 
 // ======================================================
@@ -37,12 +21,12 @@ router.get(
   async (req, res) => {
     try {
       // Si viene ?fecha=YYYY-MM-DD (valida) se usa esa fecha para
-      // consultar un dia/torneo anterior. Si no viene, se comporta
-      // como siempre: el dia de hoy segun el calendario del servidor.
+      // consultar un dia/torneo anterior. Si no viene, se usa el dia
+      // operativo actual (corte a las 6 AM, no a medianoche).
       const fechaQuery = req.query.fecha;
       const today = (fechaQuery && /^\d{4}-\d{2}-\d{2}$/.test(fechaQuery))
         ? fechaQuery
-        : todayStr();
+        : diaOperativo();
 
       const txs = await Transaction
         .find({ fecha: today })
@@ -267,12 +251,14 @@ router.get(
   requireRole('direccion'),
   async (req, res) => {
     try {
-
       // ==================================================
-      // SOLO EL DÍA ACTUAL
+      // FECHA A EXPORTAR (hoy por defecto, o la que pidan con ?fecha=)
       // ==================================================
 
-      const today = todayStr();
+      const fechaQuery = req.query.fecha;
+      const today = (fechaQuery && /^\d{4}-\d{2}-\d{2}$/.test(fechaQuery))
+        ? fechaQuery
+        : diaOperativo();
 
       const txs = await Transaction
         .find({
@@ -286,26 +272,28 @@ router.get(
 
 
       // ==================================================
-      // OBTENER TORNEO
+      // OBTENER TORNEO DE ESA FECHA
       // ==================================================
-      // Primero buscamos el torneo activo.
-      // Si por algún motivo no existe, intentamos
-      // encontrar uno correspondiente a la fecha.
+      // Buscamos primero el torneo que corresponde a ESA fecha
+      // puntual (funciona igual para hoy que para un dia anterior).
+      // Solo si estamos mirando "hoy" sin fecha explicita y no
+      // encontramos nada por fecha, probamos con el torneo activo
+      // como respaldo (por si hay algun desfasaje de reloj).
       // ==================================================
 
       let torneo = await Tournament
         .findOne({
-          activo: true
+          fecha: today
         })
         .sort({
           createdAt: -1
         })
         .lean();
 
-      if (!torneo) {
+      if (!torneo && !fechaQuery) {
         torneo = await Tournament
           .findOne({
-            fecha: today
+            activo: true
           })
           .sort({
             createdAt: -1
@@ -493,10 +481,9 @@ router.get(
       ws.mergeCells('A2:H2');
 
       ws.getCell('A2').value =
-        `Fecha: ${today} · Torneo: ${
-          torneo?.nombre ||
-          txs[0]?.torneo ||
-          'Sin configurar'
+        `Fecha: ${today} · Torneo: ${torneo?.nombre ||
+        txs[0]?.torneo ||
+        'Sin configurar'
         }`;
 
 
@@ -930,7 +917,7 @@ router.get(
 
       res.setHeader(
         'Content-Disposition',
-        'attachment; filename="operaciones-del-dia.xlsx"'
+        `attachment; filename="operaciones-${today}.xlsx"`
       );
 
 
