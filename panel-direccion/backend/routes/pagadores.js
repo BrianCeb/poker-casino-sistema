@@ -90,6 +90,28 @@ router.put('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Error al editar el pagador.' }); }
 });
 
+// DELETE /api/pagadores/:id -> elimina un pagador.
+// Si NUNCA tuvo turnos registrados (ni en mesa ni en descanso), se borra
+// de verdad. Si ya tiene historial en TurnoPagador, se conserva ese
+// historial y en su lugar se desactiva (activo:false).
+router.delete('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
+    try {
+        const pagador = await Pagador.findById(req.params.id);
+        if (!pagador) return res.status(404).json({ error: 'Pagador no encontrado.' });
+
+        const tieneTurnos = await TurnoPagador.exists({ pagadorId: pagador._id });
+
+        if (tieneTurnos) {
+            await Pagador.findByIdAndUpdate(req.params.id, { activo: false });
+            return res.json({ ok: true, borradoReal: false });
+        }
+
+        await Pagador.deleteOne({ _id: req.params.id });
+        res.json({ ok: true, borradoReal: true });
+
+    } catch (err) { res.status(500).json({ error: 'Error al eliminar el pagador.' }); }
+});
+
 // POST /api/pagadores/:id/asignar-mesa -> body { mesa }
 router.post('/:id/asignar-mesa', requireAuth, requireRole('direccion'), async (req, res) => {
     try {
@@ -138,7 +160,13 @@ router.post('/:id/descanso', requireAuth, requireRole('direccion'), async (req, 
     } catch (err) { res.status(500).json({ error: 'Error al enviar a descanso.' }); }
 });
 
-// POST /api/pagadores/:id/disponible -> termina su bloque actual (fin de jornada, o vuelve a la nada)
+// POST /api/pagadores/:id/disponible -> FINALIZA LA JORNADA.
+// A pedido: al finalizar jornada el pagador deja de figurar en
+// cualquier lista (ni disponible, ni descanso, ni mesas) - se marca
+// directamente activo:false, igual que un borrado logico. Todas las
+// consultas de este archivo ya filtran { activo: { $ne: false } }, asi
+// que desaparece de todos lados sin tocar nada mas. Si se finaliza por
+// error, se vuelve a dar de alta con POST /pagadores.
 router.post('/:id/disponible', requireAuth, requireRole('direccion'), async (req, res) => {
     try {
         const pagador = await Pagador.findById(req.params.id);
@@ -149,6 +177,7 @@ router.post('/:id/disponible', requireAuth, requireRole('direccion'), async (req
         pagador.estado = 'disponible';
         pagador.mesa = null;
         pagador.desde = null;
+        pagador.activo = false;
         await pagador.save();
 
         res.json(pagador);

@@ -46,21 +46,30 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
       ? Math.round((dnisConRecompra.size / dnisConBuyin.size) * 100)
       : 0;
 
-    // AGRUPAR POR TORNEO (rake real + datos para el grafico "por torneo")
-    const torneoIds = [...new Set(txs.filter(t => t.torneoId).map(t => String(t.torneoId)))];
-    const torneosDocs = torneoIds.length
-      ? await Tournament.find({ _id: { $in: torneoIds } }).lean()
+    // AGRUPAR POR TORNEO — se agrupa por FECHA (la fecha real de cada
+    // transaccion), no por torneoId. Antes, si un dia arrancaba sin
+    // configurar un torneo nuevo, las transacciones quedaban con el
+    // torneoId del ultimo torneo activo (de otra fecha), y ese dia
+    // terminaba mezclado/oculto bajo la fecha del torneo viejo.
+    const fechasUnicas = [...new Set(txs.map(t => t.fecha))];
+    const torneosDocs = fechasUnicas.length
+      ? await Tournament.find({ fecha: { $in: fechasUnicas } }).sort({ createdAt: -1 }).lean()
       : [];
-    const torneoInfoMap = {};
-    torneosDocs.forEach(t => { torneoInfoMap[String(t._id)] = t; });
+    const torneoInfoPorFecha = {};
+    torneosDocs.forEach(t => {
+      // Si hubiera mas de un Tournament con la misma fecha, nos
+      // quedamos con el mas reciente (por el sort de arriba).
+      if (!torneoInfoPorFecha[t.fecha]) torneoInfoPorFecha[t.fecha] = t;
+    });
 
     const porTorneo = {};
     txs.forEach(t => {
-      const key = t.torneoId ? String(t.torneoId) : `sin-torneo:${t.torneo}`;
+      const key = t.fecha;
+      const info = torneoInfoPorFecha[key];
       if (!porTorneo[key]) {
         porTorneo[key] = {
-          nombre: t.torneo,
-          fecha: t.torneoId && torneoInfoMap[key] ? torneoInfoMap[key].fecha : t.fecha,
+          nombre: info ? info.nombre : t.torneo,
+          fecha: t.fecha,
           recaudado: 0,
           buyins: 0,
           recompras: 0,
@@ -73,7 +82,7 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
     });
 
     const torneosDetalle = Object.entries(porTorneo).map(([key, g]) => {
-      const info = torneoInfoMap[key];
+      const info = torneoInfoPorFecha[key];
       const rakePorOperacion = info ? Number(info.rake || 0) : 0;
       const rake = (g.buyins + g.recompras) * rakePorOperacion;
       const premios = Math.max(0, g.recaudado - rake);

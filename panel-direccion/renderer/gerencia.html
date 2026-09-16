@@ -222,7 +222,7 @@
 
     .kpis {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 14px;
       margin-bottom: 28px;
     }
@@ -245,11 +245,10 @@
 
     .kpi .val {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: clamp(16px, 4vw, 28px);
+      font-size: clamp(19px, 2.3vw, 30px);
       font-weight: 600;
       color: var(--gold-light);
-      overflow-wrap: break-word;
-      word-break: break-word;
+      white-space: nowrap;
       line-height: 1.2;
     }
 
