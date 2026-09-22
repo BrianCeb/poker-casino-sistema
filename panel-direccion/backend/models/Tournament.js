@@ -26,6 +26,24 @@ const tournamentSchema = new mongoose.Schema({
     default: 0
   },
 
+  tipo: {
+    type: String,
+    enum: ['normal', 'mistery_bounty'],
+    default: 'normal'
+  },
+
+  mbRake: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+
+  mbBounty: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+
   fecha: {
     type: String,
     required: true,

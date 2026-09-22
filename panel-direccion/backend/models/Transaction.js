@@ -10,6 +10,15 @@ const transactionSchema = new mongoose.Schema({
   fecha: { type: String, required: true, index: true },
   hora: { type: String, required: true },
   cajero: { type: String, default: '' },
+  // Desglose (solo se completa cuando el torneo es Mistery Bounty; en
+  // torneos normales queda en 0). Se calcula y guarda en el momento del
+  // cobro, para que un cambio posterior en la config del torneo no altere
+  // transacciones ya cargadas.
+  desglose: {
+    rake: { type: Number, default: 0 },
+    bounty: { type: Number, default: 0 },
+    prizepool: { type: Number, default: 0 }
+  },
   // Anulacion: no se borra el registro, queda como historial pero no
   // cuenta en los totales ni bloquea un nuevo buy-in del mismo dia.
   anulado: { type: Boolean, default: false },

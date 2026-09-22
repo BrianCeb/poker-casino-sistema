@@ -612,6 +612,12 @@
       box-shadow: 0 0 0 2px var(--gold) inset;
     }
 
+    .mesa-card.seleccionado {
+      border-color: var(--gold);
+      background: rgba(201, 162, 39, .12);
+      box-shadow: 0 0 0 2px var(--gold) inset;
+    }
+
     .pagador-card .info {
       display: flex;
       align-items: center;
@@ -1054,6 +1060,23 @@
         </div>
 
 
+        <!-- TIPO DE TORNEO -->
+        <div class="row" style="margin-top:14px">
+
+          <div class="field">
+
+            <label>Tipo de torneo</label>
+
+            <select id="torneoFormTipo">
+              <option value="normal">Normal</option>
+              <option value="mistery_bounty">Mistery Bounty</option>
+            </select>
+
+          </div>
+
+        </div>
+
+
         <!-- BUY IN + RECOMPRA -->
         <div class="row" style="margin-top:14px">
 
@@ -1085,8 +1108,8 @@
         </div>
 
 
-        <!-- RAKE -->
-        <div class="row" style="margin-top:14px">
+        <!-- RAKE (torneo normal) -->
+        <div class="row" id="torneoRakeNormalWrap" style="margin-top:14px">
 
           <div class="field">
 
@@ -1099,6 +1122,42 @@
             <div class="rake-help">
               Monto fijo destinado al rake por cada Buy-in o Re-Entry.
               No se calcula como porcentaje.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- MISTERY BOUNTY: RAKE + BOUNTY FIJOS -->
+        <div class="row hidden" id="torneoMisteryBountyWrap" style="margin-top:14px">
+
+          <div class="field">
+
+            <label>
+              Rake fijo (Mistery Bounty)
+            </label>
+
+            <input id="torneoFormMbRake" type="number" min="0" step="0.01" placeholder="Ej: 7500">
+
+            <div class="rake-help">
+              Monto fijo de Rake por cada Buy-in o Re-Entry. Vale lo mismo
+              para ambos.
+            </div>
+
+          </div>
+
+          <div class="field">
+
+            <label>
+              Bounty fijo
+            </label>
+
+            <input id="torneoFormMbBounty" type="number" min="0" step="0.01" placeholder="Ej: 17500">
+
+            <div class="rake-help">
+              Monto fijo de Bounty por cada Buy-in o Re-Entry. El resto del
+              monto queda como Prizepool.
             </div>
 
           </div>
@@ -1261,8 +1320,12 @@
 
           <div class="panel">
             <div class="actions" style="justify-content:space-between">
-              <h2>Mesas (1 a 13)</h2>
-              <button class="btn" id="refreshRotacion">Actualizar</button>
+              <h2 id="mesasHeading">Mesas</h2>
+              <div class="actions" style="gap:8px">
+                <input id="cantidadMesasInput" type="number" min="1" max="60" style="width:80px" title="Cantidad de mesas">
+                <button class="btn" id="btnGuardarCantidadMesas">Cambiar cantidad</button>
+                <button class="btn" id="refreshRotacion">Actualizar</button>
+              </div>
             </div>
             <div class="mesas-grid" id="mesasGrid"></div>
           </div>
@@ -1466,6 +1529,23 @@
 
 
     const $ = id => document.getElementById(id);
+
+
+    // Engancha Enter en un grupo de inputs para que dispare el click del
+    // botón indicado, en vez de tener que ir a buscarlo con el mouse.
+    function enterSubmit(ids, btnId) {
+      ids.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.onkeydown = e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const btn = $(btnId);
+            if (btn) btn.click();
+          }
+        };
+      });
+    }
 
 
     const money = n =>
@@ -1791,6 +1871,27 @@
             ? config.rake
             : '';
 
+
+        $('torneoFormTipo').value =
+          config.tipo === 'mistery_bounty'
+            ? 'mistery_bounty'
+            : 'normal';
+
+
+        $('torneoFormMbRake').value =
+          config.mbRake != null
+            ? config.mbRake
+            : '';
+
+
+        $('torneoFormMbBounty').value =
+          config.mbBounty != null
+            ? config.mbBounty
+            : '';
+
+
+        actualizarVisibilidadTipoTorneo();
+
       } catch (e) {
 
         console.error(
@@ -1801,6 +1902,32 @@
       }
 
     }
+
+
+    /* =========================
+       TIPO DE TORNEO (NORMAL / MISTERY BOUNTY)
+    ========================= */
+
+    function actualizarVisibilidadTipoTorneo() {
+
+      const esMisteryBounty =
+        $('torneoFormTipo').value === 'mistery_bounty';
+
+      $('torneoRakeNormalWrap').classList.toggle(
+        'hidden',
+        esMisteryBounty
+      );
+
+      $('torneoMisteryBountyWrap').classList.toggle(
+        'hidden',
+        !esMisteryBounty
+      );
+
+    }
+
+
+    $('torneoFormTipo').onchange =
+      actualizarVisibilidadTipoTorneo;
 
 
     /* =========================
@@ -1865,6 +1992,8 @@
     /* =========================
        REGISTRAR JUGADOR
     ========================= */
+
+    enterSubmit(['regDni', 'regNombre', 'regApellido', 'regTelefono', 'regEmail'], 'btnRegistrar');
 
     $('btnRegistrar').onclick = async () => {
 
@@ -2286,6 +2415,8 @@
       $('historialModal').classList.add('hidden');
 
 
+    enterSubmit(['editNombre', 'editApellido', 'editTelefono', 'editEmail'], 'savePlayer');
+
     $('savePlayer').onclick = async () => {
 
       const id = $('editId').value;
@@ -2473,6 +2604,8 @@
        GUARDAR TORNEO
     ========================= */
 
+    enterSubmit(['torneoFormNombre', 'torneoFormFecha', 'torneoFormBuyin', 'torneoFormRecompra', 'torneoFormRake', 'torneoFormMbRake', 'torneoFormMbBounty'], 'saveTournament');
+
     $('saveTournament').onclick = async () => {
 
       const nombre =
@@ -2496,14 +2629,13 @@
             .value
         );
 
-      const rake =
-        Number(
-          $('torneoFormRake')
-            .value
-        );
+      const tipo =
+        $('torneoFormTipo').value === 'mistery_bounty'
+          ? 'mistery_bounty'
+          : 'normal';
 
 
-      /* VALIDACIONES */
+      /* VALIDACIONES COMUNES */
 
       if (!nombre) {
 
@@ -2559,77 +2691,164 @@
       }
 
 
-      if (
-        !Number.isFinite(rake) ||
-        rake < 0
-      ) {
-
-        $('torneoMsg').innerHTML =
-          '<div class="msg warn">' +
-          'El rake no puede ser negativo.' +
-          '</div>';
-
-        return;
-
-      }
-
-
-      /*
-        El rake no puede superar
-        el valor total de la entrada.
-      */
-
-      if (rake > buyIn) {
-
-        $('torneoMsg').innerHTML =
-          '<div class="msg warn">' +
-          'El rake no puede ser mayor que el buy-in total.' +
-          '</div>';
-
-        return;
-
-      }
-
-
-      /*
-        El mismo rake se utiliza
-        para buy-in y recompra.
-      */
-
-      if (rake > recompra) {
-
-        $('torneoMsg').innerHTML =
-          '<div class="msg warn">' +
-          'El rake tampoco puede ser mayor que el monto de Re-Entry.' +
-          '</div>';
-
-        return;
-
-      }
-
-
       const body = {
-
         nombre,
-
         fecha,
-
         buyIn,
-
         recompra,
-
-        rake
-
+        tipo
       };
+
+
+      let confirmMessage =
+        `Se va a activar "${nombre}" (fecha ${fecha}) ` +
+        `y se desactivará el torneo activo anterior, si había uno.`;
+
+
+      if (tipo === 'mistery_bounty') {
+
+        /* VALIDACIONES MISTERY BOUNTY */
+
+        const mbRake =
+          Number(
+            $('torneoFormMbRake')
+              .value
+          );
+
+        const mbBounty =
+          Number(
+            $('torneoFormMbBounty')
+              .value
+          );
+
+        if (
+          !Number.isFinite(mbRake) ||
+          mbRake < 0
+        ) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'El Rake de Mistery Bounty no puede ser negativo.' +
+            '</div>';
+
+          return;
+
+        }
+
+        if (
+          !Number.isFinite(mbBounty) ||
+          mbBounty < 0
+        ) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'El Bounty no puede ser negativo.' +
+            '</div>';
+
+          return;
+
+        }
+
+        if (mbRake + mbBounty > buyIn) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'La suma de Rake y Bounty no puede superar el buy-in.' +
+            '</div>';
+
+          return;
+
+        }
+
+        if (
+          recompra > 0 &&
+          (mbRake + mbBounty) > recompra
+        ) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'La suma de Rake y Bounty no puede superar el monto de Re-Entry.' +
+            '</div>';
+
+          return;
+
+        }
+
+        body.mbRake = mbRake;
+        body.mbBounty = mbBounty;
+
+        confirmMessage =
+          `Se va a activar "${nombre}" (Mistery Bounty, fecha ${fecha}) ` +
+          `con Rake $${mbRake.toLocaleString('es-AR')} y Bounty ` +
+          `$${mbBounty.toLocaleString('es-AR')} fijos por operación. ` +
+          `Se desactivará el torneo activo anterior, si había uno.`;
+
+      } else {
+
+        /* VALIDACIONES TORNEO NORMAL */
+
+        const rake =
+          Number(
+            $('torneoFormRake')
+              .value
+          );
+
+        if (
+          !Number.isFinite(rake) ||
+          rake < 0
+        ) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'El rake no puede ser negativo.' +
+            '</div>';
+
+          return;
+
+        }
+
+        /*
+          El rake no puede superar
+          el valor total de la entrada.
+        */
+
+        if (rake > buyIn) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'El rake no puede ser mayor que el buy-in total.' +
+            '</div>';
+
+          return;
+
+        }
+
+        /*
+          El mismo rake se utiliza
+          para buy-in y recompra.
+        */
+
+        if (rake > recompra) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'El rake tampoco puede ser mayor que el monto de Re-Entry.' +
+            '</div>';
+
+          return;
+
+        }
+
+        body.rake = rake;
+
+      }
 
 
       const confirmado = await openConfirmModal({
 
         title: '¿Confirmar configuración del torneo?',
 
-        message:
-          `Se va a activar "${nombre}" (fecha ${fecha}) ` +
-          `y se desactivará el torneo activo anterior, si había uno.`,
+        message: confirmMessage,
 
         confirmText: 'Guardar y activar'
 
@@ -3137,7 +3356,8 @@
     let tableroData = { mesas: [], enMesa: [], enDescanso: [], disponibles: [], sugerido: null };
     let rotacionRefreshInterval = null;
     let rotacionTickInterval = null;
-    let pagadorSeleccionado = null; // { id, nombre } o null
+    let pagadorSeleccionado = null; // { id, nombre, origen } o null - origen: 'lista' | 'mesa'
+    let mesaVaciaSeleccionada = null; // numero de mesa (vacia) elegida primero, o null
 
     function formatElapsed(desde) {
       if (!desde) return '--:--:--';
@@ -3177,26 +3397,96 @@
         renderSugerido();
         renderDescanso();
         renderDisponibles();
+
+        $('mesasHeading').textContent =
+          `Mesas (1 a ${tableroData.cantidadMesas || tableroData.mesas.length})`;
+
+        // No pisamos el input si el usuario esta escribiendo ahi en este momento.
+        if (document.activeElement !== $('cantidadMesasInput')) {
+          $('cantidadMesasInput').value =
+            tableroData.cantidadMesas || tableroData.mesas.length;
+        }
+
       } catch (e) {
         console.error('Error cargando tablero:', e);
       }
     }
 
+    enterSubmit(['cantidadMesasInput'], 'btnGuardarCantidadMesas');
+
+    $('btnGuardarCantidadMesas').onclick = async () => {
+      const nueva = Number($('cantidadMesasInput').value);
+
+      if (!Number.isInteger(nueva) || nueva < 1) {
+        showToast('Cantidad inválida', 'Ingresá un número entero mayor a 0.', 'error');
+        return;
+      }
+
+      const confirmado = await openConfirmModal({
+        title: '¿Cambiar cantidad de mesas?',
+        message: `Vas a cambiar la cantidad de mesas a ${nueva}.`,
+        confirmText: 'Cambiar'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/cantidad-mesas', {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cantidad: nueva })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Cantidad de mesas actualizada', `Ahora hay ${d.cantidadMesas} mesas.`);
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo cambiar la cantidad de mesas', e.message, 'error');
+      }
+    };
+
 
     /* =========================================
        SELECCION "TOCAR Y TOCAR" (pensado para tablet)
-       1) Se toca un pagador de Descanso o Disponibles -> queda seleccionado
-       2) Se toca una mesa libre -> se asigna ahi
-       3) Se toca una mesa ocupada -> reemplaza directo (el ocupante pasa
-          a descanso y el seleccionado entra en su lugar)
+
+       Dos formas de arrancar, simetricas entre si:
+
+       A) Pagador primero: se toca un pagador (Descanso/Disponibles, o una
+          mesa ocupada) -> queda seleccionado -> se toca una mesa para
+          completar la accion (asignar, mover o reemplazar).
+
+       B) Mesa primero: se toca una mesa VACIA -> queda seleccionada ->
+          se toca un pagador de Descanso/Disponibles para asignarlo ahi.
+
+       Reemplazo/relevo: si hay un pagador seleccionado y se toca una
+       mesa OCUPADA por otro pagador, el ocupante pasa a descanso y el
+       seleccionado entra en su lugar. Si el seleccionado vino de otra
+       mesa (origen 'mesa'), conserva su tiempo (usa /mover-mesa); si
+       vino de la lista, arranca de cero en esa mesa (usa /asignar-mesa).
     ========================================= */
 
-    function seleccionarPagador(id, nombre) {
+    function seleccionarPagador(id, nombre, origen = 'lista') {
+      // Elegir un pagador cancela cualquier seleccion de mesa vacia en curso.
+      mesaVaciaSeleccionada = null;
+
       if (pagadorSeleccionado && pagadorSeleccionado.id === id) {
         cancelarSeleccion();
         return;
       }
-      pagadorSeleccionado = { id, nombre };
+      pagadorSeleccionado = { id, nombre, origen };
+      renderMesas();
+      renderDescanso();
+      renderDisponibles();
+      actualizarBannerSeleccion();
+    }
+
+    function seleccionarMesaVacia(mesa) {
+      // Elegir una mesa vacia cancela cualquier seleccion de pagador en curso.
+      pagadorSeleccionado = null;
+
+      if (mesaVaciaSeleccionada === mesa) {
+        cancelarSeleccion();
+        return;
+      }
+      mesaVaciaSeleccionada = mesa;
       renderMesas();
       renderDescanso();
       renderDisponibles();
@@ -3204,8 +3494,9 @@
     }
 
     function cancelarSeleccion() {
-      if (!pagadorSeleccionado) return;
+      if (!pagadorSeleccionado && mesaVaciaSeleccionada == null) return;
       pagadorSeleccionado = null;
+      mesaVaciaSeleccionada = null;
       renderMesas();
       renderDescanso();
       renderDisponibles();
@@ -3214,12 +3505,22 @@
 
     function actualizarBannerSeleccion() {
       const banner = $('seleccionBanner');
-      if (!pagadorSeleccionado) {
+
+      if (!pagadorSeleccionado && mesaVaciaSeleccionada == null) {
         banner.classList.add('hidden');
         return;
       }
-      $('seleccionBannerTexto').textContent =
-        `${pagadorSeleccionado.nombre} seleccionado — tocá una mesa libre para asignarlo, o una ocupada para reemplazar`;
+
+      if (mesaVaciaSeleccionada != null) {
+        $('seleccionBannerTexto').textContent =
+          `Mesa ${mesaVaciaSeleccionada} seleccionada — tocá un pagador de Descanso o Disponibles para asignarlo ahí`;
+      } else {
+        $('seleccionBannerTexto').textContent =
+          pagadorSeleccionado.origen === 'mesa'
+            ? `${pagadorSeleccionado.nombre} seleccionado — tocá una mesa libre para moverlo (conserva el tiempo), o una ocupada para reemplazar`
+            : `${pagadorSeleccionado.nombre} seleccionado — tocá una mesa libre para asignarlo, o una ocupada para reemplazar`;
+      }
+
       banner.classList.remove('hidden');
     }
 
@@ -3228,34 +3529,121 @@
 
     function renderMesas() {
       $('mesasGrid').innerHTML = tableroData.mesas.map(m => {
+
         if (!m.pagador) {
-          const esDestino = !!pagadorSeleccionado;
-          return `
-        <div class="mesa-card${esDestino ? ' destino' : ''}" ${esDestino ? `onclick="asignarAMesaSeleccionada(${m.mesa})"` : ''}>
+
+          // Hay un pagador seleccionado esperando mesa: se completa la
+          // asignacion/movimiento aca.
+          if (pagadorSeleccionado) {
+            return `
+        <div class="mesa-card destino" onclick="onClickMesaLibre(${m.mesa})">
           <div class="mesa-num">Mesa ${m.mesa}</div>
-          <div class="mesa-libre">${esDestino ? 'Tocar para asignar' : 'Libre'}</div>
+          <div class="mesa-libre">Tocar para asignar</div>
+        </div>`;
+          }
+
+          // Nada de pagador seleccionado: esta mesa vacia se puede tocar
+          // PRIMERO, y despues elegir el pagador de la lista (flujo
+          // "mesa -> pagador", simetrico al de "pagador -> mesa").
+          const esEstaVacia = mesaVaciaSeleccionada === m.mesa;
+          return `
+        <div class="mesa-card${esEstaVacia ? ' seleccionado destino' : ''}" onclick="seleccionarMesaVacia(${m.mesa})">
+          <div class="mesa-num">Mesa ${m.mesa}</div>
+          <div class="mesa-libre">${esEstaVacia ? 'Seleccionada — tocá un pagador' : 'Libre'}</div>
         </div>`;
         }
+
         const p = m.pagador;
-        const puedeReemplazar = pagadorSeleccionado && pagadorSeleccionado.id !== p._id;
         const nombreEscapado = esc(p.nombre).replace(/'/g, "\\'");
+
+        if (!pagadorSeleccionado) {
+          // Nada seleccionado todavia: tocar una mesa ocupada arranca una
+          // seleccion con origen 'mesa', para despues poder moverlo a otra
+          // mesa (conservando el tiempo), reemplazar a otro, o mandarlo a
+          // descanso con el boton.
+          return `
+        <div class="mesa-card ocupada" onclick="seleccionarPagador('${p._id}','${nombreEscapado}','mesa')">
+          <div class="mesa-num">Mesa ${m.mesa}</div>
+          <div class="mesa-pagador">${esc(p.nombre)}</div>
+          <div class="clock" data-desde="${p.desde}">${formatElapsed(p.desde)}</div>
+          <button class="btn danger btn-sm" onclick="event.stopPropagation(); enviarDescanso('${p._id}')">A descanso</button>
+        </div>`;
+        }
+
+        // Ya hay un pagador seleccionado (de la lista o de otra mesa).
+        // Cualquier otra mesa ocupada es un destino de reemplazo: el
+        // ocupante pasa a descanso y el seleccionado entra ahi. Si el
+        // seleccionado vino de otra mesa, conserva su tiempo; si vino de
+        // la lista, arranca de cero (comportamiento de siempre).
+        const esLaSeleccionada = pagadorSeleccionado.origen === 'mesa' && pagadorSeleccionado.id === p._id;
+        const puedeReemplazar = !esLaSeleccionada && pagadorSeleccionado.id !== p._id;
+
+        let accionHtml;
+        let onclickAttr = '';
+
+        if (esLaSeleccionada) {
+          accionHtml = `<div class="mesa-libre" style="color:var(--gold2);padding:4px 0;">Seleccionado — tocá otra mesa</div>`;
+          onclickAttr = `onclick="seleccionarPagador('${p._id}','${nombreEscapado}','mesa')"`;
+        } else if (puedeReemplazar) {
+          accionHtml = `<div class="mesa-libre" style="color:var(--danger2);padding:4px 0;">Tocar para reemplazar</div>`;
+          onclickAttr = `onclick="reemplazarEnMesa(${m.mesa}, '${p._id}', '${nombreEscapado}')"`;
+        } else {
+          accionHtml = `<button class="btn danger btn-sm" onclick="event.stopPropagation(); enviarDescanso('${p._id}')">A descanso</button>`;
+        }
+
         return `
-      <div class="mesa-card ocupada${puedeReemplazar ? ' destino-reemplazo' : ''}" ${puedeReemplazar ? `onclick="reemplazarEnMesa(${m.mesa}, '${p._id}', '${nombreEscapado}')"` : ''}>
+      <div class="mesa-card ocupada${puedeReemplazar ? ' destino-reemplazo' : ''}${esLaSeleccionada ? ' seleccionado' : ''}" ${onclickAttr}>
         <div class="mesa-num">Mesa ${m.mesa}</div>
         <div class="mesa-pagador">${esc(p.nombre)}</div>
         <div class="clock" data-desde="${p.desde}">${formatElapsed(p.desde)}</div>
-        ${puedeReemplazar
-            ? `<div class="mesa-libre" style="color:var(--danger2);padding:4px 0;">Tocar para reemplazar</div>`
-            : `<button class="btn danger btn-sm" onclick="enviarDescanso('${p._id}')">A descanso</button>`
-          }
+        ${accionHtml}
       </div>`;
       }).join('');
     }
 
-    window.asignarAMesaSeleccionada = async (mesa) => {
+
+    window.onClickMesaLibre = (mesa) => {
+      if (!pagadorSeleccionado) return;
+
+      if (pagadorSeleccionado.origen === 'mesa') {
+        moverDeMesa(mesa);
+      } else {
+        asignarAMesaSeleccionada(mesa);
+      }
+    };
+
+
+    async function moverDeMesa(mesa) {
       if (!pagadorSeleccionado) return;
       const { id, nombre } = pagadorSeleccionado;
 
+      const confirmado = await openConfirmModal({
+        title: '¿Mover a otra mesa?',
+        message: `Se va a mover a ${nombre} a la Mesa ${mesa}, sin reiniciar su tiempo.`,
+        confirmText: 'Mover'
+      });
+      if (!confirmado) return;
+
+      try {
+        const r = await api('/pagadores/' + id + '/mover-mesa', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mesa })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Mesa cambiada', `${nombre} pasó a la Mesa ${mesa}, conservando su tiempo.`);
+        cancelarSeleccion();
+        loadTablero();
+      } catch (e) {
+        showToast('No se pudo mover', e.message, 'error');
+      }
+    }
+
+    // Asigna un pagador puntual a una mesa puntual. La usan tanto el flujo
+    // "pagador -> mesa" (window.asignarAMesaSeleccionada) como el flujo
+    // "mesa -> pagador" (window.onClickPagadorLista, cuando ya hay una
+    // mesa vacia elegida de antemano).
+    async function asignarPagadorAMesa(id, nombre, mesa) {
       const confirmado = await openConfirmModal({
         title: '¿Asignar a mesa?',
         message: `Se va a asignar a ${nombre} a la Mesa ${mesa}.`,
@@ -3276,15 +3664,39 @@
       } catch (e) {
         showToast('No se pudo asignar', e.message, 'error');
       }
+    }
+
+    window.asignarAMesaSeleccionada = async (mesa) => {
+      if (!pagadorSeleccionado) return;
+      const { id, nombre } = pagadorSeleccionado;
+      await asignarPagadorAMesa(id, nombre, mesa);
+    };
+
+    // Dispatcher para el click en un pagador de Descanso/Disponibles:
+    // si ya hay una mesa vacia elegida (flujo "mesa -> pagador"), lo
+    // asigna directo ahi; si no, arranca el flujo normal de seleccion.
+    window.onClickPagadorLista = (id, nombre) => {
+      if (mesaVaciaSeleccionada != null) {
+        asignarPagadorAMesa(id, nombre, mesaVaciaSeleccionada);
+        return;
+      }
+      seleccionarPagador(id, nombre, 'lista');
     };
 
     window.reemplazarEnMesa = async (mesa, ocupanteId, ocupanteNombre) => {
       if (!pagadorSeleccionado) return;
-      const { id, nombre } = pagadorSeleccionado;
+      const { id, nombre, origen } = pagadorSeleccionado;
+
+      // Si el seleccionado vino de otra mesa, se mueve conservando su
+      // tiempo (mover-mesa). Si vino de la lista, arranca de cero en la
+      // mesa nueva (asignar-mesa), como siempre.
+      const preservaTiempo = origen === 'mesa';
 
       const confirmado = await openConfirmModal({
         title: '¿Reemplazar en la mesa?',
-        message: `${ocupanteNombre} va a pasar a descanso, y ${nombre} va a entrar en su lugar en la Mesa ${mesa}.`,
+        message: preservaTiempo
+          ? `${ocupanteNombre} va a pasar a descanso, y ${nombre} va a entrar en su lugar en la Mesa ${mesa} (conservando su tiempo).`
+          : `${ocupanteNombre} va a pasar a descanso, y ${nombre} va a entrar en su lugar en la Mesa ${mesa}.`,
         confirmText: 'Reemplazar'
       });
       if (!confirmado) return;
@@ -3294,7 +3706,9 @@
         const d1 = await r1.json();
         if (!r1.ok) throw new Error(d1.error);
 
-        const r2 = await api('/pagadores/' + id + '/asignar-mesa', {
+        const endpoint = preservaTiempo ? '/mover-mesa' : '/asignar-mesa';
+
+        const r2 = await api('/pagadores/' + id + endpoint, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mesa })
         });
@@ -3338,7 +3752,7 @@
       $('descansoList').innerHTML = lista.map(p => {
         const seleccionado = pagadorSeleccionado && pagadorSeleccionado.id === p._id;
         return `
-    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="seleccionarPagador('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
+    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="onClickPagadorLista('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
       <div class="info">
         <span class="nombre">${esc(p.nombre)}</span>
         <span class="clock" data-desde="${p.desde}" style="margin:0">${formatElapsed(p.desde)}</span>
@@ -3360,13 +3774,16 @@
       $('disponiblesList').innerHTML = lista.map(p => {
         const seleccionado = pagadorSeleccionado && pagadorSeleccionado.id === p._id;
         return `
-    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="seleccionarPagador('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
+    <div class="pagador-card${seleccionado ? ' seleccionado' : ''}" onclick="onClickPagadorLista('${p._id}','${esc(p.nombre).replace(/'/g, "\\'")}')">
       <div class="info">
         <span class="nombre">${esc(p.nombre)}</span>
       </div>
+      <button class="btn btn-sm" onclick="event.stopPropagation(); enviarDescanso('${p._id}')">Descanso</button>
     </div>`;
       }).join('');
     }
+
+    enterSubmit(['rotNombre'], 'btnAgregarPagador');
 
     $('btnAgregarPagador').onclick = async () => {
       const nombre = $('rotNombre').value.trim();

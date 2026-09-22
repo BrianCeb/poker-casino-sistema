@@ -892,6 +892,30 @@
     }
 
 
+    /* =========================================
+       ENTER PARA ENVIAR FORMULARIOS
+       - Engancha Enter en un grupo de inputs para
+       que dispare el click del botón indicado, en
+       vez de tener que ir a buscarlo con el mouse.
+       Se usa en Alta de jugador, Editar jugador y
+       Alta rápida.
+    ========================================= */
+
+    function enterSubmit(ids, btnId) {
+      ids.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.onkeydown = e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const btn = $(btnId);
+            if (btn) btn.click();
+          }
+        };
+      });
+    }
+
+
 
     /* =========================================
        API
@@ -1458,6 +1482,9 @@
       }
     };
 
+    // Enter en cualquiera de estos campos manda el formulario de Alta de jugador.
+    enterSubmit(['altaDni', 'altaNombre', 'altaApellido', 'altaTelefono', 'altaEmail'], 'btnAlta');
+
 
 
     /* =========================================
@@ -1523,6 +1550,9 @@
         <button class="btn-sm" id="btnCancelarEdicion" type="button">Cancelar</button>
       </div>
     </td>`;
+
+      // Enter en cualquiera de estos campos guarda la edición.
+      enterSubmit(['editNombre', 'editApellido', 'editTelefono', 'editEmail'], 'btnGuardarEdicion');
 
       $('btnCancelarEdicion').onclick = () => renderJugadores(jugadoresCache);
 
@@ -1599,6 +1629,9 @@
       </div>
       <button class="gold" id="btnAltaRapida" style="width:100%;margin-top:10px" type="button">Registrar y cobrar</button>
     </div>`;
+
+      // Enter en cualquiera de estos campos manda el alta rápida.
+      enterSubmit(['altaRapidaDni', 'altaRapidaNombre', 'altaRapidaApellido', 'altaRapidaTelefono', 'altaRapidaEmail'], 'btnAltaRapida');
 
       $('btnAltaRapida').onclick = async () => {
 

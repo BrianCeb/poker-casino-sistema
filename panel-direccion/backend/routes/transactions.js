@@ -318,6 +318,26 @@ router.get(
         torneo?.rake || 0
       );
 
+      // Mistery Bounty: el buy-in/recompra viene dividido en Rake fijo +
+      // Bounty fijo + Prizepool (el resto). Para torneos 'normal' esto no
+      // se usa.
+      const tipoTorneo =
+        torneo?.tipo === 'mistery_bounty' ? 'mistery_bounty' : 'normal';
+
+      const mbRake = Number(
+        torneo?.mbRake || 0
+      );
+
+      const mbBounty = Number(
+        torneo?.mbBounty || 0
+      );
+
+      const esMisteryBounty = tipoTorneo === 'mistery_bounty';
+
+      // Ultima columna usada en la hoja: para Mistery Bounty agregamos 3
+      // columnas mas (Rake / Bounty / Prizepool por operación).
+      const lastCol = esMisteryBounty ? 'K' : 'H';
+
 
       // ==================================================
       // SEPARAR OPERACIONES
@@ -352,39 +372,50 @@ router.get(
 
 
       // ==================================================
-      // RAKE
+      // RAKE / BOUNTY / PRIZEPOOL
       // ==================================================
       //
-      // Cada operación tiene el mismo rake:
+      // Torneo NORMAL:
+      //   Cada operación (buy-in o recompra) tiene el mismo rake fijo.
+      //   Rake acumulado = cantidadOperaciones x rake
+      //   Pozo acumulado = total recaudado - rake acumulado
       //
-      // BUY-IN     -> rake
-      // RECOMPRA   -> rake
-      //
-      // Ejemplo:
-      //
-      // Buy-in = $30.000
-      // Rake   = $5.000
-      // Pozo   = $25.000
-      //
-      // Si hay 10 operaciones:
-      //
-      // Rake acumulado = 10 x $5.000
+      // Torneo MISTERY BOUNTY:
+      //   Cada transacción ya guardó su propio desglose (rake, bounty,
+      //   prizepool) en el momento del cobro (Transaction.desglose), asi
+      //   que acumulamos directamente esos valores reales en vez de
+      //   recalcular con el rake general.
       //
       // ==================================================
 
-      const rakeAcumulado =
-        cantidadOperaciones * rake;
+      let rakeAcumulado = 0;
+      let bountyAcumulado = 0;
+      let prizepoolAcumulado = 0;
 
+      if (esMisteryBounty) {
 
-      // ==================================================
-      // POZO ACUMULADO
-      // ==================================================
+        for (const t of activas) {
+          const d = t.desglose || {};
+          rakeAcumulado += Number(d.rake || 0);
+          bountyAcumulado += Number(d.bounty || 0);
+          prizepoolAcumulado += Number(d.prizepool || 0);
+        }
 
-      const pozoAcumulado =
-        Math.max(
-          0,
-          totalRecaudado - rakeAcumulado
-        );
+      } else {
+
+        rakeAcumulado =
+          cantidadOperaciones * rake;
+
+        prizepoolAcumulado =
+          Math.max(
+            0,
+            totalRecaudado - rakeAcumulado
+          );
+      }
+
+      // Se mantiene el nombre "pozoAcumulado" para no romper nada mas
+      // abajo; para Mistery Bounty representa el prizepool acumulado.
+      const pozoAcumulado = prizepoolAcumulado;
 
 
       // ==================================================
@@ -410,30 +441,19 @@ router.get(
       // ==================================================
 
       ws.columns = [
-        {
-          width: 14
-        },
-        {
-          width: 10
-        },
-        {
-          width: 14
-        },
-        {
-          width: 28
-        },
-        {
-          width: 14
-        },
-        {
-          width: 15
-        },
-        {
-          width: 28
-        },
-        {
-          width: 20
-        }
+        { width: 14 },
+        { width: 10 },
+        { width: 14 },
+        { width: 28 },
+        { width: 14 },
+        { width: 15 },
+        { width: 28 },
+        { width: 20 },
+        ...(esMisteryBounty ? [
+          { width: 14 },
+          { width: 14 },
+          { width: 14 }
+        ] : [])
       ];
 
 
@@ -441,7 +461,7 @@ router.get(
       // TÍTULO
       // ==================================================
 
-      ws.mergeCells('A1:H1');
+      ws.mergeCells(`A1:${lastCol}1`);
 
       ws.getCell('A1').value =
         'OPERACIONES DEL DÍA';
@@ -478,7 +498,7 @@ router.get(
       // INFORMACIÓN DEL TORNEO
       // ==================================================
 
-      ws.mergeCells('A2:H2');
+      ws.mergeCells(`A2:${lastCol}2`);
 
       ws.getCell('A2').value =
         `Fecha: ${today} · Torneo: ${torneo?.nombre ||
@@ -497,12 +517,16 @@ router.get(
       // CONFIGURACIÓN
       // ==================================================
 
-      ws.mergeCells('A3:H3');
+      ws.mergeCells(`A3:${lastCol}3`);
 
-      ws.getCell('A3').value =
-        `Buy-in: $${buyIn.toLocaleString('es-AR')} · ` +
-        `Recompra: $${recompra.toLocaleString('es-AR')} · ` +
-        `Rake por operación: $${rake.toLocaleString('es-AR')}`;
+      ws.getCell('A3').value = esMisteryBounty
+        ? `Buy-in: $${buyIn.toLocaleString('es-AR')} · ` +
+          `Recompra: $${recompra.toLocaleString('es-AR')} · ` +
+          `Mistery Bounty — Rake: $${mbRake.toLocaleString('es-AR')} · ` +
+          `Bounty: $${mbBounty.toLocaleString('es-AR')} (fijos por operación)`
+        : `Buy-in: $${buyIn.toLocaleString('es-AR')} · ` +
+          `Recompra: $${recompra.toLocaleString('es-AR')} · ` +
+          `Rake por operación: $${rake.toLocaleString('es-AR')}`;
 
 
       ws.getCell('A3').font = {
@@ -528,7 +552,8 @@ router.get(
         'Tipo',
         'Monto',
         'Torneo',
-        'Cajero'
+        'Cajero',
+        ...(esMisteryBounty ? ['Rake', 'Bounty', 'Prizepool'] : [])
       ];
 
 
@@ -571,6 +596,7 @@ router.get(
         const row =
           ws.getRow(rowNumber);
 
+        const d = t.desglose || {};
 
         row.values = [
           t.fecha,
@@ -580,7 +606,12 @@ router.get(
           `${t.anulado ? 'ANULADO - ' : ''}${t.tipo === 'buyin' ? 'Buy-in' : 'Recompra'}`,
           Number(t.monto || 0),
           t.torneo,
-          t.cajero || ''
+          t.cajero || '',
+          ...(esMisteryBounty ? [
+            Number(d.rake || 0),
+            Number(d.bounty || 0),
+            Number(d.prizepool || 0)
+          ] : [])
         ];
 
 
@@ -595,6 +626,12 @@ router.get(
       ws.getColumn(6).numFmt =
         '$#,##0';
 
+      if (esMisteryBounty) {
+        ws.getColumn(9).numFmt = '$#,##0';
+        ws.getColumn(10).numFmt = '$#,##0';
+        ws.getColumn(11).numFmt = '$#,##0';
+      }
+
 
       // ==================================================
       // FILTRO
@@ -602,7 +639,7 @@ router.get(
 
       ws.autoFilter = {
         from: `A${headerRow}`,
-        to: `H${Math.max(
+        to: `${lastCol}${Math.max(
           headerRow,
           rowNumber - 1
         )}`
@@ -618,7 +655,7 @@ router.get(
 
 
       ws.mergeCells(
-        `A${summaryStart}:H${summaryStart}`
+        `A${summaryStart}:${lastCol}${summaryStart}`
       );
 
 
@@ -686,13 +723,31 @@ router.get(
           'Rake acumulado',
           rakeAcumulado,
           true
-        ],
-        [
-          'Pozo acumulado',
-          pozoAcumulado,
-          true
         ]
       ];
+
+      if (esMisteryBounty) {
+        summary.push(
+          [
+            'Bounty acumulado',
+            bountyAcumulado,
+            true
+          ],
+          [
+            'Prizepool acumulado',
+            prizepoolAcumulado,
+            true
+          ]
+        );
+      } else {
+        summary.push(
+          [
+            'Pozo acumulado',
+            pozoAcumulado,
+            true
+          ]
+        );
+      }
 
 
       let summaryRow =
@@ -816,56 +871,109 @@ router.get(
 
 
       // ==================================================
-      // RESALTAR POZO
+      // RESALTAR BOUNTY (solo Mistery Bounty) Y POZO/PRIZEPOOL
       // ==================================================
 
-      const pozoRow =
-        summaryStart + 6;
+      if (esMisteryBounty) {
+
+        const bountyRow = summaryStart + 6;
+        const prizepoolRow = summaryStart + 7;
+
+        ws.getCell(`A${bountyRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'EFE2C6' }
+        };
+
+        ws.getCell(`B${bountyRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'EFE2C6' }
+        };
+
+        ws.getCell(`A${bountyRow}`).font = {
+          bold: true,
+          color: { argb: '8A6D1D' }
+        };
+
+        ws.getCell(`B${bountyRow}`).font = {
+          bold: true,
+          color: { argb: '8A6D1D' }
+        };
+
+        ws.getCell(`A${prizepoolRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'E4C55E' }
+        };
+
+        ws.getCell(`B${prizepoolRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'E4C55E' }
+        };
+
+        ws.getCell(`A${prizepoolRow}`).font = {
+          bold: true
+        };
+
+        ws.getCell(`B${prizepoolRow}`).font = {
+          bold: true
+        };
+
+      } else {
+
+        const pozoRow =
+          summaryStart + 6;
 
 
-      ws.getCell(
-        `A${pozoRow}`
-      ).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: {
-          argb: 'E4C55E'
-        }
-      };
+        ws.getCell(
+          `A${pozoRow}`
+        ).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: {
+            argb: 'E4C55E'
+          }
+        };
 
 
-      ws.getCell(
-        `B${pozoRow}`
-      ).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: {
-          argb: 'E4C55E'
-        }
-      };
+        ws.getCell(
+          `B${pozoRow}`
+        ).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: {
+            argb: 'E4C55E'
+          }
+        };
 
 
-      ws.getCell(
-        `A${pozoRow}`
-      ).font = {
-        bold: true
-      };
+        ws.getCell(
+          `A${pozoRow}`
+        ).font = {
+          bold: true
+        };
 
 
-      ws.getCell(
-        `B${pozoRow}`
-      ).font = {
-        bold: true
-      };
+        ws.getCell(
+          `B${pozoRow}`
+        ).font = {
+          bold: true
+        };
+      }
 
 
       // ==================================================
       // BORDES DEL RESUMEN
       // ==================================================
 
+      const summaryEnd =
+        summaryStart + (esMisteryBounty ? 7 : 6);
+
       for (
         let r = summaryStart + 1;
-        r <= summaryStart + 6;
+        r <= summaryEnd;
         r++
       ) {
 

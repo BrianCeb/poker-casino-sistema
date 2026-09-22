@@ -73,26 +73,55 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
           recaudado: 0,
           buyins: 0,
           recompras: 0,
-          jugadoresSet: new Set()
+          jugadoresSet: new Set(),
+          // Mistery Bounty: acumulamos el desglose real guardado en cada
+          // transaccion (Transaction.desglose), no un rake fijo por
+          // operacion.
+          tipo: info && info.tipo === 'mistery_bounty' ? 'mistery_bounty' : 'normal',
+          rakeMB: 0,
+          bountyMB: 0
         };
       }
       porTorneo[key].recaudado += Number(t.monto || 0);
       if (t.tipo === 'buyin') porTorneo[key].buyins++; else porTorneo[key].recompras++;
       porTorneo[key].jugadoresSet.add(t.dni);
+
+      if (porTorneo[key].tipo === 'mistery_bounty') {
+        const d = t.desglose || {};
+        porTorneo[key].rakeMB += Number(d.rake || 0);
+        porTorneo[key].bountyMB += Number(d.bounty || 0);
+      }
     });
 
     const torneosDetalle = Object.entries(porTorneo).map(([key, g]) => {
       const info = torneoInfoPorFecha[key];
-      const rakePorOperacion = info ? Number(info.rake || 0) : 0;
-      const rake = (g.buyins + g.recompras) * rakePorOperacion;
-      const premios = Math.max(0, g.recaudado - rake);
+      let rake;
+      let bounty;
+
+      if (g.tipo === 'mistery_bounty') {
+        // Valores reales, sumados desde el desglose de cada transaccion.
+        rake = g.rakeMB;
+        bounty = g.bountyMB;
+      } else {
+        const rakePorOperacion = info ? Number(info.rake || 0) : 0;
+        rake = (g.buyins + g.recompras) * rakePorOperacion;
+        bounty = 0;
+      }
+
+      // "premios" (prizepool) es lo que queda despues de sacar la
+      // comision del casino (rake) y, si aplica, el bounty (que no es
+      // comision del casino, se destina aparte).
+      const premios = Math.max(0, g.recaudado - rake - bounty);
+
       return {
         nombre: g.nombre,
         fecha: g.fecha,
+        tipo: g.tipo,
         buyins: g.buyins,
         recompras: g.recompras,
         recaudado: g.recaudado,
         rake,
+        bounty,
         premios,
         // Se usa para el grafico "Jugadores por torneo", no para la tabla
         // (la tabla de Detalle por torneo no lo muestra a proposito).
@@ -101,11 +130,14 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
     }).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
 
     const rakeAcumulado = torneosDetalle.reduce((s, t) => s + t.rake, 0);
-    const premiosEntregados = Math.max(0, totalRecaudado - rakeAcumulado);
+    // Informativo: no es comision del casino, la comision sigue siendo
+    // solo el rake.
+    const bountyAcumulado = torneosDetalle.reduce((s, t) => s + (t.bounty || 0), 0);
+    const premiosEntregados = Math.max(0, totalRecaudado - rakeAcumulado - bountyAcumulado);
 
     res.json({
       desde, hasta,
-      totalRecaudado, rakeAcumulado, premiosEntregados,
+      totalRecaudado, rakeAcumulado, bountyAcumulado, premiosEntregados,
       buyins, recompras, tasaRecompra,
       totalJugadores, jugadoresNuevos, jugadoresRecurrentes,
       torneosDetalle

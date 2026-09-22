@@ -93,6 +93,23 @@ router.post('/', requireAuth, requireRole('caja'), async (req, res) => {
       });
     }
 
+    // Desglose Mistery Bounty: Rake y Bounty son montos fijos (mismos para
+    // buy-in y recompra), el resto del monto cobrado es Prizepool. Se
+    // calcula y guarda ahora para que quede "fotografiado" en la
+    // transacción, sin depender de la config del torneo a futuro.
+    let desglose = { rake: 0, bounty: 0, prizepool: 0 };
+
+    if (torneo.tipo === 'mistery_bounty') {
+      const mbRake = Number(torneo.mbRake || 0);
+      const mbBounty = Number(torneo.mbBounty || 0);
+
+      desglose = {
+        rake: mbRake,
+        bounty: mbBounty,
+        prizepool: amount - mbRake - mbBounty
+      };
+    }
+
     try {
       const tx = await Transaction.create({
         dni: cleanDni,
@@ -104,7 +121,8 @@ router.post('/', requireAuth, requireRole('caja'), async (req, res) => {
         torneo: torneo.nombre,
         fecha: fechaOperativa,
         hora: nowTimeStr(),
-        cajero: String(cajero || '').trim()
+        cajero: String(cajero || '').trim(),
+        desglose
       });
 
       return res.status(201).json(tx);
