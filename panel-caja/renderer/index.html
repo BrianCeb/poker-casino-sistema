@@ -723,6 +723,13 @@
         </div>
 
 
+        <div style="margin-top:12px">
+          <button class="btn-sm" id="btnReimprimir" type="button" disabled>
+            Reimprimir último ticket
+          </button>
+        </div>
+
+
         <div id="result"></div>
       </div>
 
@@ -858,6 +865,49 @@
     const clean =
       v =>
         (v || '').replace(/\D/g, '');
+
+
+    /* =========================================
+       PUENTE DE IMPRESIÓN (impresora térmica)
+       - Corre en localhost, en la misma PC donde
+       se abre este panel. Si no está levantado o
+       falla, no debe interrumpir el cobro: solo
+       se avisa con un toast.
+    ========================================= */
+
+    const PRINT_BRIDGE_URL = 'http://localhost:4010/imprimir';
+
+    // Guarda los datos del último ticket para poder reimprimirlo con el
+    // botón de "Reimprimir último ticket", sin depender de lo que esté
+    // mostrando la pantalla en ese momento (el cartel de confirmación
+    // se reemplaza solo, apenas termina el refresco de buscar()).
+    let ultimoTicketImpreso = null;
+
+    async function imprimirTicket(datos) {
+      ultimoTicketImpreso = datos;
+      const btnReimprimir = $('btnReimprimir');
+      if (btnReimprimir) btnReimprimir.disabled = false;
+
+      try {
+        const r = await fetch(PRINT_BRIDGE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+        if (!r.ok) throw new Error('El puente de impresión respondió con error.');
+      } catch (e) {
+        console.error('No se pudo imprimir el ticket:', e);
+        showToast('No se pudo imprimir', 'La operación se registró igual. Revisá que el puente de impresión esté corriendo.', 'error');
+      }
+    }
+
+    $('btnReimprimir').onclick = () => {
+      if (!ultimoTicketImpreso) {
+        showToast('Nada para reimprimir', 'Todavía no se imprimió ningún ticket en esta sesión.', 'error');
+        return;
+      }
+      imprimirTicket(ultimoTicketImpreso);
+    };
 
 
     function esc(v) {
@@ -1985,6 +2035,12 @@
               }
 
 
+              // Deshabilitamos el botón apenas se confirma, para que un
+              // doble clic (típico con apuro en caja) no dispare dos
+              // operaciones -y dos impresiones- para el mismo cobro.
+              $('operar').disabled = true;
+
+
 
               const r2 =
                 await api(
@@ -2036,6 +2092,19 @@
                 `${tipoTexto} realizado`,
                 `${tipoTexto} realizado con éxito para ${p.nombre} ${p.apellido}.`
               );
+
+
+
+              imprimirTicket({
+                nombre: p.nombre,
+                apellido: p.apellido,
+                dni: p.dni,
+                torneo: tx.torneo,
+                tipo: tipoTexto,
+                monto: money(tx.monto),
+                hora: tx.hora,
+                cajero: sessionStorage.getItem('caja_user') || ''
+              });
 
 
 
@@ -2136,6 +2205,14 @@
                 'Error registrando operación:',
                 e
               );
+
+
+              // Si falló, vuelve a habilitarse para poder reintentar
+              // (si tuvo éxito, buscar() ya redibuja todo el bloque
+              // de resultado con un botón nuevo, así que no hace falta
+              // tocarlo ahí).
+              const btnOperar = $('operar');
+              if (btnOperar) btnOperar.disabled = false;
 
 
               showToast(
