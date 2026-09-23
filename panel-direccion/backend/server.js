@@ -29,6 +29,7 @@ async function startServer(port) {
   app.use('/api/transactions', transactionsRouter);
   app.use('/api/reports', require('./routes/reports'));
   app.use('/api/pagadores', require('./routes/pagadores'));
+  app.use('/api/reloj', require('./routes/reloj'));
 
   // Panel Gerencia: se accede por su propia URL (no por Electron), ya
   // que es de uso exclusivo para el rol gerencia. Se sirve SOLO este
@@ -38,10 +39,26 @@ async function startServer(port) {
     res.sendFile(path.join(__dirname, '..', 'renderer', 'gerencia.html'));
   });
 
+  // Pantalla del reloj para la TV del salon. Mismo criterio que
+  // Gerencia: se sirve solo este archivo. Es de solo lectura y no pide
+  // login (los datos vienen de /api/reloj/pantalla).
+  app.get('/reloj.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'renderer', 'reloj.html'));
+  });
+
+  // Imagen de fondo del reloj (opcional). Si el archivo no existe, la
+  // pantalla usa un fondo oscuro con degradé.
+  app.get('/reloj-fondo.jpg', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'renderer', 'reloj-fondo.jpg'), err => {
+      if (err && !res.headersSent) res.status(404).end();
+    });
+  });
+
   return new Promise((resolve) => {
     const server = app.listen(port, '127.0.0.1', () => {
       console.log(`Backend embebido (Direccion) escuchando en http://127.0.0.1:${port}`);
       console.log(`Panel Gerencia disponible en http://127.0.0.1:${port}/gerencia.html`);
+      console.log(`Reloj del torneo disponible en http://127.0.0.1:${port}/reloj.html`);
       scheduleBackups();
       resolve(server);
     });

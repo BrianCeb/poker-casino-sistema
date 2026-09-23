@@ -723,6 +723,307 @@
         max-height: none;
       }
     }
+
+    /* =========================================
+   RELOJ DEL TORNEO
+========================================= */
+
+    #tab-reloj select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px
+    }
+
+    .reloj-vivo {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center
+    }
+
+    .reloj-nivel {
+      font: 22px 'Bebas Neue';
+      letter-spacing: .04em;
+      color: var(--dim)
+    }
+
+    .reloj-tiempo {
+      font: 600 64px 'IBM Plex Mono';
+      color: var(--gold2);
+      line-height: 1.05
+    }
+
+    .reloj-tiempo.pausado {
+      color: var(--dim)
+    }
+
+    .reloj-ciegas {
+      font: 20px 'IBM Plex Mono';
+      margin-top: 4px
+    }
+
+    .reloj-prox {
+      font-size: 13px;
+      color: var(--dim);
+      margin-top: 6px
+    }
+
+    .reloj-estado {
+      display: inline-block;
+      font: 11px 'IBM Plex Mono';
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border2);
+      color: var(--dim);
+      margin-bottom: 8px
+    }
+
+    .reloj-estado.corriendo {
+      border-color: var(--green);
+      color: var(--green2)
+    }
+
+    .reloj-estado.pausado {
+      border-color: var(--gold);
+      color: var(--gold2)
+    }
+
+    .reloj-estado.finalizado {
+      border-color: var(--danger);
+      color: var(--danger2)
+    }
+
+    .reloj-controles {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      gap: 8px
+    }
+
+    .reloj-controles .ancho {
+      grid-column: 1 / -1
+    }
+
+    .reloj-ajustes {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px
+    }
+
+    .reloj-ajustes .btn {
+      padding: 8px 4px;
+      white-space: nowrap
+    }
+
+    .reloj-poner {
+      display: flex;
+      gap: 6px
+    }
+
+    .reloj-poner input {
+      flex: 1;
+      padding: 7px 10px;
+      font-family: 'IBM Plex Mono';
+      text-align: center
+    }
+
+    .reloj-stats .stat .sub-acc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .reloj-stats .stat .sub-acc .btn {
+      flex: 1;
+      padding: 6px 8px;
+      white-space: nowrap
+    }
+
+    .premios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 8px
+    }
+
+    .premio-item {
+      display: flex;
+      justify-content: space-between;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font: 13px 'IBM Plex Mono'
+    }
+
+    .premio-item b {
+      color: var(--gold2)
+    }
+
+    .estructura-tabla input,
+    .estructura-tabla select {
+      padding: 6px 8px !important;
+      font-size: 13px !important
+    }
+
+    .estructura-tabla td {
+      padding: 5px 6px
+    }
+
+    .estructura-tabla tr.actual td {
+      background: rgba(201, 162, 39, .12)
+    }
+
+    .estructura-tabla tr.descanso td {
+      background: rgba(63, 142, 99, .08)
+    }
+
+    .estructura-tabla tr.jugado {
+      opacity: .5
+    }
+
+    .estructura-tabla .num {
+      font: 16px 'Bebas Neue';
+      color: var(--dim);
+      text-align: center;
+      width: 50px
+    }
+
+    .cambios-pendientes {
+      font: 12px 'IBM Plex Mono';
+      color: var(--gold2)
+    }
+
+    .subtabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 18px
+    }
+
+    .subtabs button {
+      background: var(--panel);
+      border: 1px solid var(--border2);
+      color: var(--dim);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer
+    }
+
+    .subtabs button.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #2A2000
+    }
+
+    .aviso-prueba {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(193, 80, 58, .18);
+      border: 1px solid var(--danger);
+      color: var(--danger2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-weight: 600
+    }
+
+    .premios-editor-wrap {
+      overflow: auto;
+      max-height: 520px;
+      border: 1px solid var(--border);
+      border-radius: 8px
+    }
+
+    .premios-editor {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: auto
+    }
+
+    .premios-editor th,
+    .premios-editor td {
+      padding: 4px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      text-align: center
+    }
+
+    .premios-editor thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--panel2)
+    }
+
+    .premios-editor .col-puesto {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: var(--panel2);
+      font: 13px 'IBM Plex Mono';
+      color: var(--dim);
+      min-width: 90px;
+      text-align: left;
+      padding-left: 10px
+    }
+
+    .premios-editor thead .col-puesto {
+      z-index: 3
+    }
+
+    .premios-editor input {
+      width: 64px;
+      padding: 5px 6px;
+      font: 12px 'IBM Plex Mono';
+      text-align: center
+    }
+
+    .premios-editor .rango {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      justify-content: center
+    }
+
+    .premios-editor .rango input {
+      width: 48px
+    }
+
+    .premios-editor .total {
+      font: 600 12px 'IBM Plex Mono'
+    }
+
+    .premios-editor .total.ok {
+      color: var(--green2)
+    }
+
+    .premios-editor .total.mal {
+      color: var(--danger2)
+    }
+
+    .premios-editor .quitar {
+      background: none;
+      border: 0;
+      color: var(--danger2);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 4px
+    }
+
+    @media (max-width: 800px) {
+      .reloj-vivo {
+        grid-template-columns: 1fr
+      }
+    }
   </style>
 </head>
 
@@ -845,6 +1146,10 @@
 
       <button class="tab" data-tab="rotacion">
         Rotación
+      </button>
+
+      <button class="tab" data-tab="reloj">
+        Reloj
       </button>
 
     </nav>
@@ -1347,6 +1652,430 @@
           </div>
 
         </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- RELOJ -->
+    <section id="tab-reloj" class="hidden">
+
+      <div id="relojAviso"></div>
+
+      <!-- SUBPESTAÑAS DEL RELOJ -->
+      <div class="subtabs" id="relojSubtabs">
+        <button type="button" class="active" data-sub="vivo">En vivo</button>
+        <button type="button" data-sub="estructura">Estructura de ciegas</button>
+        <button type="button" data-sub="premios">Configuración y premios</button>
+        <button type="button" data-sub="pruebas">Pruebas</button>
+      </div>
+
+      <div class="subvista" data-subvista="vivo">
+
+      <!-- RELOJ EN VIVO -->
+      <div class="panel">
+
+        <div class="actions" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2>Reloj en vivo</h2>
+            <p class="sub">Lo mismo que se ve en la pantalla del salón.</p>
+          </div>
+          <button class="btn" id="relojAbrirPantalla" type="button">Abrir pantalla TV</button>
+        </div>
+
+        <div class="reloj-vivo">
+
+          <div>
+            <span class="reloj-estado" id="relojEstado">—</span>
+            <div class="reloj-nivel" id="relojNivel">—</div>
+            <div class="reloj-tiempo" id="relojTiempo">--:--</div>
+            <div class="reloj-ciegas" id="relojCiegas"></div>
+            <div class="reloj-prox" id="relojProx"></div>
+          </div>
+
+          <div class="reloj-controles">
+            <button class="btn gold ancho" id="relojBtnPrincipal" type="button">Iniciar</button>
+            <button class="btn" id="relojBtnAnterior" type="button">◀ Nivel anterior</button>
+            <button class="btn" id="relojBtnSiguiente" type="button">Nivel siguiente ▶</button>
+            <div class="ancho reloj-ajustes">
+              <button class="btn btn-sm" type="button" data-ajuste="-60">−1 min</button>
+              <button class="btn btn-sm" type="button" data-ajuste="-10">−10 s</button>
+              <button class="btn btn-sm" type="button" data-ajuste="-1">−1 s</button>
+              <button class="btn btn-sm" type="button" data-ajuste="1">+1 s</button>
+              <button class="btn btn-sm" type="button" data-ajuste="10">+10 s</button>
+              <button class="btn btn-sm" type="button" data-ajuste="60">+1 min</button>
+            </div>
+            <div class="ancho reloj-poner">
+              <input id="relojPonerTiempo" placeholder="mm:ss" maxlength="8" title="Tiempo restante exacto">
+              <button class="btn btn-sm" id="relojBtnPoner" type="button">Poner tiempo</button>
+            </div>
+            <button class="btn" id="relojBtnReiniciar" type="button">Reiniciar</button>
+            <button class="btn danger" id="relojBtnFinalizar" type="button">Finalizar</button>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- DATOS DEL TORNEO -->
+      <div class="panel">
+
+        <h2>Jugadores y pozo</h2>
+        <p class="sub">Entradas y pozo salen de las operaciones de Caja del día. Tocá "Eliminado" solo cuando un jugador se va del torneo y no hace re-entry.</p>
+
+        <div class="stats reloj-stats">
+
+          <div class="stat">
+            <div class="label">Jugadores restantes</div>
+            <div class="val" id="relojRestantes">0</div>
+            <div class="sub-acc">
+              <button class="btn btn-sm" id="relojBtnEliminar" type="button">− Eliminado</button>
+              <button class="btn btn-sm" id="relojBtnDeshacer" type="button">Deshacer</button>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Entradas totales</div>
+            <div class="val" id="relojEntradas">0</div>
+            <div class="rake-help" id="relojEntradasDetalle"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Pozo acumulado</div>
+            <div class="val" id="relojPozo">$0</div>
+            <div class="rake-help" id="relojBounty"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Stack promedio</div>
+            <div class="val" id="relojStackProm">0</div>
+            <div class="rake-help" id="relojPuntos"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Registro</div>
+            <div class="val" id="relojRegistro">—</div>
+            <div class="rake-help" id="relojRegistroDetalle"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Próximo descanso</div>
+            <div class="val" id="relojDescanso">—</div>
+          </div>
+
+        </div>
+
+        <h2 style="margin-top:6px">Premios</h2>
+        <p class="sub" id="relojPremiosInfo"></p>
+        <div class="premios-grid" id="relojPremios"></div>
+
+      </div>
+
+
+      </div>
+
+      <div class="subvista hidden" data-subvista="estructura">
+
+      <!-- ESTRUCTURA -->
+      <div class="panel">
+
+        <h2>Estructura de ciegas</h2>
+        <p class="sub">Con el reloj en marcha, las filas ya jugadas quedan bloqueadas. El nivel actual y los siguientes se pueden modificar.</p>
+
+        <div class="row" style="align-items:flex-end">
+          <div class="field">
+            <label>Plantilla</label>
+            <select id="relojPlantillaSelect"></select>
+          </div>
+          <div>
+            <button class="btn" id="relojPlantillaAplicar" type="button">Aplicar plantilla</button>
+          </div>
+        </div>
+
+        <div style="overflow:auto;margin-top:16px">
+          <table class="estructura-tabla">
+            <thead>
+              <tr>
+                <th>Nivel</th>
+                <th>Tipo</th>
+                <th>Ciega chica</th>
+                <th>Ciega grande</th>
+                <th>Ante</th>
+                <th>Minutos</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="relojEstructuraBody"></tbody>
+          </table>
+        </div>
+
+        <div id="relojEstructuraVacia" class="empty hidden">
+          Todavía no hay estructura. Aplicá una plantilla o agregá niveles.
+        </div>
+
+        <div class="actions" style="margin-top:14px;align-items:center">
+          <button class="btn" id="relojAgregarNivel" type="button">+ Nivel</button>
+          <button class="btn" id="relojAgregarDescanso" type="button">+ Descanso</button>
+          <button class="btn gold" id="relojEstructuraGuardar" type="button">Guardar estructura</button>
+          <button class="btn" id="relojEstructuraDescartar" type="button">Descartar cambios</button>
+          <span class="cambios-pendientes hidden" id="relojEstructuraPendiente">Cambios sin guardar</span>
+        </div>
+
+        <div class="row" style="margin-top:18px;align-items:flex-end">
+          <div class="field">
+            <label>Guardar esta estructura como plantilla</label>
+            <input id="relojPlantillaNombre" placeholder="Nombre (ej: Turbo 12 min)">
+          </div>
+          <div>
+            <button class="btn" id="relojPlantillaGuardar" type="button">Guardar como plantilla</button>
+          </div>
+        </div>
+
+      </div>
+
+      </div>
+
+      <div class="subvista hidden" data-subvista="premios">
+
+      <!-- CONFIGURACION -->
+      <div class="panel">
+
+        <h2>Configuración del torneo</h2>
+        <p class="sub">Se guarda en el reloj de este torneo. El próximo torneo arranca con esta misma configuración.</p>
+
+        <div class="row">
+          <div class="field">
+            <label>Stack inicial</label>
+            <input id="relojCfgStack" type="number" min="0" step="1">
+          </div>
+          <div class="field">
+            <label>Stack de re-entry</label>
+            <input id="relojCfgStackRe" type="number" min="0" step="1" placeholder="Igual al inicial">
+            <div class="rake-help">Vacío o 0 = igual al stack inicial.</div>
+          </div>
+          <div class="field">
+            <label>Cierre de registro (al final del nivel)</label>
+            <input id="relojCfgCierre" type="number" min="0" step="1">
+            <div class="rake-help">0 = sin definir.</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:14px">
+          <div class="field">
+            <label>Re-entradas</label>
+            <select id="relojCfgIlimitadas">
+              <option value="si">Ilimitadas</option>
+              <option value="no">Con máximo por jugador</option>
+            </select>
+          </div>
+          <div class="field" id="relojCfgMaxWrap">
+            <label>Máximo de re-entradas por jugador</label>
+            <input id="relojCfgMax" type="number" min="0" step="1">
+          </div>
+          <div class="field">
+            <label>% de jugadores que cobra</label>
+            <input id="relojCfgPct" type="number" min="1" max="100" step="0.5">
+          </div>
+          <div class="field">
+            <label>Redondear premios a</label>
+            <input id="relojCfgRedondeo" type="number" min="0" step="100">
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:18px;align-items:center">
+          <button class="btn gold" id="relojCfgGuardar" type="button">Guardar configuración</button>
+          <span class="cambios-pendientes hidden" id="relojCfgPendiente">Cambios sin guardar</span>
+        </div>
+
+      </div>
+
+
+
+      <!-- TABLA DE PREMIOS -->
+      <div class="panel">
+
+        <div class="actions" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2>Tabla de premios</h2>
+            <p class="sub" id="premiosEstado">—</p>
+          </div>
+          <span class="cambios-pendientes hidden" id="premiosPendiente">Cambios sin guardar</span>
+        </div>
+
+        <div class="row" style="align-items:flex-end;margin-bottom:16px">
+          <div class="field">
+            <label>Tablas guardadas</label>
+            <select id="premiosPlantillaSelect"></select>
+          </div>
+          <div class="actions">
+            <button class="btn gold" id="premiosPlantillaAplicar" type="button">Usar esta tabla</button>
+            <button class="btn" id="premiosPlantillaCargar" type="button">Abrir en el editor</button>
+            <button class="btn danger" id="premiosPlantillaBorrar" type="button">Borrar</button>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-bottom:14px">
+          <button class="btn" id="premiosGenerar" type="button">Generar con la fórmula</button>
+          <button class="btn" id="premiosAgregarRango" type="button">+ Rango</button>
+          <button class="btn" id="premiosAgregarPuesto" type="button">+ Puesto</button>
+          <button class="btn gold" id="premiosGuardar" type="button">Usar en el torneo</button>
+          <button class="btn" id="premiosDescartar" type="button">Descartar cambios</button>
+        </div>
+
+        <div class="premios-editor-wrap">
+          <table class="premios-editor" id="premiosEditor"></table>
+        </div>
+
+        <div id="premiosVacio" class="empty hidden">
+          No hay tabla personalizada: se usa la fórmula automática. Tocá "Generar con la fórmula" para partir de ella y modificarla.
+        </div>
+
+        <div class="row" style="align-items:flex-end;margin-top:16px">
+          <div class="field">
+            <label>Guardar lo que hay en el editor como tabla</label>
+            <input id="premiosPlantillaNombre" placeholder="Nombre (ej: Tabla Bounty)">
+          </div>
+          <div>
+            <button class="btn" id="premiosPlantillaGuardar" type="button">Guardar como tabla</button>
+          </div>
+        </div>
+
+        <p class="rake-help" style="margin-top:12px">
+          Cada columna es un rango de jugadores reales (buy-ins). Dejá "hasta" vacío en el último rango para "en adelante".
+          Si los jugadores superan todos los rangos cargados, se usa la fórmula automática.
+          Cada columna tiene que sumar 100%.
+        </p>
+
+      </div>
+
+      </div>
+
+      <div class="subvista hidden" data-subvista="pruebas">
+
+      <!-- PRUEBAS -->
+      <div class="panel">
+
+        <h2>Modo prueba</h2>
+        <p class="sub">
+          Al activarlo trabajás sobre una <b>copia</b> del torneo: todo lo que cambies en la pestaña Reloj
+          (estructura, configuración, tabla de premios, el reloj y los eliminados) se hace sobre la copia, con
+          jugadores ficticios. El torneo real no se toca hasta que toques <b>"Aplicar al torneo real"</b>.
+          No crea operaciones: Caja, el control del día, los reportes y el Excel no se enteran.
+          Mientras está activo, la TV muestra la prueba con la franja "MODO PRUEBA".
+        </p>
+
+        <div class="actions" style="align-items:center;margin-bottom:12px">
+          <span class="reloj-estado" id="pruebaEstado">Inactivo</span>
+          <button class="btn gold" id="pruebaToggle" type="button">Activar modo prueba</button>
+          <button class="btn" id="pruebaAbrirTv" type="button">Abrir pantalla TV</button>
+        </div>
+
+        <div class="actions" style="margin-bottom:18px">
+          <button class="btn green" id="pruebaAplicarReal" type="button">Aplicar al torneo real</button>
+          <button class="btn" id="pruebaRecopiar" type="button">Volver a copiar desde el torneo real</button>
+        </div>
+        <p class="rake-help" style="margin:-8px 0 18px">
+          "Aplicar" pasa al torneo real la estructura, la configuración y la tabla de premios de la prueba.
+          No pasa el reloj, los jugadores ficticios, los eliminados ni el tipo de torneo simulado.
+        </p>
+
+        <h2>Configuración de la prueba</h2>
+        <p class="sub">Solo cambia la copia de prueba. Con el modo prueba activo, también se puede editar todo desde las otras sub-pestañas.</p>
+
+        <div class="row" style="align-items:flex-end">
+          <div class="field">
+            <label>Tabla de pagos</label>
+            <select id="pruebaTablaSelect"></select>
+            <div class="rake-help" id="pruebaTablaActual"></div>
+          </div>
+          <div>
+            <button class="btn" id="pruebaTablaUsar" type="button">Usar tabla</button>
+          </div>
+          <div class="field">
+            <label>Estructura de ciegas</label>
+            <select id="pruebaEstructuraSelect"></select>
+            <div class="rake-help" id="pruebaEstructuraActual"></div>
+          </div>
+          <div>
+            <button class="btn" id="pruebaEstructuraUsar" type="button">Usar estructura</button>
+          </div>
+        </div>
+
+        <div class="row" style="align-items:flex-end;margin-top:16px">
+          <div class="field" style="max-width:200px">
+            <label>Tipo de torneo</label>
+            <select id="pruebaTipo">
+              <option value="normal">Normal</option>
+              <option value="mistery_bounty">Mistery Bounty</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Buy-in</label>
+            <input id="pruebaBuyIn" type="number" min="0" step="100">
+          </div>
+          <div class="field">
+            <label>Re-entry</label>
+            <input id="pruebaRecompra" type="number" min="0" step="100">
+          </div>
+          <div class="field" id="pruebaRakeWrap">
+            <label>Rake por entrada</label>
+            <input id="pruebaRake" type="number" min="0" step="100">
+          </div>
+          <div class="field hidden" id="pruebaMbRakeWrap">
+            <label>Rake fijo (MB)</label>
+            <input id="pruebaMbRake" type="number" min="0" step="100">
+          </div>
+          <div class="field hidden" id="pruebaMbBountyWrap">
+            <label>Bounty fijo</label>
+            <input id="pruebaMbBounty" type="number" min="0" step="100">
+          </div>
+        </div>
+        <div class="actions" style="margin-top:12px;align-items:center">
+          <button class="btn" id="pruebaTipoAplicar" type="button">Usar este tipo de torneo</button>
+          <button class="btn" id="pruebaTipoReal" type="button">Volver a los datos del torneo real</button>
+          <span class="rake-help" id="pruebaTipoEstado"></span>
+        </div>
+
+        <h2 style="margin-top:22px">Jugadores ficticios</h2>
+
+        <div class="row" style="align-items:flex-end">
+          <div class="field">
+            <label>Jugadores (buy-ins)</label>
+            <input id="pruebaBuyins" type="number" min="0" max="2000" step="1">
+          </div>
+          <div class="field">
+            <label>Re-entradas</label>
+            <input id="pruebaReentradas" type="number" min="0" max="2000" step="1">
+          </div>
+          <div>
+            <button class="btn gold" id="pruebaAplicar" type="button">Aplicar</button>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:12px">
+          <button class="btn btn-sm" type="button" data-prueba-suma="buyins:1">+1 jugador</button>
+          <button class="btn btn-sm" type="button" data-prueba-suma="buyins:5">+5 jugadores</button>
+          <button class="btn btn-sm" type="button" data-prueba-suma="buyins:20">+20 jugadores</button>
+          <button class="btn btn-sm" type="button" data-prueba-suma="reentradas:1">+1 re-entrada</button>
+          <button class="btn btn-sm" type="button" data-prueba-suma="reentradas:5">+5 re-entradas</button>
+          <button class="btn btn-sm" type="button" id="pruebaEliminar">− Eliminado</button>
+          <button class="btn btn-sm danger" type="button" id="pruebaReiniciar">Poner todo en 0</button>
+        </div>
+
+        <h2 style="margin-top:22px">Probar el reloj y los sonidos</h2>
+        <p class="sub">Mueven el reloj de la prueba (el real no se toca). Iniciá el reloj en "En vivo" con el modo prueba activo.</p>
+        <div class="actions">
+          <button class="btn" type="button" data-prueba-tiempo="65">Llevar a 1:05 (aviso de 1 minuto)</button>
+          <button class="btn" type="button" data-prueba-tiempo="15">Llevar a 0:15 (cuenta final y cambio de nivel)</button>
+        </div>
+
+        <h2 style="margin-top:22px">Resultado</h2>
+        <p class="sub" id="pruebaResumen">—</p>
+        <div class="premios-grid" id="pruebaPremios"></div>
+
+      </div>
 
       </div>
 
@@ -1975,6 +2704,12 @@
       if (name === 'rotacion') {
         loadTablero();
         iniciarRotacionIntervals();
+      }
+
+      detenerRelojIntervals();
+
+      if (name === 'reloj') {
+        abrirTabReloj();
       }
 
     }
@@ -3864,6 +4599,1202 @@
       } catch (e) {
         showToast('No se pudo hacer el relevo', e.message, 'error');
       }
+    };
+
+
+    /* =========================
+       RELOJ DEL TORNEO
+    ========================= */
+    // El tiempo lo manda el backend (segundos restantes del nivel). Acá
+    // solo se descuenta localmente entre consulta y consulta, y cada 3
+    // segundos se vuelve a pedir el estado real.
+
+    let relojData = null;
+    let relojRecibidoEn = 0;
+    let relojPollInterval = null;
+    let relojTickInterval = null;
+    let relojPidiendo = false;
+    let relojEstructuraEdit = [];
+    let relojEstructuraSucia = false;
+    let relojEstructuraRenderizada = '';
+    let relojCfgSucia = false;
+    let relojPlantillas = [];
+
+    const RELOJ_PANTALLA_URL = 'http://127.0.0.1:4001/reloj.html';
+
+    function fmtTiempo(seg) {
+      seg = Math.max(0, Math.floor(seg));
+      const h = Math.floor(seg / 3600);
+      const m = Math.floor((seg % 3600) / 60);
+      const s = seg % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
+
+    const fichas = n => (Number(n) || 0).toLocaleString('es-AR');
+
+    // Segundos restantes "ahora", descontando lo que paso desde la
+    // ultima respuesta del backend (solo si el reloj esta corriendo).
+    function relojSegundosAhora(seg) {
+      if (!relojData || !relojData.reloj || relojData.reloj.estado !== 'corriendo') return seg;
+      return seg - (Date.now() - relojRecibidoEn) / 1000;
+    }
+
+    function abrirTabReloj() {
+      loadReloj();
+      loadPlantillas();
+      loadPlantillasPremios();
+      relojPollInterval = setInterval(loadReloj, 3000);
+      relojTickInterval = setInterval(tickReloj, 250);
+    }
+
+    function detenerRelojIntervals() {
+      if (relojPollInterval) clearInterval(relojPollInterval);
+      if (relojTickInterval) clearInterval(relojTickInterval);
+      relojPollInterval = null;
+      relojTickInterval = null;
+    }
+
+    async function loadReloj() {
+      if (relojPidiendo) return;
+      relojPidiendo = true;
+      try {
+        const r = await api('/reloj');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        relojData = d;
+        relojRecibidoEn = Date.now();
+        renderReloj();
+      } catch (e) {
+        console.error('Error cargando reloj:', e);
+      } finally {
+        relojPidiendo = false;
+      }
+    }
+
+    async function relojAccion(accion, extra = {}) {
+      try {
+        const r = await api('/reloj/accion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accion, ...extra })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        relojData = { ...relojData, ...d };
+        relojRecibidoEn = Date.now();
+        renderReloj();
+        return true;
+      } catch (e) {
+        showToast('No se pudo completar', e.message, 'error');
+        return false;
+      }
+    }
+
+    function tickReloj() {
+      if (!relojData || relojData.sinTorneo || !relojData.reloj) return;
+      const rel = relojData.reloj;
+      const seg = relojSegundosAhora(rel.segundosRestantes);
+      $('relojTiempo').textContent = rel.sinEstructura ? '--:--' : fmtTiempo(Math.ceil(seg));
+
+      // Terminó el nivel: pedimos el estado nuevo al backend.
+      if (rel.estado === 'corriendo' && seg <= 0) loadReloj();
+
+      const reg = relojData.registro;
+      if (reg && reg.abierto && reg.cierraEnSegundos != null) {
+        $('relojRegistroDetalle').textContent = 'Cierra en ' + fmtTiempo(relojSegundosAhora(reg.cierraEnSegundos));
+      }
+      const desc = relojData.proximoDescanso;
+      if (desc) {
+        $('relojDescanso').textContent = fmtTiempo(relojSegundosAhora(desc.empiezaEnSegundos));
+      }
+    }
+
+    function renderReloj() {
+      const d = relojData;
+
+      if (!d || d.sinTorneo) {
+        $('relojAviso').innerHTML = '<div class="msg warn" style="margin:0 0 18px">No hay un torneo activo. Configuralo en la pestaña Torneo.</div>';
+        return;
+      }
+
+      $('relojAviso').innerHTML = d.torneoDeOtroDia
+        ? `<div class="msg warn" style="margin:0 0 18px">El torneo activo (${esc(d.torneo.nombre)}) está cargado con fecha ${esc(d.torneo.fecha)}. El reloj muestra las operaciones de hoy; si es un torneo nuevo, cargalo en la pestaña Torneo.</div>`
+        : '';
+      if (d.modoPrueba) {
+        $('relojAviso').innerHTML = `<div class="aviso-prueba"><span>MODO PRUEBA · Estás editando una copia (${d.jugadores.buyins} jugadores y ${d.jugadores.reentradas} re-entradas ficticias). El torneo real no cambia hasta que apliques.</span><button class="btn btn-sm" type="button" onclick="pruebaActivar(false)">Salir de la prueba</button></div>` + $('relojAviso').innerHTML;
+      }
+
+      const rel = d.reloj;
+      const nombresEstado = { detenido: 'Detenido', corriendo: 'En juego', pausado: 'Pausado', finalizado: 'Finalizado' };
+      $('relojEstado').textContent = nombresEstado[rel.estado] || rel.estado;
+      $('relojEstado').className = 'reloj-estado ' + rel.estado;
+      $('relojTiempo').classList.toggle('pausado', rel.estado !== 'corriendo');
+
+      if (rel.sinEstructura) {
+        $('relojNivel').textContent = 'Sin estructura cargada';
+        $('relojCiegas').textContent = '';
+        $('relojProx').textContent = '';
+      } else if (rel.tipo === 'descanso') {
+        $('relojNivel').textContent = 'Descanso · después del nivel ' + rel.numeroNivel;
+        $('relojCiegas').textContent = '';
+      } else {
+        $('relojNivel').textContent = 'Nivel ' + rel.numeroNivel + (rel.fueraDeEstructura ? ' (repite el último)' : '');
+        $('relojCiegas').textContent = `${fichas(rel.sb)} / ${fichas(rel.bb)} · Ante ${fichas(rel.ante)}`;
+      }
+      if (!rel.sinEstructura) {
+        const p = d.proximoNivel;
+        $('relojProx').textContent = p ? `Próximo: nivel ${p.numero} · ${fichas(p.sb)} / ${fichas(p.bb)} · Ante ${fichas(p.ante)}` : '';
+      }
+
+      // Boton principal segun estado
+      const btn = $('relojBtnPrincipal');
+      const principal = {
+        detenido: ['Iniciar', 'iniciar'],
+        corriendo: ['Pausar', 'pausar'],
+        pausado: ['Reanudar', 'reanudar'],
+        finalizado: ['Finalizado', null]
+      }[rel.estado];
+      btn.textContent = principal[0];
+      btn.dataset.accion = principal[1] || '';
+      btn.disabled = !principal[1];
+
+      // Datos
+      const j = d.jugadores;
+      $('relojRestantes').textContent = j.restantes;
+      $('relojEntradas').textContent = j.entradasTotales;
+      $('relojEntradasDetalle').textContent = `${j.buyins} buy-ins · ${j.reentradas} re-entradas · ${j.eliminaciones} eliminados`;
+      $('relojPozo').textContent = money(d.pozo);
+      $('relojBounty').textContent = d.torneo.tipo === 'mistery_bounty' ? 'Bounties aparte: ' + money(d.bounty) : '';
+      $('relojStackProm').textContent = fichas(d.fichas.stackPromedio);
+      $('relojPuntos').textContent = 'Fichas en juego: ' + fichas(d.fichas.puntosTotales) + (d.fichas.stackInicial ? '' : ' · falta cargar el stack inicial');
+
+      const reg = d.registro;
+      if (!reg.cierreNivel) {
+        $('relojRegistro').textContent = 'Abierto';
+        $('relojRegistroDetalle').textContent = 'Sin nivel de cierre configurado';
+      } else if (reg.abierto) {
+        $('relojRegistro').textContent = 'Abierto';
+        $('relojRegistroDetalle').textContent = 'Cierra en ' + fmtTiempo(reg.cierraEnSegundos);
+      } else {
+        $('relojRegistro').textContent = 'Cerrado';
+        $('relojRegistroDetalle').textContent = 'Cerró al final del nivel ' + reg.cierreNivel;
+      }
+
+      $('relojDescanso').textContent = d.proximoDescanso ? fmtTiempo(d.proximoDescanso.empiezaEnSegundos) : '—';
+
+      // Premios
+      $('relojPremiosInfo').textContent = d.premios.length
+        ? `Cobran ${d.premios.length} de ${j.buyins} jugadores · tabla ${d.premiosOrigen === 'personalizada' ? 'personalizada' : 'automática'}`
+        : 'Todavía no hay jugadores.';
+      $('relojPremios').innerHTML = d.premios.map(p => `
+        <div class="premio-item">
+          <span>${p.puesto}º · ${String(p.porcentaje).replace('.', ',')}%</span>
+          <b>${money(p.monto)}</b>
+        </div>`).join('');
+
+      renderRelojConfig();
+      renderEstructura();
+      renderPremiosEditor('poll');
+      renderPruebas();
+    }
+
+    /* ---------- Configuración ---------- */
+
+    function renderRelojConfig() {
+      if (relojCfgSucia || !relojData.config) return;
+      const c = relojData.config;
+      $('relojCfgStack').value = c.stackInicial || '';
+      $('relojCfgStackRe').value = c.stackReentry || '';
+      $('relojCfgCierre').value = c.cierreRegistroNivel || 0;
+      $('relojCfgIlimitadas').value = c.reentradasIlimitadas !== false ? 'si' : 'no';
+      $('relojCfgMax').value = c.maxReentradas || 0;
+      $('relojCfgPct').value = c.porcentajePagados;
+      $('relojCfgRedondeo').value = c.redondeoPremios;
+      $('relojCfgMaxWrap').classList.toggle('hidden', $('relojCfgIlimitadas').value === 'si');
+    }
+
+    ['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgIlimitadas', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo']
+      .forEach(id => {
+        $(id).addEventListener('input', () => {
+          relojCfgSucia = true;
+          $('relojCfgPendiente').classList.remove('hidden');
+          $('relojCfgMaxWrap').classList.toggle('hidden', $('relojCfgIlimitadas').value === 'si');
+        });
+      });
+
+    enterSubmit(['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo'], 'relojCfgGuardar');
+
+    $('relojCfgGuardar').onclick = async () => {
+      const body = {
+        stackInicial: Number($('relojCfgStack').value || 0),
+        stackReentry: Number($('relojCfgStackRe').value || 0),
+        cierreRegistroNivel: Number($('relojCfgCierre').value || 0),
+        reentradasIlimitadas: $('relojCfgIlimitadas').value === 'si',
+        maxReentradas: Number($('relojCfgMax').value || 0),
+        porcentajePagados: Number($('relojCfgPct').value),
+        redondeoPremios: Number($('relojCfgRedondeo').value || 0)
+      };
+      try {
+        const r = await api('/reloj/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        relojCfgSucia = false;
+        $('relojCfgPendiente').classList.add('hidden');
+        showToast('Configuración guardada', 'La pantalla del reloj ya muestra los datos nuevos.');
+        loadReloj();
+      } catch (e) {
+        showToast('No se pudo guardar', e.message, 'error');
+      }
+    };
+
+    /* ---------- Estructura ---------- */
+
+    function filaBloqueada(i) {
+      const rel = relojData && relojData.reloj;
+      return !!rel && rel.estado !== 'detenido' && i < rel.indice;
+    }
+
+    function marcarEstructuraSucia(sucia) {
+      relojEstructuraSucia = sucia;
+      $('relojEstructuraPendiente').classList.toggle('hidden', !sucia);
+    }
+
+    // modo 'poll': viene del refresco automatico. Si hay cambios sin
+    //   guardar no se toca nada (para no pisar lo que se esta editando
+    //   ni perder el foco del campo).
+    // modo 'reset': vuelve a lo guardado en el backend.
+    // modo 'edit': redibuja la edicion actual (agregar/mover/borrar fila).
+    function renderEstructura(modo = 'poll') {
+      if (!relojData || !relojData.config) return;
+      if (modo === 'poll' && relojEstructuraSucia) return;
+
+      if (modo !== 'edit') {
+        relojEstructuraEdit = JSON.parse(JSON.stringify(relojData.config.niveles || []));
+      }
+
+      const rel = relojData.reloj;
+      // En el refresco automatico solo se redibuja si cambio algo.
+      const firma = JSON.stringify([relojEstructuraEdit, rel.estado, rel.indice]);
+      if (modo === 'poll' && firma === relojEstructuraRenderizada) return;
+      relojEstructuraRenderizada = firma;
+
+      let numero = 0;
+      $('relojEstructuraBody').innerHTML = relojEstructuraEdit.map((n, i) => {
+        const esDescanso = n.tipo === 'descanso';
+        if (!esDescanso) numero++;
+        const bloqueada = filaBloqueada(i);
+        const dis = bloqueada ? 'disabled' : '';
+        const clases = [
+          esDescanso ? 'descanso' : '',
+          bloqueada ? 'jugado' : '',
+          rel.estado !== 'detenido' && i === rel.indice ? 'actual' : ''
+        ].join(' ');
+        const input = (campo, valor) =>
+          `<input type="number" min="0" step="1" value="${esDescanso && campo !== 'minutos' ? '' : valor}" data-i="${i}" data-campo="${campo}" ${dis} ${esDescanso && campo !== 'minutos' ? 'disabled' : ''}>`;
+        return `
+          <tr class="${clases}">
+            <td class="num">${esDescanso ? '☕' : numero}</td>
+            <td>
+              <select data-i="${i}" data-campo="tipo" ${dis}>
+                <option value="nivel" ${!esDescanso ? 'selected' : ''}>Nivel</option>
+                <option value="descanso" ${esDescanso ? 'selected' : ''}>Descanso</option>
+              </select>
+            </td>
+            <td>${input('sb', n.sb)}</td>
+            <td>${input('bb', n.bb)}</td>
+            <td>${input('ante', n.ante)}</td>
+            <td>${input('minutos', n.minutos)}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-sm" type="button" onclick="relojMoverFila(${i},-1)" ${dis} title="Subir">↑</button>
+              <button class="btn btn-sm" type="button" onclick="relojMoverFila(${i},1)" ${dis} title="Bajar">↓</button>
+              <button class="btn btn-sm danger" type="button" onclick="relojBorrarFila(${i})" ${dis} title="Borrar">✕</button>
+            </td>
+          </tr>`;
+      }).join('');
+
+      $('relojEstructuraVacia').classList.toggle('hidden', relojEstructuraEdit.length > 0);
+    }
+
+    $('relojEstructuraBody').addEventListener('input', e => {
+      const el = e.target;
+      const i = Number(el.dataset.i);
+      const campo = el.dataset.campo;
+      if (!campo || !relojEstructuraEdit[i]) return;
+      if (campo === 'tipo') {
+        relojEstructuraEdit[i].tipo = el.value;
+        if (el.value === 'descanso') Object.assign(relojEstructuraEdit[i], { sb: 0, bb: 0, ante: 0 });
+        marcarEstructuraSucia(true);
+        renderEstructura('edit');
+        return;
+      }
+      relojEstructuraEdit[i][campo] = Number(el.value || 0);
+      marcarEstructuraSucia(true);
+    });
+
+    function relojAgregarFila(tipo) {
+      const niveles = relojEstructuraEdit.filter(n => n.tipo !== 'descanso');
+      const ultimo = niveles[niveles.length - 1];
+      const minutosPrevios = ultimo ? ultimo.minutos : 20;
+      relojEstructuraEdit.push(tipo === 'descanso'
+        ? { tipo: 'descanso', sb: 0, bb: 0, ante: 0, minutos: 15 }
+        : { tipo: 'nivel', sb: 0, bb: 0, ante: 0, minutos: minutosPrevios });
+      marcarEstructuraSucia(true);
+      renderEstructura('edit');
+    }
+
+    $('relojAgregarNivel').onclick = () => relojAgregarFila('nivel');
+    $('relojAgregarDescanso').onclick = () => relojAgregarFila('descanso');
+
+    window.relojMoverFila = (i, dir) => {
+      const j = i + dir;
+      if (j < 0 || j >= relojEstructuraEdit.length || filaBloqueada(j)) return;
+      const tmp = relojEstructuraEdit[i];
+      relojEstructuraEdit[i] = relojEstructuraEdit[j];
+      relojEstructuraEdit[j] = tmp;
+      marcarEstructuraSucia(true);
+      renderEstructura('edit');
+    };
+
+    window.relojBorrarFila = i => {
+      relojEstructuraEdit.splice(i, 1);
+      marcarEstructuraSucia(true);
+      renderEstructura('edit');
+    };
+
+    $('relojEstructuraDescartar').onclick = () => {
+      marcarEstructuraSucia(false);
+      renderEstructura('reset');
+    };
+
+    $('relojEstructuraGuardar').onclick = async () => {
+      try {
+        const r = await api('/reloj/niveles', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ niveles: relojEstructuraEdit })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        marcarEstructuraSucia(false);
+        showToast('Estructura guardada', 'La pantalla del reloj ya usa la estructura nueva.');
+        await loadReloj();
+        renderEstructura('reset');
+      } catch (e) {
+        showToast('No se pudo guardar', e.message, 'error');
+      }
+    };
+
+    /* ---------- Plantillas ---------- */
+
+    async function loadPlantillas() {
+      try {
+        const r = await api('/reloj/plantillas');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        relojPlantillas = d;
+        $('relojPlantillaSelect').innerHTML = d.length
+          ? d.map(p => {
+            const cant = p.niveles.filter(n => n.tipo !== 'descanso').length;
+            return `<option value="${esc(p._id)}">${esc(p.nombre)} — ${cant} niveles</option>`;
+          }).join('')
+          : '<option value="">No hay plantillas</option>';
+        $('pruebaEstructuraSelect').innerHTML = $('relojPlantillaSelect').innerHTML;
+      } catch (e) {
+        console.error('Error cargando plantillas:', e);
+      }
+    }
+
+    $('relojPlantillaAplicar').onclick = async () => {
+      const id = $('relojPlantillaSelect').value;
+      const plantilla = relojPlantillas.find(p => p._id === id);
+      if (!plantilla) return;
+      const ok = await openConfirmModal({
+        title: 'Aplicar plantilla',
+        message: `Se reemplaza la estructura del torneo por "${plantilla.nombre}". Solo se puede con el reloj detenido.`,
+        confirmText: 'Aplicar'
+      });
+      if (!ok) return;
+      try {
+        const r = await api('/reloj/aplicar-plantilla', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plantillaId: id })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        marcarEstructuraSucia(false);
+        relojCfgSucia = false;
+        showToast('Plantilla aplicada', plantilla.nombre);
+        await loadReloj();
+        renderEstructura('reset');
+      } catch (e) {
+        showToast('No se pudo aplicar', e.message, 'error');
+      }
+    };
+
+    $('relojPlantillaGuardar').onclick = async () => {
+      const nombre = $('relojPlantillaNombre').value.trim();
+      if (!nombre) {
+        showToast('Falta el nombre', 'Escribí un nombre para la plantilla.', 'error');
+        return;
+      }
+      const existente = relojPlantillas.find(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+      if (existente) {
+        const ok = await openConfirmModal({
+          title: 'Reemplazar plantilla',
+          message: `Ya existe "${existente.nombre}". ¿Reemplazarla con esta estructura?`,
+          confirmText: 'Reemplazar'
+        });
+        if (!ok) return;
+      }
+      const body = {
+        nombre,
+        niveles: relojEstructuraEdit,
+        cierreRegistroNivel: Number($('relojCfgCierre').value || 0)
+      };
+      try {
+        const r = await api(existente ? '/reloj/plantillas/' + existente._id : '/reloj/plantillas', {
+          method: existente ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        $('relojPlantillaNombre').value = '';
+        showToast('Plantilla guardada', nombre);
+        loadPlantillas();
+      } catch (e) {
+        showToast('No se pudo guardar la plantilla', e.message, 'error');
+      }
+    };
+
+    /* ---------- Subpestañas del reloj ---------- */
+
+    document.querySelectorAll('#relojSubtabs button').forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll('#relojSubtabs button').forEach(x => x.classList.toggle('active', x === b));
+        document.querySelectorAll('#tab-reloj .subvista').forEach(v =>
+          v.classList.toggle('hidden', v.dataset.subvista !== b.dataset.sub));
+      };
+    });
+
+    /* ---------- Editor de la tabla de premios ---------- */
+    // Columnas = rangos de jugadores; filas = puestos; celdas = % del pozo.
+    // Se edita una copia local (premiosEdit) y se guarda todo junto.
+
+    let premiosEdit = [];          // [{ desde, hasta, pct: [..] }]
+    let premiosPuestos = 0;        // cantidad de filas visibles
+    let premiosSucio = false;
+    let premiosFirma = null;
+
+    function premiosMarcarSucio(v) {
+      premiosSucio = v;
+      $('premiosPendiente').classList.toggle('hidden', !v);
+    }
+
+    function premiosDesdeConfig() {
+      const guardados = (relojData && relojData.config && relojData.config.premios) || [];
+      premiosEdit = guardados.map(t => ({
+        desde: t.desdeJugadores,
+        hasta: t.hastaJugadores,
+        pct: [...t.porcentajes]
+      }));
+      premiosPuestos = Math.max(0, ...premiosEdit.map(t => t.pct.length));
+    }
+
+    function pctTexto(n) {
+      return n ? String(Math.round(n * 100) / 100) : '';
+    }
+
+    // modo 'poll': refresco automático (no pisa cambios sin guardar).
+    // modo 'reset': vuelve a lo guardado. modo 'edit': redibuja la edición.
+    function renderPremiosEditor(modo = 'poll') {
+      if (!relojData || !relojData.config) return;
+      premiosActualizarEstado();
+      if (modo === 'poll' && premiosSucio) return;
+      if (modo !== 'edit') {
+        const firma = JSON.stringify(relojData.config.premios || []);
+        if (modo === 'poll' && firma === premiosFirma) return;
+        premiosFirma = firma;
+        premiosDesdeConfig();
+      }
+
+      const vacio = premiosEdit.length === 0;
+      $('premiosVacio').classList.toggle('hidden', !vacio);
+      $('premiosEditor').classList.toggle('hidden', vacio);
+      if (vacio) { $('premiosEditor').innerHTML = ''; return; }
+
+      const cab = premiosEdit.map((t, j) => `
+        <th>
+          <div class="rango">
+            <input type="number" min="1" value="${t.desde}" data-rango="${j}" data-campo="desde" title="Desde">
+            <span>-</span>
+            <input type="number" min="1" value="${t.hasta == null ? '' : t.hasta}" placeholder="∞" data-rango="${j}" data-campo="hasta" title="Hasta (vacío = en adelante)">
+            <button class="quitar" type="button" onclick="premiosQuitarRango(${j})" title="Quitar rango">✕</button>
+          </div>
+        </th>`).join('');
+
+      let filas = '';
+      for (let i = 0; i < premiosPuestos; i++) {
+        filas += `<tr><td class="col-puesto">Puesto ${i + 1}
+            <button class="quitar" type="button" onclick="premiosQuitarPuesto(${i})" title="Quitar puesto">✕</button></td>` +
+          premiosEdit.map((t, j) => `<td><input type="number" min="0" step="0.5" value="${pctTexto(t.pct[i])}" data-rango="${j}" data-puesto="${i}"></td>`).join('') +
+          '</tr>';
+      }
+
+      const totales = premiosEdit.map((t, j) => `<td class="total" id="premiosTotal${j}"></td>`).join('');
+
+      $('premiosEditor').innerHTML = `
+        <thead><tr><th class="col-puesto">Jugadores</th>${cab}</tr></thead>
+        <tbody>${filas}</tbody>
+        <tfoot><tr><td class="col-puesto"><b>Total</b></td>${totales}</tr></tfoot>`;
+      premiosTotales();
+    }
+
+    function premiosActualizarEstado() {
+      const c = relojData.config;
+      const personalizada = (c.premios || []).length > 0;
+      $('premiosEstado').textContent = personalizada
+        ? (c.premiosPlantilla
+          ? `En uso: tabla "${c.premiosPlantilla}" (${c.premios.length} rangos). Si los jugadores superan los rangos, se usa la fórmula.`
+          : `En uso: tabla personalizada (${c.premios.length} rangos). Si los jugadores superan los rangos, se usa la fórmula.`)
+        : `En uso: fórmula automática (cobra el ${String(c.porcentajePagados).replace('.', ',')}% de los jugadores).`;
+    }
+
+    function premiosTotales() {
+      premiosEdit.forEach((t, j) => {
+        const suma = t.pct.slice(0, premiosPuestos).reduce((s, p) => s + (Number(p) || 0), 0);
+        const el = $('premiosTotal' + j);
+        if (!el) return;
+        el.textContent = (Math.round(suma * 100) / 100).toString().replace('.', ',') + '%';
+        el.className = 'total ' + (Math.abs(suma - 100) < 0.01 ? 'ok' : 'mal');
+      });
+    }
+
+    $('premiosEditor').addEventListener('input', e => {
+      const el = e.target;
+      const j = Number(el.dataset.rango);
+      if (!premiosEdit[j]) return;
+      if (el.dataset.campo) {
+        premiosEdit[j][el.dataset.campo] = el.value === '' ? null : Number(el.value);
+      } else {
+        const i = Number(el.dataset.puesto);
+        premiosEdit[j].pct[i] = Number(el.value) || 0;
+        premiosTotales();
+      }
+      premiosMarcarSucio(true);
+    });
+
+    window.premiosQuitarRango = j => {
+      premiosEdit.splice(j, 1);
+      premiosMarcarSucio(true);
+      renderPremiosEditor('edit');
+    };
+
+    window.premiosQuitarPuesto = i => {
+      premiosEdit.forEach(t => t.pct.splice(i, 1));
+      premiosPuestos = Math.max(0, premiosPuestos - 1);
+      premiosMarcarSucio(true);
+      renderPremiosEditor('edit');
+    };
+
+    $('premiosAgregarRango').onclick = () => {
+      const ultimo = premiosEdit[premiosEdit.length - 1];
+      let desde = 1;
+      if (ultimo) {
+        if (ultimo.hasta == null) ultimo.hasta = ultimo.desde + 7;
+        desde = ultimo.hasta + 1;
+      }
+      premiosEdit.push({ desde, hasta: null, pct: ultimo ? [...ultimo.pct] : [100] });
+      premiosPuestos = Math.max(premiosPuestos, 1);
+      premiosMarcarSucio(true);
+      renderPremiosEditor('edit');
+    };
+
+    $('premiosAgregarPuesto').onclick = () => {
+      if (!premiosEdit.length) return;
+      premiosPuestos++;
+      premiosMarcarSucio(true);
+      renderPremiosEditor('edit');
+    };
+
+    $('premiosGenerar').onclick = async () => {
+      if (premiosEdit.length) {
+        const ok = await openConfirmModal({
+          title: 'Generar con la fórmula',
+          message: 'Se reemplaza lo que hay en el editor por la tabla automática (hasta 200 jugadores, el último rango queda "en adelante"). No se guarda hasta que toques "Guardar".',
+          confirmText: 'Generar'
+        });
+        if (!ok) return;
+      }
+      try {
+        const pct = relojData && relojData.config ? relojData.config.porcentajePagados : 12.5;
+        const r = await api('/reloj/premios/automatica?porcentaje=' + pct + '&hasta=200');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        premiosEdit = d.map(t => ({ desde: t.desdeJugadores, hasta: t.hastaJugadores, pct: [...t.porcentajes] }));
+        if (premiosEdit.length) premiosEdit[premiosEdit.length - 1].hasta = null;
+        premiosPuestos = Math.max(0, ...premiosEdit.map(t => t.pct.length));
+        premiosMarcarSucio(true);
+        renderPremiosEditor('edit');
+      } catch (e) {
+        showToast('No se pudo generar', e.message, 'error');
+      }
+    };
+
+    $('premiosDescartar').onclick = () => {
+      premiosMarcarSucio(false);
+      renderPremiosEditor('reset');
+    };
+
+    $('premiosGuardar').onclick = async () => {
+      const premios = premiosDelEditor();
+      if (!premios) return;
+      try {
+        const r = await api('/reloj/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ premios })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        premiosMarcarSucio(false);
+        showToast('Tabla guardada', 'La TV ya reparte los premios con la tabla personalizada.');
+        await loadReloj();
+        renderPremiosEditor('reset');
+      } catch (e) {
+        showToast('No se pudo guardar', e.message, 'error');
+      }
+    };
+
+    /* ---------- Tablas de premios guardadas (plantillas) ---------- */
+
+    let premiosPlantillas = [];
+
+    async function loadPlantillasPremios() {
+      try {
+        const r = await api('/reloj/plantillas-premios');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        premiosPlantillas = d;
+        const actual = $('premiosPlantillaSelect').value;
+        $('premiosPlantillaSelect').innerHTML =
+          '<option value="automatica">Fórmula automática</option>' +
+          d.map(p => `<option value="${esc(p._id)}">${esc(p.nombre)} — ${p.premios.length} rangos</option>`).join('');
+        if ([...$('premiosPlantillaSelect').options].some(o => o.value === actual)) {
+          $('premiosPlantillaSelect').value = actual;
+        }
+        const actualPrueba = $('pruebaTablaSelect').value;
+        $('pruebaTablaSelect').innerHTML = $('premiosPlantillaSelect').innerHTML;
+        if ([...$('pruebaTablaSelect').options].some(o => o.value === actualPrueba)) {
+          $('pruebaTablaSelect').value = actualPrueba;
+        }
+      } catch (e) {
+        console.error('Error cargando tablas de premios:', e);
+      }
+    }
+
+    function plantillaPremiosElegida() {
+      const id = $('premiosPlantillaSelect').value;
+      return { id, plantilla: premiosPlantillas.find(p => p._id === id) || null };
+    }
+
+    $('premiosPlantillaAplicar').onclick = async () => {
+      const { id, plantilla } = plantillaPremiosElegida();
+      if (!id) return;
+      const nombre = plantilla ? `"${plantilla.nombre}"` : 'la fórmula automática';
+      const enPrueba = relojData && relojData.prueba && relojData.prueba.activa;
+      const ok = await openConfirmModal({
+        title: 'Usar tabla de premios',
+        message: `Los premios ${enPrueba ? 'de la prueba' : 'del torneo'} pasan a calcularse con ${nombre}. La TV se actualiza enseguida.`,
+        confirmText: 'Usar'
+      });
+      if (!ok) return;
+      try {
+        const r = await api('/reloj/aplicar-plantilla-premios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plantillaId: id })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        premiosMarcarSucio(false);
+        showToast('Tabla aplicada', plantilla ? plantilla.nombre : 'Fórmula automática');
+        await loadReloj();
+        renderPremiosEditor('reset');
+      } catch (e) {
+        showToast('No se pudo aplicar', e.message, 'error');
+      }
+    };
+
+    // Abre la tabla elegida en el editor (sin aplicarla) para verla o
+    // modificarla; se aplica recién al guardar.
+    $('premiosPlantillaCargar').onclick = async () => {
+      const { plantilla } = plantillaPremiosElegida();
+      if (!plantilla) {
+        $('premiosGenerar').click();
+        return;
+      }
+      if (premiosSucio) {
+        const ok = await openConfirmModal({
+          title: 'Cambios sin guardar',
+          message: 'Se reemplaza lo que hay en el editor.',
+          confirmText: 'Abrir'
+        });
+        if (!ok) return;
+      }
+      premiosEdit = plantilla.premios.map(t => ({ desde: t.desdeJugadores, hasta: t.hastaJugadores, pct: [...t.porcentajes] }));
+      premiosPuestos = Math.max(0, ...premiosEdit.map(t => t.pct.length));
+      $('premiosPlantillaNombre').value = plantilla.nombre;
+      premiosMarcarSucio(true);
+      renderPremiosEditor('edit');
+    };
+
+    $('premiosPlantillaBorrar').onclick = async () => {
+      const { plantilla } = plantillaPremiosElegida();
+      if (!plantilla) {
+        showToast('No se puede borrar', 'La fórmula automática no es una tabla guardada.', 'error');
+        return;
+      }
+      const ok = await openConfirmModal({
+        title: 'Borrar tabla',
+        message: `Se borra "${plantilla.nombre}" de la lista. Los torneos que ya la usan conservan su copia.`,
+        confirmText: 'Borrar'
+      });
+      if (!ok) return;
+      try {
+        const r = await api('/reloj/plantillas-premios/' + plantilla._id, { method: 'DELETE' });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Tabla borrada', plantilla.nombre);
+        loadPlantillasPremios();
+      } catch (e) {
+        showToast('No se pudo borrar', e.message, 'error');
+      }
+    };
+
+    // Arma la lista de rangos del editor en el formato del backend.
+    // Devuelve null (y avisa) si hay algo mal.
+    function premiosDelEditor() {
+      if (!premiosEdit.length) {
+        showToast('Tabla vacía', 'Generá la tabla o agregá un rango antes de guardar.', 'error');
+        return null;
+      }
+      const premios = [];
+      for (const t of premiosEdit) {
+        const nombre = `${t.desde}-${t.hasta == null ? '∞' : t.hasta}`;
+        const pct = t.pct.slice(0, premiosPuestos).map(p => Number(p) || 0);
+        while (pct.length && pct[pct.length - 1] === 0) pct.pop();
+        if (pct.some(p => p <= 0)) {
+          showToast('Revisá la tabla', `En el rango ${nombre} hay un puesto en 0% entre puestos que cobran.`, 'error');
+          return null;
+        }
+        premios.push({ desdeJugadores: t.desde, hastaJugadores: t.hasta, porcentajes: pct });
+      }
+      return premios;
+    }
+
+    $('premiosPlantillaGuardar').onclick = async () => {
+      const nombre = $('premiosPlantillaNombre').value.trim();
+      if (!nombre) {
+        showToast('Falta el nombre', 'Escribí un nombre para la tabla.', 'error');
+        return;
+      }
+      const premios = premiosDelEditor();
+      if (!premios) return;
+      const existente = premiosPlantillas.find(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+      if (existente) {
+        const ok = await openConfirmModal({
+          title: 'Reemplazar tabla',
+          message: `Ya existe "${existente.nombre}". ¿Reemplazarla con lo que hay en el editor? Los torneos que ya la usan no cambian.`,
+          confirmText: 'Reemplazar'
+        });
+        if (!ok) return;
+      }
+      try {
+        const r = await api(existente ? '/reloj/plantillas-premios/' + existente._id : '/reloj/plantillas-premios', {
+          method: existente ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, premios })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        $('premiosPlantillaNombre').value = '';
+        showToast('Tabla guardada', `"${nombre}" quedó en la lista. Para usarla en el torneo, elegila y tocá "Usar esta tabla".`);
+        await loadPlantillasPremios();
+        $('premiosPlantillaSelect').value = d._id;
+      } catch (e) {
+        showToast('No se pudo guardar la tabla', e.message, 'error');
+      }
+    };
+
+    /* ---------- Modo prueba ---------- */
+
+    let pruebaInputsTocados = false;
+
+    function renderPruebas() {
+      const d = relojData;
+      if (!d || !d.prueba) return;
+      const activa = d.prueba.activa;
+      $('pruebaEstado').textContent = activa ? 'Activo' : 'Inactivo';
+      $('pruebaEstado').className = 'reloj-estado ' + (activa ? 'finalizado' : '');
+      $('pruebaToggle').textContent = activa ? 'Desactivar modo prueba' : 'Activar modo prueba';
+      if (!pruebaInputsTocados) {
+        $('pruebaBuyins').value = d.prueba.buyins;
+        $('pruebaReentradas').value = d.prueba.reentradas;
+      }
+
+      // Configuración de la prueba (lo que está usando la copia)
+      if (activa && d.config) {
+        const c = d.config;
+        $('pruebaTablaActual').textContent = 'En uso: ' + ((c.premios || []).length
+          ? (c.premiosPlantilla ? `"${c.premiosPlantilla}"` : 'tabla personalizada')
+          : 'fórmula automática');
+        const niveles = (c.niveles || []).filter(n => n.tipo !== 'descanso');
+        $('pruebaEstructuraActual').textContent = niveles.length
+          ? `En uso: ${niveles.length} niveles, arranca en ${fichas(niveles[0].sb)}/${fichas(niveles[0].bb)}`
+          : 'Sin estructura cargada';
+      } else {
+        $('pruebaTablaActual').textContent = '';
+        $('pruebaEstructuraActual').textContent = '';
+      }
+      const tp = d.prueba.torneo;
+      if (tp && !pruebaTorneoTocado) {
+        $('pruebaTipo').value = tp.tipo;
+        $('pruebaBuyIn').value = tp.buyIn;
+        $('pruebaRecompra').value = tp.recompra;
+        $('pruebaRake').value = tp.tipo === 'normal' ? tp.rake : 0;
+        $('pruebaMbRake').value = tp.mbRake;
+        $('pruebaMbBounty').value = tp.mbBounty;
+        pruebaMostrarCamposTipo();
+      }
+      $('pruebaTipoEstado').textContent = tp
+        ? (tp.simulado ? 'La prueba usa un tipo de torneo simulado.' : 'La prueba usa los datos del torneo real.')
+        : '';
+      if (activa) {
+        const j = d.jugadores;
+        $('pruebaResumen').textContent =
+          `${j.entradasTotales} entradas (${j.buyins} jugadores + ${j.reentradas} re-entradas) · ${j.restantes} restantes · ` +
+          `Pozo ${money(d.pozo)}` + (d.torneo.tipo === 'mistery_bounty' ? ` · Bounties ${money(d.bounty)}` : '') +
+          ` · Cobran ${d.premios.length} · Tabla ${d.premiosOrigen === 'personalizada' ? 'personalizada' : 'automática'}`;
+        $('pruebaPremios').innerHTML = d.premios.map(p => `
+          <div class="premio-item">
+            <span>${p.puesto}º · ${String(p.porcentaje).replace('.', ',')}%</span>
+            <b>${money(p.monto)}</b>
+          </div>`).join('');
+      } else {
+        $('pruebaResumen').textContent = 'Activá el modo prueba para ver el resultado con los datos ficticios.';
+        $('pruebaPremios').innerHTML = '';
+      }
+    }
+
+    ['pruebaBuyins', 'pruebaReentradas'].forEach(id =>
+      $(id).addEventListener('input', () => { pruebaInputsTocados = true; }));
+
+    /* ---------- Configuración de la prueba ---------- */
+
+    let pruebaTorneoTocado = false;
+
+    function pruebaActivaOAvisar() {
+      const activa = !!(relojData && relojData.prueba && relojData.prueba.activa);
+      if (!activa) showToast('Modo prueba inactivo', 'Activá el modo prueba primero: estos cambios son solo para la copia.', 'error');
+      return activa;
+    }
+
+    function pruebaMostrarCamposTipo() {
+      const mb = $('pruebaTipo').value === 'mistery_bounty';
+      $('pruebaRakeWrap').classList.toggle('hidden', mb);
+      $('pruebaMbRakeWrap').classList.toggle('hidden', !mb);
+      $('pruebaMbBountyWrap').classList.toggle('hidden', !mb);
+    }
+
+    ['pruebaTipo', 'pruebaBuyIn', 'pruebaRecompra', 'pruebaRake', 'pruebaMbRake', 'pruebaMbBounty'].forEach(id =>
+      $(id).addEventListener('input', () => { pruebaTorneoTocado = true; pruebaMostrarCamposTipo(); }));
+
+    $('pruebaTipoAplicar').onclick = async () => {
+      if (!pruebaActivaOAvisar()) return;
+      await pruebaEnviar({
+        torneo: {
+          tipo: $('pruebaTipo').value,
+          buyIn: Number($('pruebaBuyIn').value || 0),
+          recompra: Number($('pruebaRecompra').value || 0),
+          rake: Number($('pruebaRake').value || 0),
+          mbRake: Number($('pruebaMbRake').value || 0),
+          mbBounty: Number($('pruebaMbBounty').value || 0)
+        }
+      }, ['Tipo de torneo de prueba', 'La prueba ya calcula el pozo con estos montos.']);
+      pruebaTorneoTocado = false;
+    };
+
+    $('pruebaTipoReal').onclick = async () => {
+      if (!pruebaActivaOAvisar()) return;
+      pruebaTorneoTocado = false;
+      await pruebaEnviar({ torneo: 'real' }, ['Datos del torneo real', 'La prueba vuelve a usar el tipo y los montos del torneo activo.']);
+    };
+
+    $('pruebaTablaUsar').onclick = async () => {
+      if (!pruebaActivaOAvisar()) return;
+      const id = $('pruebaTablaSelect').value;
+      try {
+        const r = await api('/reloj/aplicar-plantilla-premios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plantillaId: id })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        premiosMarcarSucio(false);
+        showToast('Tabla de la prueba', $('pruebaTablaSelect').selectedOptions[0].textContent);
+        await loadReloj();
+        renderPremiosEditor('reset');
+      } catch (e) {
+        showToast('No se pudo aplicar', e.message, 'error');
+      }
+    };
+
+    $('pruebaEstructuraUsar').onclick = async () => {
+      if (!pruebaActivaOAvisar()) return;
+      const id = $('pruebaEstructuraSelect').value;
+      if (!id) return;
+      // La estructura solo se cambia con el reloj de prueba detenido.
+      if (relojData.reloj && relojData.reloj.estado !== 'detenido') {
+        const ok = await openConfirmModal({
+          title: 'Reiniciar reloj de prueba',
+          message: 'Para cambiar la estructura, el reloj de prueba vuelve al nivel 1 detenido. El torneo real no se toca.',
+          confirmText: 'Reiniciar y cambiar'
+        });
+        if (!ok) return;
+        if (!(await relojAccion('reiniciar'))) return;
+      }
+      try {
+        const r = await api('/reloj/aplicar-plantilla', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plantillaId: id })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        marcarEstructuraSucia(false);
+        showToast('Estructura de la prueba', $('pruebaEstructuraSelect').selectedOptions[0].textContent);
+        await loadReloj();
+        renderEstructura('reset');
+      } catch (e) {
+        showToast('No se pudo aplicar', e.message, 'error');
+      }
+    };
+
+    async function pruebaEnviar(body, mensaje) {
+      const estabaActiva = !!(relojData && relojData.prueba && relojData.prueba.activa);
+      try {
+        const r = await api('/reloj/prueba', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        pruebaInputsTocados = false;
+        if (mensaje) showToast(mensaje[0], mensaje[1]);
+        await loadReloj();
+        const ahoraActiva = !!(relojData && relojData.prueba && relojData.prueba.activa);
+        if (ahoraActiva !== estabaActiva || body.recopiar) relojRecargarEditores();
+      } catch (e) {
+        showToast('No se pudo actualizar la prueba', e.message, 'error');
+      }
+    }
+
+    // Al entrar o salir de la prueba cambia el reloj con el que se
+    // trabaja: se descartan las ediciones sin guardar y se vuelven a
+    // cargar estructura, configuración y premios.
+    function relojRecargarEditores() {
+      pruebaTorneoTocado = false;
+      renderPruebas();
+      marcarEstructuraSucia(false);
+      relojCfgSucia = false;
+      $('relojCfgPendiente').classList.add('hidden');
+      premiosMarcarSucio(false);
+      renderRelojConfig();
+      renderEstructura('reset');
+      renderPremiosEditor('reset');
+    }
+
+    function hayCambiosSinGuardar() {
+      return relojEstructuraSucia || relojCfgSucia || premiosSucio;
+    }
+
+    window.pruebaActivar = async activa => {
+      if (hayCambiosSinGuardar()) {
+        const ok = await openConfirmModal({
+          title: 'Cambios sin guardar',
+          message: 'Hay cambios sin guardar en la estructura, la configuración o los premios. Si seguís, se descartan.',
+          confirmText: 'Seguir'
+        });
+        if (!ok) return;
+      }
+      pruebaEnviar(
+        { activa },
+        activa ? ['Modo prueba activado', 'Ahora editás una copia. La TV muestra "MODO PRUEBA".']
+          : ['Saliste de la prueba', 'Dirección y la TV vuelven al torneo real. La copia queda guardada.']
+      );
+    };
+
+    $('pruebaAplicarReal').onclick = async () => {
+      if (!(relojData && relojData.prueba && relojData.prueba.activa)) {
+        showToast('Modo prueba inactivo', 'Activá el modo prueba y hacé los cambios en la copia primero.', 'error');
+        return;
+      }
+      if (hayCambiosSinGuardar()) {
+        showToast('Cambios sin guardar', 'Guardá (o descartá) los cambios de la prueba antes de aplicarlos.', 'error');
+        return;
+      }
+      const ok = await openConfirmModal({
+        title: 'Aplicar al torneo real',
+        message: 'La estructura de ciegas, la configuración y la tabla de premios de la prueba reemplazan a las del torneo real. El reloj real, sus jugadores y eliminados no se tocan.',
+        confirmText: 'Aplicar'
+      });
+      if (!ok) return;
+      try {
+        const r = await api('/reloj/prueba/aplicar', { method: 'POST' });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        showToast('Cambios aplicados', 'El torneo real ya usa la configuración de la prueba.');
+      } catch (e) {
+        showToast('No se pudo aplicar', e.message, 'error');
+      }
+    };
+
+    $('pruebaRecopiar').onclick = async () => {
+      const ok = await openConfirmModal({
+        title: 'Volver a copiar',
+        message: 'Se descartan los cambios de la prueba y se copia de nuevo la configuración del torneo real. El reloj de prueba vuelve a cero. Los jugadores ficticios se mantienen.',
+        confirmText: 'Volver a copiar'
+      });
+      if (ok) pruebaEnviar({ recopiar: true }, ['Copia actualizada', 'La prueba arranca de nuevo con la configuración del torneo real.']);
+    };
+
+    $('pruebaToggle').onclick = () => pruebaActivar(!(relojData && relojData.prueba && relojData.prueba.activa));
+
+    $('pruebaAplicar').onclick = () => pruebaEnviar({
+      activa: true,
+      buyins: Number($('pruebaBuyins').value || 0),
+      reentradas: Number($('pruebaReentradas').value || 0)
+    });
+    enterSubmit(['pruebaBuyins', 'pruebaReentradas'], 'pruebaAplicar');
+
+    document.querySelectorAll('[data-prueba-suma]').forEach(b => {
+      b.onclick = () => {
+        const [campo, cant] = b.dataset.pruebaSuma.split(':');
+        const actual = (relojData && relojData.prueba && relojData.prueba[campo]) || 0;
+        pruebaEnviar({ activa: true, [campo]: actual + Number(cant) });
+      };
+    });
+
+    $('pruebaEliminar').onclick = () => {
+      if (!(relojData && relojData.prueba && relojData.prueba.activa)) {
+        showToast('Modo prueba inactivo', 'Activalo primero para no tocar los eliminados reales.', 'error');
+        return;
+      }
+      relojAccion('eliminar');
+    };
+
+    $('pruebaReiniciar').onclick = () => pruebaEnviar({ reiniciar: true });
+
+    document.querySelectorAll('[data-prueba-tiempo]').forEach(b => {
+      b.onclick = async () => {
+        if (!(relojData && relojData.prueba && relojData.prueba.activa)) {
+          showToast('Modo prueba inactivo', 'Activalo primero para no mover el reloj real.', 'error');
+          return;
+        }
+        if (!relojData || !relojData.reloj || relojData.reloj.sinEstructura) {
+          showToast('Sin estructura', 'Cargá una estructura de ciegas primero.', 'error');
+          return;
+        }
+        const deseado = Number(b.dataset.pruebaTiempo);
+        const actual = Math.ceil(relojSegundosAhora(relojData.reloj.segundosRestantes));
+        if (deseado === actual) return;
+        const ok = await relojAccion('ajustar', { segundos: deseado - actual });
+        if (ok && relojData.reloj.estado !== 'corriendo') {
+          showToast('Reloj en pausa', 'Tocá Iniciar o Reanudar en "En vivo" para que corra.', 'error');
+        }
+      };
+    });
+
+    $('pruebaAbrirTv').onclick = () => $('relojAbrirPantalla').click();
+
+    /* ---------- Controles ---------- */
+
+    $('relojBtnPrincipal').onclick = () => {
+      const accion = $('relojBtnPrincipal').dataset.accion;
+      if (accion) relojAccion(accion);
+    };
+    $('relojBtnAnterior').onclick = () => relojAccion('anterior');
+    $('relojBtnSiguiente').onclick = () => relojAccion('siguiente');
+    // Ajustes finos: suman o restan segundos al nivel actual.
+    document.querySelectorAll('.reloj-ajustes [data-ajuste]').forEach(b => {
+      b.onclick = () => relojAccion('ajustar', { segundos: Number(b.dataset.ajuste) });
+    });
+
+    // Poner un tiempo exacto (ej. "12:30" o "750"): se calcula la
+    // diferencia con lo que marca ahora y se ajusta por esa diferencia.
+    function leerTiempo(texto) {
+      const t = String(texto || '').trim();
+      if (!t) return null;
+      if (!/^\d+(:\d{1,2}){0,2}$/.test(t)) return null;
+      const partes = t.split(':').map(Number);
+      if (partes.slice(1).some(n => n > 59)) return null;
+      return partes.reduce((acc, n) => acc * 60 + n, 0);
+    }
+
+    $('relojBtnPoner').onclick = async () => {
+      const deseado = leerTiempo($('relojPonerTiempo').value);
+      if (deseado == null) {
+        showToast('Tiempo inválido', 'Escribilo como mm:ss (por ejemplo 12:30).', 'error');
+        return;
+      }
+      if (!relojData || !relojData.reloj || relojData.reloj.sinEstructura) return;
+      const maximo = relojData.reloj.minutos * 60;
+      if (deseado > maximo) {
+        showToast('Tiempo inválido', `Este nivel dura ${relojData.reloj.minutos} minutos; no se puede poner más que eso.`, 'error');
+        return;
+      }
+      const actual = Math.ceil(relojSegundosAhora(relojData.reloj.segundosRestantes));
+      const diferencia = deseado - actual;
+      if (diferencia === 0) return;
+      if (await relojAccion('ajustar', { segundos: diferencia })) {
+        $('relojPonerTiempo').value = '';
+      }
+    };
+
+    enterSubmit(['relojPonerTiempo'], 'relojBtnPoner');
+    $('relojBtnEliminar').onclick = () => relojAccion('eliminar');
+    $('relojBtnDeshacer').onclick = () => relojAccion('deshacerEliminacion');
+
+    $('relojBtnReiniciar').onclick = async () => {
+      const ok = await openConfirmModal({
+        title: '¿Reiniciar el reloj?',
+        message: 'Vuelve al nivel 1 con el reloj detenido. Las entradas, el pozo y los eliminados no se tocan.',
+        confirmText: 'Reiniciar'
+      });
+      if (ok) relojAccion('reiniciar');
+    };
+
+    $('relojBtnFinalizar').onclick = async () => {
+      const ok = await openConfirmModal({
+        title: '¿Finalizar el torneo?',
+        message: 'El reloj se detiene definitivamente. Para volver a usarlo hay que reiniciarlo.',
+        confirmText: 'Finalizar'
+      });
+      if (ok) relojAccion('finalizar');
+    };
+
+    $('relojAbrirPantalla').onclick = () => {
+      window.open(RELOJ_PANTALLA_URL, 'relojPantalla', 'width=1280,height=720');
     };
 
 

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reloj del Torneo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+  <!--
+    PANTALLA DEL RELOJ (TV del salón)
+    Solo lectura. Pide el estado a /api/reloj/pantalla cada 3 segundos y
+    entre medio descuenta el tiempo localmente. Todo se escala con el
+    tamaño de la ventana (unidades vh), así se ve igual en un monitor o
+    en una TV grande. Clic en cualquier lado = pantalla completa.
+
+    FONDO: se usa la imagen /reloj-fondo.jpg (renderer/reloj-fondo.jpg).
+    Si no está, queda un fondo oscuro con degradé y todo funciona igual.
+
+    TIPOGRAFÍA: Anton (Google Fonts). Si la PC no tiene internet, usa
+    Impact, que viene con Windows y es casi igual.
+  -->
+
+  <style>
+    :root {
+      --oro1: #FFD23F;
+      --oro2: #FF8A00;
+      --texto: #FFF4DC;
+      --tenue: rgba(255, 236, 200, .72);
+      --rojo: #FF4D3D;
+      --verde: #3FE08A;
+      /* Transparencia de los bloques: 0 = invisible, 1 = negro total */
+      --caja: rgba(0, 0, 0, .2);
+      --borde: rgba(255, 170, 40, .18);
+      --fuente: 'Anton', Impact, 'Arial Narrow Bold', sans-serif
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden
+    }
+
+    body {
+      background:
+        url('reloj-fondo.jpg') center / cover no-repeat,
+        radial-gradient(ellipse at 15% 20%, rgba(200, 20, 40, .35) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 80%, rgba(120, 40, 200, .35) 0%, transparent 45%),
+        #050307;
+      color: var(--texto);
+      font-family: var(--fuente);
+      letter-spacing: .01em;
+      cursor: default;
+      user-select: none
+    }
+
+    /* Texto con degradé naranja-dorado (como el reloj que usaban) */
+    .oro {
+      background: linear-gradient(180deg, var(--oro1) 0%, var(--oro2) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 .35vh .5vh rgba(0, 0, 0, .75))
+    }
+
+    /* Sombra fuerte para que el texto se lea sobre el fondo aunque
+       los bloques sean casi transparentes. */
+    .sombra {
+      text-shadow: 0 .2vh .4vh rgba(0, 0, 0, .95), 0 0 1.2vh rgba(0, 0, 0, .8)
+    }
+
+    .pantalla {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 26vw 1fr 26vw;
+      gap: 1.5vw;
+      padding: 3vh 2vw 2.5vh
+    }
+
+    .columna {
+      display: flex;
+      flex-direction: column;
+      gap: 2vh;
+      min-height: 0
+    }
+
+    /* Bloques laterales: fondo semitransparente para que se lea
+       bien sobre cualquier imagen de fondo. */
+    .bloque {
+      background: var(--caja);
+      border: 1px solid var(--borde);
+      border-radius: 1.4vh;
+      padding: 1.6vh 1.2vw;
+      text-align: center;
+    }
+
+    .rotulo {
+      font-size: 2.7vh;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--tenue)
+    }
+
+    .grande {
+      font-size: 6.4vh;
+      line-height: 1.1
+    }
+
+    .mediano {
+      font-size: 4.6vh;
+      line-height: 1.1
+    }
+
+    /* ---------- Izquierda: pozo y premios ---------- */
+
+    .premios {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column
+    }
+
+    .lista-premios {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-auto-rows: min-content;
+      gap: .3vh;
+      margin-top: 1vh
+    }
+
+    .lista-premios.dos-columnas {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 1vw
+    }
+
+    .premio {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 3.8vh;
+      padding: 0 .4vw
+    }
+
+    .lista-premios.compacta .premio {
+      font-size: 3vh
+    }
+
+    .lista-premios.dos-columnas .premio {
+      font-size: 2.5vh
+    }
+
+    .premio .puesto {
+      color: var(--tenue)
+    }
+
+    .premio:first-child .monto {
+      color: var(--oro1)
+    }
+
+    /* ---------- Centro: reloj ---------- */
+
+    /* El padding de abajo deja libre la marca (logo) que viene en la
+       imagen de fondo. Si cambian el fondo, ajustar --espacio-logo. */
+    .centro {
+      --espacio-logo: 14vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      min-width: 0;
+      padding-bottom: var(--espacio-logo)
+    }
+
+    .torneo-nombre {
+      font-size: 9vh;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      max-width: 100%
+    }
+
+    .nivel {
+      font-size: 6vh;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-top: 1vh
+    }
+
+    .nivel.descanso {
+      color: var(--oro1)
+    }
+
+    .estado {
+      display: inline-block;
+      font-size: 3.4vh;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      padding: .2vh 2vw;
+      border: .3vh solid var(--oro1);
+      border-radius: 999px;
+      color: var(--oro1);
+      background: rgba(0, 0, 0, .55);
+      animation: parpadeo 1.6s ease-in-out infinite
+    }
+
+    .estado.fin {
+      color: var(--rojo);
+      border-color: var(--rojo);
+      animation: none
+    }
+
+    @keyframes parpadeo {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .35
+      }
+    }
+
+    /* El reloj: cada dígito en una caja de ancho fijo para que los
+       números no "bailen" al cambiar. */
+    .tiempo {
+      font-size: 26vh;
+      line-height: .95;
+      display: flex;
+      justify-content: center
+    }
+
+    .tiempo span {
+      display: inline-block;
+      width: .56em;
+      text-align: center
+    }
+
+    .tiempo span.sep {
+      width: .26em
+    }
+
+    .tiempo.detenido {
+      opacity: .6
+    }
+
+    .tiempo.ultimo-minuto {
+      animation: latido 1s ease-in-out infinite
+    }
+
+    .tiempo.ultimo-minuto span {
+      background: linear-gradient(180deg, #FF8A7A 0%, var(--rojo) 100%);
+      -webkit-background-clip: text;
+      background-clip: text
+    }
+
+    @keyframes latido {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.03)
+      }
+    }
+
+    .ciegas-rotulo {
+      font-size: 3.4vh;
+      letter-spacing: .3em;
+      color: var(--tenue);
+      text-transform: uppercase
+    }
+
+    .ciegas {
+      font-size: 10vh;
+      line-height: 1;
+      white-space: nowrap;
+      max-width: 100%
+    }
+
+    .ciegas-leyenda {
+      font-size: 2.3vh;
+      letter-spacing: .2em;
+      color: var(--tenue);
+      margin-top: .4vh
+    }
+
+    .proximo {
+      margin-top: 1.5vh
+    }
+
+    .proximo .valor {
+      font-size: 5vh;
+      line-height: 1.1
+    }
+
+    /* ---------- Derecha: datos ---------- */
+
+    .fila-dato {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1vw;
+      padding: .5vh .4vw;
+      font-size: 3.9vh
+    }
+
+    .fila-dato+.fila-dato {
+      border-top: 1px solid rgba(255, 255, 255, .08)
+    }
+
+    .fila-dato .etq {
+      color: var(--tenue);
+      font-size: 3.2vh;
+      text-align: left
+    }
+
+    .fila-dato .val {
+      white-space: nowrap
+    }
+
+    .detalles .fila-dato {
+      font-size: 3.3vh
+    }
+
+    .detalles .fila-dato .etq {
+      font-size: 2.8vh
+    }
+
+    .registro-abierto {
+      color: var(--oro1)
+    }
+
+    .registro-cerrado {
+      color: var(--rojo)
+    }
+
+    /* ---------- Varios ---------- */
+
+    .conexion {
+      position: fixed;
+      top: 1.2vh;
+      right: 1vw;
+      width: 1.1vh;
+      height: 1.1vh;
+      border-radius: 50%;
+      background: var(--verde);
+      opacity: .7
+    }
+
+    .conexion.error {
+      background: var(--rojo);
+      opacity: 1
+    }
+
+    .mensaje-central {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2vh;
+      background: rgba(0, 0, 0, .85);
+      text-align: center;
+      font-size: 8vh
+    }
+
+    .mensaje-central small {
+      font-size: 3vh;
+      color: var(--tenue)
+    }
+
+    .ayuda-fullscreen {
+      position: fixed;
+      left: 50%;
+      top: .5vh;
+      transform: translateX(-50%);
+      font: 1.8vh system-ui, sans-serif;
+      color: var(--tenue);
+      transition: opacity 1s
+    }
+
+    .aviso-sonido {
+      position: fixed;
+      left: 50%;
+      bottom: 2vh;
+      transform: translateX(-50%);
+      font: 2.2vh system-ui, sans-serif;
+      color: #fff;
+      background: rgba(193, 80, 58, .85);
+      padding: .8vh 1.6vw;
+      border-radius: 999px
+    }
+
+    /* Franja roja arriba de todo; mientras está, la pantalla baja un
+       poco para no taparse. */
+    .modo-prueba {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.6vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--rojo);
+      color: #fff;
+      font: 2.4vh var(--fuente);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      z-index: 10
+    }
+
+    body.con-prueba .pantalla {
+      padding-top: 5vh;
+      height: 100vh
+    }
+
+    .oculto {
+      display: none !important
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="pantalla">
+
+    <!-- IZQUIERDA: POZO Y PREMIOS -->
+    <section class="columna">
+
+      <div class="bloque">
+        <div class="rotulo sombra">Pozo acumulado</div>
+        <div class="grande oro" id="pozo">$0</div>
+        <div class="rotulo sombra" id="pozoSub" style="font-size:2.3vh"></div>
+      </div>
+
+      <div class="bloque premios">
+        <div class="rotulo sombra" id="premiosTitulo">Premios estimados</div>
+        <div class="lista-premios sombra" id="premios"></div>
+      </div>
+
+      <div class="bloque">
+        <div class="rotulo sombra">Próximo descanso</div>
+        <div class="mediano oro" id="descanso">—</div>
+      </div>
+
+    </section>
+
+
+    <!-- CENTRO: RELOJ -->
+    <section class="centro">
+
+      <div style="width:100%">
+        <div class="torneo-nombre oro" id="torneoNombre">—</div>
+        <div class="nivel oro" id="nivel">—</div>
+        <div style="height:5vh;margin-top:1vh">
+          <span class="estado oculto" id="estado">Pausado</span>
+        </div>
+      </div>
+
+      <div class="tiempo oro detenido" id="tiempo"></div>
+
+      <div>
+        <div class="ciegas-rotulo sombra" id="ciegasRotulo">Ciegas</div>
+        <div class="ciegas oro" id="ciegas">—</div>
+        <div class="ciegas-leyenda sombra" id="ciegasLeyenda">CHICA · GRANDE · ANTE</div>
+      </div>
+
+      <div class="proximo" id="proximoWrap">
+        <div class="ciegas-rotulo sombra">Próximo nivel</div>
+        <div class="valor oro" id="proximo">—</div>
+      </div>
+
+    </section>
+
+
+    <!-- DERECHA: DATOS Y DETALLES -->
+    <section class="columna">
+
+      <div class="bloque sombra">
+        <div class="fila-dato"><span class="etq">Total entradas</span><span class="val" id="entradas">0</span></div>
+        <div class="fila-dato"><span class="etq">Jugadores restantes</span><span class="val" id="restantes">0</span></div>
+        <div class="fila-dato"><span class="etq">Re-entradas</span><span class="val" id="reentradas">0</span></div>
+      </div>
+
+      <div class="bloque sombra">
+        <div class="fila-dato"><span class="etq">Fichas totales</span><span class="val" id="puntos">0</span></div>
+        <div class="fila-dato"><span class="etq">Stack promedio</span><span class="val" id="promedio">0</span></div>
+      </div>
+
+      <div class="bloque detalles sombra" style="flex:1">
+        <div class="rotulo" style="margin-bottom:.6vh">Detalles del torneo</div>
+        <div class="fila-dato"><span class="etq">Entrada</span><span class="val" id="detEntrada">$0</span></div>
+        <div class="fila-dato"><span class="etq">Stack inicial</span><span class="val" id="detStack">0</span></div>
+        <div class="fila-dato"><span class="etq">Re-entradas</span><span class="val" id="detReentradas">—</span></div>
+        <div class="fila-dato"><span class="etq">Registro</span><span class="val" id="detRegistro">—</span></div>
+        <div class="fila-dato" id="detCierreWrap"><span class="etq" id="detCierreEtq">Cierra en</span><span class="val" id="detCierre">—</span></div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <span class="conexion" id="conexion" title="Conexión"></span>
+  <div class="modo-prueba oculto" id="modoPrueba">Modo prueba · datos ficticios</div>
+  <div class="mensaje-central oculto" id="mensajeCentral"></div>
+  <div class="ayuda-fullscreen" id="ayuda">Clic para pantalla completa</div>
+  <div class="aviso-sonido oculto" id="avisoSonido">🔇 Hacé clic en la pantalla para activar el sonido</div>
+
+
+  <script>
+
+    // Se sirve desde el mismo backend, así que la ruta es relativa.
+    const URL_ESTADO = '/api/reloj/pantalla';
+    const INTERVALO_CONSULTA = 3000;
+
+    const $ = id => document.getElementById(id);
+    const dinero = n => '$' + Math.round(Number(n) || 0).toLocaleString('es-AR');
+    const numero = n => (Number(n) || 0).toLocaleString('es-AR');
+
+    // Ciegas en formato corto, como en la planilla: 500, 1.2K, 25K, 1.5M
+    function corto(n) {
+      n = Number(n) || 0;
+      const fmt = (v, suf) => (Math.round(v * 10) / 10).toString() + suf;
+      if (n >= 1e6) return fmt(n / 1e6, 'M');
+      if (n >= 1000) return fmt(n / 1000, 'K');
+      return String(n);
+    }
+
+    const ciegasTexto = x => x ? `${corto(x.sb)}/${corto(x.bb)}${x.ante ? '/' + corto(x.ante) : ''}` : '—';
+
+    let datos = null;
+    let recibidoEn = 0;
+    let pidiendo = false;
+    let ultimoIndice = null;
+    let ultimoTiempoTexto = '';
+
+    function fmtTiempo(seg) {
+      seg = Math.max(0, Math.floor(seg));
+      const h = Math.floor(seg / 3600);
+      const m = Math.floor((seg % 3600) / 60);
+      const s = seg % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
+
+    // Segundos restantes "ahora" a partir de lo que mandó el backend.
+    function segundosAhora(seg) {
+      if (!datos || !datos.reloj || datos.reloj.estado !== 'corriendo') return seg;
+      return seg - (Date.now() - recibidoEn) / 1000;
+    }
+
+    // Dibuja el reloj con cada dígito en su propia caja (no "baila").
+    function pintarTiempo(texto) {
+      if (texto === ultimoTiempoTexto) return;
+      ultimoTiempoTexto = texto;
+      $('tiempo').innerHTML = [...texto]
+        .map(c => `<span class="${c === ':' ? 'sep' : ''}">${c}</span>`)
+        .join('');
+    }
+
+    // Achica la letra de un elemento hasta que entre en su ancho
+    // disponible (por ej. un nombre de torneo largo). Se parte siempre
+    // del tamaño original del CSS.
+    function ajustarAncho(el, anchoMax) {
+      el.style.fontSize = '';
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      el.style.display = 'inline-block';
+      let tam = base;
+      while (el.scrollWidth > anchoMax && tam > base * 0.4) {
+        tam *= 0.95;
+        el.style.fontSize = tam + 'px';
+      }
+      el.style.display = '';
+    }
+
+    function ajustarTextos() {
+      const ancho = document.querySelector('.centro').clientWidth;
+      ['torneoNombre', 'ciegas', 'proximo'].forEach(id => ajustarAncho($(id), ancho));
+    }
+
+    window.addEventListener('resize', ajustarTextos);
+
+    // Puesto abreviado: 1ro, 2do, 3ro, 4to... (la "º" en la tipografía
+    // del reloj se confunde con un cero).
+    function puestoTexto(n) {
+      const suf = { 1: 'ro', 2: 'do', 3: 'ro', 7: 'mo', 8: 'vo', 9: 'no', 10: 'mo' }[n] || 'to';
+      return n <= 10 ? n + suf : n + 'vo';
+    }
+
+    // Agrupa puestos consecutivos con el mismo premio: "5to a 6to".
+    function agruparPremios(premios) {
+      const grupos = [];
+      for (const p of premios) {
+        const ult = grupos[grupos.length - 1];
+        if (ult && ult.monto === p.monto) ult.hasta = p.puesto;
+        else grupos.push({ desde: p.puesto, hasta: p.puesto, monto: p.monto });
+      }
+      return grupos;
+    }
+
+
+    /* ---------- Sonido ---------- */
+    // Sonidos generados con Web Audio (no hace falta ningún archivo).
+    //
+    // CONFIGURACIÓN: cambiar acá si quieren más o menos avisos.
+    const SONIDOS = {
+      volumen: 0.8,          // 0 a 1
+      avisoUnMinuto: true,   // campanita cuando falta 1 minuto
+      cuentaRegresiva: 10,   // pitido en cada uno de los últimos N segundos (0 = no)
+      finDeNivel: true       // melodía al terminar el nivel o el descanso
+    };
+
+    let audio = null;
+
+    function contextoAudio() {
+      if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
+      return audio;
+    }
+
+    // Toca una secuencia de notas: [[frecuencia, duración], ...]
+    function tocar(notas, tipo = 'triangle', separacion = 0.05) {
+      try {
+        const ctx = contextoAudio();
+        let t = ctx.currentTime + 0.02;
+        for (const [frecuencia, duracion] of notas) {
+          const osc = ctx.createOscillator();
+          const vol = ctx.createGain();
+          osc.type = tipo;
+          osc.frequency.value = frecuencia;
+          vol.gain.setValueAtTime(0.0001, t);
+          vol.gain.exponentialRampToValueAtTime(SONIDOS.volumen, t + 0.015);
+          vol.gain.exponentialRampToValueAtTime(0.0001, t + duracion);
+          osc.connect(vol).connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + duracion + 0.05);
+          t += duracion + separacion;
+        }
+      } catch (e) {
+        console.warn('No se pudo reproducir sonido:', e);
+      }
+    }
+
+    const sonido = {
+      prueba: () => tocar([[660, 0.12]]),
+      unMinuto: () => tocar([[660, 0.35], [880, 0.6]], 'sine', 0.08),
+      segundo: () => tocar([[880, 0.12]], 'square', 0),
+      ultimosSegundos: () => tocar([[1175, 0.15]], 'square', 0),
+      finDeNivel: () => tocar([[523, 0.18], [659, 0.18], [784, 0.18], [1046, 0.7]], 'triangle', 0.03)
+    };
+
+    // Control para no repetir sonidos: se guarda qué nivel ya sonó y
+    // en qué segundo de la cuenta regresiva vamos.
+    let sonadoMinutoIndice = null;
+    let sonadoFinIndice = null;
+    let ultimoSegundoSonado = null;
+
+    function sonidosDelReloj(rel, seg) {
+      if (rel.estado !== 'corriendo' || rel.sinEstructura) return;
+      const restante = Math.ceil(seg);
+
+      if (SONIDOS.avisoUnMinuto && restante === 60 && sonadoMinutoIndice !== rel.indice) {
+        sonadoMinutoIndice = rel.indice;
+        sonido.unMinuto();
+      }
+
+      const n = SONIDOS.cuentaRegresiva;
+      if (n > 0 && restante >= 1 && restante <= n && ultimoSegundoSonado !== rel.indice + ':' + restante) {
+        ultimoSegundoSonado = rel.indice + ':' + restante;
+        if (restante <= 3) sonido.ultimosSegundos(); else sonido.segundo();
+      }
+
+      if (SONIDOS.finDeNivel && seg <= 0 && sonadoFinIndice !== rel.indice) {
+        sonadoFinIndice = rel.indice;
+        sonido.finDeNivel();
+      }
+    }
+
+    // Aviso en pantalla si el navegador bloqueó el sonido (en la
+    // ventana de Electron no pasa; en Chrome/Edge hace falta un clic).
+    function revisarAudioBloqueado() {
+      try {
+        contextoAudio();
+        $('avisoSonido').classList.toggle('oculto', audio.state === 'running');
+      } catch (e) { }
+    }
+
+
+    /* ---------- Consulta al backend ---------- */
+
+    async function consultar() {
+      if (pidiendo) return;
+      pidiendo = true;
+      try {
+        const r = await fetch(URL_ESTADO, { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+
+        // Cambio de nivel que no sonó por tiempo (por ej. Dirección pasó
+        // de nivel a mano): suena igual. No suena al abrir la pantalla.
+        if (d.reloj && ultimoIndice !== null && d.reloj.indice !== ultimoIndice &&
+          d.reloj.estado === 'corriendo' && sonadoFinIndice !== ultimoIndice && SONIDOS.finDeNivel) {
+          sonadoFinIndice = ultimoIndice;
+          sonido.finDeNivel();
+        }
+        ultimoIndice = d.reloj ? d.reloj.indice : null;
+
+        datos = d;
+        recibidoEn = Date.now();
+        $('conexion').classList.remove('error');
+        dibujar();
+      } catch (e) {
+        // Sin conexión: se sigue descontando con los últimos datos.
+        $('conexion').classList.add('error');
+      } finally {
+        pidiendo = false;
+      }
+    }
+
+
+    /* ---------- Dibujo ---------- */
+
+    function dibujar() {
+      const d = datos;
+      const msg = $('mensajeCentral');
+
+      if (!d || d.sinTorneo) {
+        msg.innerHTML = '<span class="oro">Sin torneo activo</span><small>Configurá el torneo desde el Panel Dirección</small>';
+        msg.classList.remove('oculto');
+        return;
+      }
+      msg.classList.add('oculto');
+      $('modoPrueba').classList.toggle('oculto', !d.modoPrueba);
+      document.body.classList.toggle('con-prueba', !!d.modoPrueba);
+
+      $('torneoNombre').textContent = d.torneo.nombre;
+
+      // Estado (pausado / por comenzar / finalizado)
+      const rel = d.reloj;
+      const estado = $('estado');
+      const textoEstado = { pausado: 'Pausado', finalizado: 'Torneo finalizado', detenido: 'Por comenzar' }[rel.estado];
+      estado.classList.toggle('oculto', !textoEstado || rel.sinEstructura);
+      estado.classList.toggle('fin', rel.estado === 'finalizado');
+      estado.textContent = textoEstado || '';
+
+      // Nivel y ciegas
+      const esDescanso = rel.tipo === 'descanso';
+      const nivel = $('nivel');
+      nivel.classList.toggle('descanso', esDescanso);
+      nivel.classList.toggle('oro', !esDescanso);
+      $('proximoWrap').classList.toggle('oculto', esDescanso || rel.sinEstructura);
+
+      if (rel.sinEstructura) {
+        nivel.textContent = 'Sin estructura';
+        $('ciegasRotulo').textContent = 'Ciegas';
+        $('ciegas').textContent = '—';
+      } else if (esDescanso) {
+        // En el descanso se muestran las ciegas "al volver" (que ya son
+        // el próximo nivel), así que no se repite abajo.
+        nivel.textContent = '— Descanso —';
+        $('ciegasRotulo').textContent = 'Al volver · Nivel ' + (d.proximoNivel ? d.proximoNivel.numero : '');
+        $('ciegas').textContent = ciegasTexto(d.proximoNivel);
+      } else {
+        nivel.textContent = '— Nivel ' + rel.numeroNivel + ' —';
+        $('ciegasRotulo').textContent = 'Ciegas';
+        $('ciegas').textContent = ciegasTexto(rel);
+      }
+      $('proximo').textContent = ciegasTexto(d.proximoNivel);
+
+      // Pozo y premios
+      $('pozo').textContent = dinero(d.pozo);
+      $('pozoSub').textContent = d.torneo.tipo === 'mistery_bounty' && d.bounty
+        ? 'Bounties en juego: ' + dinero(d.bounty)
+        : '';
+      $('premiosTitulo').textContent = d.premios.length
+        ? `Premios estimados · Cobran ${d.premios.length}`
+        : 'Premios estimados';
+
+      const grupos = agruparPremios(d.premios);
+      const lista = $('premios');
+      lista.classList.toggle('compacta', grupos.length > 7 && grupos.length <= 12);
+      lista.classList.toggle('dos-columnas', grupos.length > 12);
+      lista.innerHTML = grupos.map(g => `
+        <div class="premio">
+          <span class="puesto">${g.desde === g.hasta ? puestoTexto(g.desde) : puestoTexto(g.desde) + ' a ' + puestoTexto(g.hasta)}</span>
+          <span class="monto">${dinero(g.monto)}</span>
+        </div>`).join('');
+
+      // Datos
+      $('entradas').textContent = d.jugadores.entradasTotales;
+      $('restantes').textContent = d.jugadores.restantes;
+      $('reentradas').textContent = d.jugadores.reentradas;
+      $('puntos').textContent = numero(d.fichas.puntosTotales);
+      $('promedio').textContent = numero(d.fichas.stackPromedio);
+
+      // Detalles
+      $('detEntrada').textContent = dinero(d.torneo.buyIn);
+      $('detStack').textContent = numero(d.fichas.stackInicial);
+      $('detReentradas').textContent = d.reentradas.ilimitadas
+        ? 'Ilimitadas'
+        : `Máx. ${d.reentradas.maximo}`;
+
+      ajustarTextos();
+      tic();
+    }
+
+    // Se ejecuta 4 veces por segundo: solo actualiza los contadores.
+    function tic() {
+      const d = datos;
+      if (!d || d.sinTorneo) return;
+      const rel = d.reloj;
+
+      const seg = segundosAhora(rel.segundosRestantes);
+      pintarTiempo(rel.sinEstructura ? '--:--' : fmtTiempo(Math.ceil(seg)));
+      const tiempo = $('tiempo');
+      tiempo.classList.toggle('detenido', rel.estado !== 'corriendo');
+      tiempo.classList.toggle('ultimo-minuto', rel.estado === 'corriendo' && seg <= 60 && rel.tipo !== 'descanso');
+
+      sonidosDelReloj(rel, seg);
+
+      // Terminó el nivel: pedimos el estado nuevo enseguida.
+      if (rel.estado === 'corriendo' && seg <= 0) consultar();
+
+      const desc = d.proximoDescanso;
+      $('descanso').textContent = desc ? 'En ' + fmtTiempo(segundosAhora(desc.empiezaEnSegundos)) : '—';
+
+      // Registro
+      const reg = d.registro;
+      const estadoReg = $('detRegistro');
+      const cierreWrap = $('detCierreWrap');
+      if (!reg.cierreNivel) {
+        estadoReg.textContent = 'Abierto';
+        estadoReg.className = 'val registro-abierto';
+        cierreWrap.classList.add('oculto');
+      } else if (reg.abierto) {
+        estadoReg.textContent = 'Abierto';
+        estadoReg.className = 'val registro-abierto';
+        cierreWrap.classList.remove('oculto');
+        $('detCierreEtq').textContent = `Cierra (fin nivel ${reg.cierreNivel})`;
+        $('detCierre').textContent = fmtTiempo(segundosAhora(reg.cierraEnSegundos));
+      } else {
+        estadoReg.textContent = 'Cerrado';
+        estadoReg.className = 'val registro-cerrado';
+        cierreWrap.classList.remove('oculto');
+        $('detCierreEtq').textContent = 'Cerró al final del nivel';
+        $('detCierre').textContent = reg.cierreNivel;
+      }
+    }
+
+
+    /* ---------- Pantalla completa ---------- */
+    // El clic también "habilita" el sonido (los navegadores no dejan
+    // reproducir audio hasta que el usuario interactúa con la página).
+
+    document.addEventListener('click', () => {
+      sonido.prueba();
+      setTimeout(revisarAudioBloqueado, 300);
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => { });
+      } else {
+        document.exitFullscreen().catch(() => { });
+      }
+    });
+
+    setTimeout(() => { $('ayuda').style.opacity = '0'; }, 8000);
+
+
+    /* ---------- Arranque ---------- */
+
+    consultar();
+    setInterval(consultar, INTERVALO_CONSULTA);
+    setTimeout(revisarAudioBloqueado, 1000);
+    setInterval(tic, 250);
+
+  </script>
+
+</body>
+
+</html>
