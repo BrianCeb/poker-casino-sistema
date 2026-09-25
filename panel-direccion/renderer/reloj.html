@@ -622,7 +622,7 @@
     const SONIDOS = {
       volumen: 0.8,          // 0 a 1
       avisoUnMinuto: true,   // campanita cuando falta 1 minuto
-      cuentaRegresiva: 10,   // pitido en cada uno de los últimos N segundos (0 = no)
+      cuentaRegresiva: 5,   // pitido en cada uno de los últimos N segundos (0 = no)
       finDeNivel: true       // melodía al terminar el nivel o el descanso
     };
 
@@ -675,7 +675,7 @@
       if (rel.estado !== 'corriendo' || rel.sinEstructura) return;
       const restante = Math.ceil(seg);
 
-      if (SONIDOS.avisoUnMinuto && restante === 60 && sonadoMinutoIndice !== rel.indice) {
+      if (SONIDOS.avisoUnMinuto && restante === 30 && sonadoMinutoIndice !== rel.indice) {
         sonadoMinutoIndice = rel.indice;
         sonido.unMinuto();
       }
