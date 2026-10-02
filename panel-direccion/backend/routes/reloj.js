@@ -8,6 +8,7 @@ const PlantillaPremios = require('../models/PlantillaPremios');
 const { PLANTILLAS_INICIALES } = require('../data/plantillasIniciales');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { diaOperativo } = require('../utils/diaOperativo');
+const { TEMAS, esTemaValido, getTema, setTema } = require('../utils/relojTemas');
 const {
   estadoEfectivo,
   entradaEn,
@@ -194,7 +195,14 @@ async function transaccionesDelDia() {
     .lean();
 }
 
+// Vista de la pantalla + el tema (apariencia) elegido para la TV.
 async function vistaActual() {
+  const vista = await vistaDelTorneo();
+  vista.tema = await getTema();
+  return vista;
+}
+
+async function vistaDelTorneo() {
   const torneo = await torneoActivo();
   if (!torneo) return { sinTorneo: true, serverNow: Date.now() };
 
@@ -253,7 +261,7 @@ router.get('/pantalla', async (req, res) => {
 router.get('/', ...soloDireccion, async (req, res) => {
   try {
     const torneo = await torneoActivo();
-    if (!torneo) return res.json({ sinTorneo: true, serverNow: Date.now() });
+    if (!torneo) return res.json({ sinTorneo: true, serverNow: Date.now(), tema: await getTema(), temas: TEMAS });
 
     const { reloj, enPrueba } = await relojDeTrabajo(torneo);
     const vista = await vistaActual();
@@ -262,6 +270,7 @@ router.get('/', ...soloDireccion, async (req, res) => {
 
     res.json({
       ...vista,
+      temas: TEMAS,
       config: {
         stackInicial: r.stackInicial,
         stackReentry: r.stackReentry,
@@ -298,6 +307,20 @@ router.get('/', ...soloDireccion, async (req, res) => {
   } catch (err) {
     console.error('Error obteniendo reloj:', err);
     res.status(500).json({ error: 'Error al obtener el reloj.' });
+  }
+});
+
+// PUT /api/reloj/tema -> apariencia de la pantalla de la TV. Es un
+// ajuste general (no depende del torneo ni del modo prueba).
+router.put('/tema', ...soloDireccion, async (req, res) => {
+  try {
+    const tema = req.body && req.body.tema;
+    if (!esTemaValido(tema)) return res.status(400).json({ error: 'Tema de pantalla no válido.' });
+    await setTema(tema);
+    res.json({ tema });
+  } catch (err) {
+    console.error('Error guardando tema del reloj:', err);
+    res.status(500).json({ error: 'Error al guardar la apariencia de la pantalla.' });
   }
 });
 

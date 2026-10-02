@@ -1891,6 +1891,20 @@
 
       </div>
 
+      <!-- APARIENCIA DE LA PANTALLA DE LA TV -->
+      <div class="panel">
+        <h2>Pantalla de la TV</h2>
+        <p class="sub">Apariencia del reloj en la TV del salón. Es un ajuste general (no depende del torneo) y la TV cambia
+          sola en unos segundos.</p>
+        <div class="row">
+          <div class="field" style="max-width:520px">
+            <label>Apariencia</label>
+            <select id="relojTema"></select>
+            <div class="rake-help" id="relojTemaAyuda"></div>
+          </div>
+        </div>
+      </div>
+
 
 
       <!-- TABLA DE PREMIOS -->
@@ -2226,6 +2240,11 @@
           Cancelar
         </button>
 
+        <!-- Opcion adicional (solo aparece si se pide, ej. "Fin de jornada") -->
+        <button id="confirmExtra" class="btn hidden">
+          Otra opción
+        </button>
+
         <button id="confirmAccept" class="btn btn-confirm">
           Confirmar
         </button>
@@ -2323,10 +2342,13 @@
 
     let confirmResolve = null;
 
+    // Devuelve true (confirmar), false (cancelar) o 'extra' si se pasó
+    // extraText y se tocó ese botón.
     function openConfirmModal({
       title,
       message,
-      confirmText = 'Confirmar'
+      confirmText = 'Confirmar',
+      extraText = null
     }) {
 
       $('confirmTitle').textContent = title;
@@ -2334,6 +2356,9 @@
       $('confirmText').textContent = message;
 
       $('confirmAccept').textContent = confirmText;
+
+      $('confirmExtra').textContent = extraText || '';
+      $('confirmExtra').classList.toggle('hidden', !extraText);
 
       $('confirmModal').classList.remove('hidden');
 
@@ -2369,6 +2394,10 @@
 
     $('confirmAccept').onclick =
       () => closeConfirmModal(true);
+
+
+    $('confirmExtra').onclick =
+      () => closeConfirmModal('extra');
 
 
     $('confirmModal').onclick = e => {
@@ -4541,12 +4570,17 @@
     $('refreshRotacion').onclick = loadTablero;
 
     window.enviarDescanso = async (id) => {
-      const confirmado = await openConfirmModal({
+      const eleccion = await openConfirmModal({
         title: '¿Enviar a descanso?',
-        message: 'El pagador va a quedar en la cola de descanso y la mesa queda libre.',
-        confirmText: 'Enviar a descanso'
+        message: 'El pagador va a quedar en la cola de descanso y la mesa queda libre. Si terminó su turno, podés finalizar la jornada directamente.',
+        confirmText: 'Enviar a descanso',
+        extraText: 'Fin de jornada'
       });
-      if (!confirmado) return;
+      if (!eleccion) return;
+      if (eleccion === 'extra') {
+        await finalizarJornada(id);
+        return;
+      }
 
       try {
         const r = await api('/pagadores/' + id + '/descanso', { method: 'POST' });
@@ -4566,7 +4600,12 @@
         confirmText: 'Finalizar'
       });
       if (!confirmado) return;
+      await finalizarJornada(id);
+    };
 
+    // Finaliza la jornada sin volver a preguntar (la confirmación la hace
+    // quien la llama: el botón "Fin de jornada" o el modal de descanso).
+    async function finalizarJornada(id) {
       try {
         const r = await api('/pagadores/' + id + '/disponible', { method: 'POST' });
         const d = await r.json();
@@ -4577,7 +4616,7 @@
       } catch (e) {
         showToast('No se pudo actualizar', e.message, 'error');
       }
-    };
+    }
 
     window.confirmarRelevo = async (relevadoId, relevadorId) => {
       const confirmado = await openConfirmModal({
@@ -4713,6 +4752,7 @@
 
     function renderReloj() {
       const d = relojData;
+      renderRelojTema();
 
       if (!d || d.sinTorneo) {
         $('relojAviso').innerHTML = '<div class="msg warn" style="margin:0 0 18px">No hay un torneo activo. Configuralo en la pestaña Torneo.</div>';
@@ -4762,7 +4802,7 @@
 
       // Datos
       const j = d.jugadores;
-      $('relojRestantes').textContent = j.restantes;
+      $('relojRestantes').textContent = `${j.restantes} / ${j.buyins}`;
       $('relojEntradas').textContent = j.entradasTotales;
       $('relojEntradasDetalle').textContent = `${j.buyins} buy-ins · ${j.reentradas} re-entradas · ${j.eliminaciones} eliminados`;
       $('relojPozo').textContent = money(d.pozo);
@@ -4850,6 +4890,43 @@
         loadReloj();
       } catch (e) {
         showToast('No se pudo guardar', e.message, 'error');
+      }
+    };
+
+    /* ---------- Apariencia de la pantalla (tema) ---------- */
+
+    function renderRelojTema() {
+      const sel = $('relojTema');
+      const d = relojData;
+      if (!sel || !d || !Array.isArray(d.temas)) return;
+      if (document.activeElement === sel) return; // no pisar mientras se elige
+      if (sel.options.length !== d.temas.length) {
+        sel.innerHTML = d.temas.map(t => `<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join('');
+      }
+      sel.value = d.tema || 'clasico';
+      const t = d.temas.find(x => x.id === sel.value);
+      $('relojTemaAyuda').textContent = t && t.fondo
+        ? `Imagen de fondo: renderer/${t.fondo} (para cambiarla, reemplazá ese archivo).`
+        : '';
+    }
+
+    $('relojTema').onchange = async () => {
+      const sel = $('relojTema');
+      try {
+        const r = await api('/reloj/tema', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tema: sel.value })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        if (relojData) relojData.tema = d.tema;
+        sel.blur();
+        renderRelojTema();
+        showToast('Apariencia guardada', 'La TV cambia en unos segundos.');
+      } catch (e) {
+        showToast('No se pudo cambiar la apariencia', e.message, 'error');
+        loadReloj();
       }
     };
 

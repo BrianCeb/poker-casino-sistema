@@ -21,6 +21,15 @@
 
     TIPOGRAFÍA: Anton (Google Fonts). Si la PC no tiene internet, usa
     Impact, que viene con Windows y es casi igual.
+
+    TEMAS: la apariencia se elige desde Dirección → Reloj → Configuración
+    y premios → "Pantalla de la TV". Cada tema es una clase en el body
+    (tema-clasico, tema-crema) con sus estilos al final del <style>.
+      · Clásico: fondo reloj-fondo.jpg, Anton, dorado sobre oscuro.
+      · Crema: fondo reloj-fondo-crema.jpg, Oswald (renderer/fuentes),
+        textos marrón y dorado oscuro sobre fondo claro.
+    Para cambiar la imagen de un tema basta con reemplazar su .jpg en
+    renderer/ (mismo nombre).
   -->
 
   <style>
@@ -79,7 +88,8 @@
     .pantalla {
       height: 100vh;
       display: grid;
-      grid-template-columns: 26vw 1fr 26vw;
+      /* Izquierda (premios) más ancha, derecha (datos) más angosta */
+      grid-template-columns: 30vw 1fr 22vw;
       gap: 1.5vw;
       padding: 3vh 2vw 2.5vh
     }
@@ -109,7 +119,7 @@
     }
 
     .grande {
-      font-size: 6.4vh;
+      font-size: 7.6vh;
       line-height: 1.1
     }
 
@@ -127,6 +137,9 @@
       flex-direction: column
     }
 
+    /* El tamaño de letra de la lista lo ajusta el script para que
+       entren TODOS los puestos: arranca grande, achica si hace falta y,
+       como último recurso, pasa a dos columnas. */
     .lista-premios {
       flex: 1;
       min-height: 0;
@@ -134,7 +147,8 @@
       display: grid;
       grid-auto-rows: min-content;
       gap: .3vh;
-      margin-top: 1vh
+      margin-top: 1vh;
+      font-size: 5vh
     }
 
     .lista-premios.dos-columnas {
@@ -146,16 +160,8 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      font-size: 3.8vh;
-      padding: 0 .4vw
-    }
-
-    .lista-premios.compacta .premio {
-      font-size: 3vh
-    }
-
-    .lista-premios.dos-columnas .premio {
-      font-size: 2.5vh
+      padding: 0 .4vw;
+      line-height: 1.15
     }
 
     .premio .puesto {
@@ -197,7 +203,7 @@
     }
 
     .nivel.descanso {
-      color: var(--oro1)
+      color: var(--verde)
     }
 
     .estado {
@@ -313,8 +319,8 @@
       justify-content: space-between;
       align-items: baseline;
       gap: 1vw;
-      padding: .5vh .4vw;
-      font-size: 3.9vh
+      padding: .4vh .3vw;
+      font-size: 3.3vh
     }
 
     .fila-dato+.fila-dato {
@@ -323,7 +329,7 @@
 
     .fila-dato .etq {
       color: var(--tenue);
-      font-size: 3.2vh;
+      font-size: 2.6vh;
       text-align: left
     }
 
@@ -332,15 +338,27 @@
     }
 
     .detalles .fila-dato {
-      font-size: 3.3vh
+      font-size: 2.7vh
     }
 
     .detalles .fila-dato .etq {
-      font-size: 2.8vh
+      font-size: 2.2vh
+    }
+
+    .detalles .rotulo {
+      font-size: 2.2vh
+    }
+
+    /* "153 / 160": restantes / inscriptos. Mismo tamaño, el total
+       más tenue para que se distinga. */
+    .de-total {
+      color: var(--tenue);
+      opacity: .75;
+      margin-left: .15em
     }
 
     .registro-abierto {
-      color: var(--oro1)
+      color: var(--verde)
     }
 
     .registro-cerrado {
@@ -432,10 +450,176 @@
     .oculto {
       display: none !important
     }
+
+    /* =====================================================
+       TEMA CREMA · "Crema y dorado oscuro" + Oswald
+       (el tema clásico son los estilos de arriba, sin cambios)
+       ===================================================== */
+
+    @font-face {
+      font-family: 'Oswald';
+      font-weight: 400;
+      font-display: swap;
+      src: url('/fuentes/oswald-400.woff2') format('woff2')
+    }
+
+    @font-face {
+      font-family: 'Oswald';
+      font-weight: 500;
+      font-display: swap;
+      src: url('/fuentes/oswald-500.woff2') format('woff2')
+    }
+
+    @font-face {
+      font-family: 'Oswald';
+      font-weight: 700;
+      font-display: swap;
+      src: url('/fuentes/oswald-700.woff2') format('woff2')
+    }
+
+    body.tema-crema {
+      /* Colores del tema: cambiar acá para retocarlo */
+      --c-oscuro: #3A2A12;
+      /* reloj, títulos, montos */
+      --c-dorado: #8A6A1F;
+      /* nivel, ciegas, pozo, 1er premio */
+      --tenue: #8C7A5C;
+      /* rótulos */
+      --verde: #1E8E4E;
+      --rojo: #C62828;
+      --caja: rgba(255, 252, 242, .7);
+      --borde: rgba(138, 106, 31, .25);
+      --fuente: 'Oswald', 'Arial Narrow', sans-serif;
+
+      background:
+        url('reloj-fondo-crema.jpg') center / cover no-repeat,
+        radial-gradient(ellipse at 50% 40%, #FFF9EC 0%, #EFE3C8 100%);
+      color: var(--c-oscuro)
+    }
+
+    /* Sin degradé ni sombras: sobre fondo claro se lee mejor liso */
+    body.tema-crema .oro {
+      background: none;
+      -webkit-background-clip: border-box;
+      background-clip: border-box;
+      color: var(--c-dorado);
+      filter: none
+    }
+
+    body.tema-crema .sombra {
+      text-shadow: none
+    }
+
+    body.tema-crema .bloque {
+      box-shadow: 0 .6vh 2vh rgba(0, 0, 0, .08)
+    }
+
+    /* Pesos: números en negrita, rótulos finos */
+    body.tema-crema .grande,
+    body.tema-crema .mediano,
+    body.tema-crema .tiempo,
+    body.tema-crema .torneo-nombre,
+    body.tema-crema .ciegas,
+    body.tema-crema .premio .monto,
+    body.tema-crema .fila-dato {
+      font-weight: 700
+    }
+
+    body.tema-crema .rotulo,
+    body.tema-crema .ciegas-rotulo,
+    body.tema-crema .ciegas-leyenda,
+    body.tema-crema .fila-dato .etq,
+    body.tema-crema .premio .puesto {
+      font-weight: 400;
+      color: var(--tenue)
+    }
+
+    body.tema-crema .nivel,
+    body.tema-crema .proximo .valor {
+      font-weight: 500
+    }
+
+    /* Colores por elemento (igual que la variante C2) */
+    body.tema-crema .torneo-nombre,
+    body.tema-crema .tiempo,
+    body.tema-crema .proximo .valor,
+    body.tema-crema .premio .monto,
+    body.tema-crema .fila-dato .val {
+      color: var(--c-oscuro)
+    }
+
+    body.tema-crema .nivel.oro,
+    body.tema-crema .ciegas,
+    body.tema-crema .grande.oro,
+    body.tema-crema .mediano.oro,
+    body.tema-crema .premio:first-child .monto {
+      color: var(--c-dorado)
+    }
+
+    body.tema-crema .nivel.descanso {
+      color: var(--verde)
+    }
+
+    body.tema-crema .fila-dato .val.registro-abierto {
+      color: var(--verde)
+    }
+
+    body.tema-crema .fila-dato .val.registro-cerrado {
+      color: var(--rojo)
+    }
+
+    body.tema-crema .fila-dato+.fila-dato {
+      border-top-color: rgba(0, 0, 0, .08)
+    }
+
+    body.tema-crema .de-total {
+      opacity: 1
+    }
+
+    /* Reloj: Oswald es más angosta, así que va un poco más grande */
+    body.tema-crema .tiempo {
+      font-size: 28vh
+    }
+
+    body.tema-crema .tiempo span {
+      width: .5em
+    }
+
+    body.tema-crema .ciegas {
+      font-size: 11vh
+    }
+
+    body.tema-crema .tiempo.ultimo-minuto span {
+      background: none;
+      color: var(--rojo)
+    }
+
+    body.tema-crema .estado {
+      background: rgba(255, 255, 255, .85);
+      color: var(--c-dorado);
+      border-color: var(--c-dorado)
+    }
+
+    body.tema-crema .estado.fin {
+      color: var(--rojo);
+      border-color: var(--rojo)
+    }
+
+    body.tema-crema .mensaje-central {
+      background: rgba(250, 244, 230, .92)
+    }
+
+    body.tema-crema .conexion {
+      background: var(--verde)
+    }
+
+    body.tema-crema .conexion.error {
+      background: var(--rojo)
+    }
   </style>
 </head>
 
-<body>
+<body class="tema-clasico">
 
   <div class="pantalla">
 
@@ -594,7 +778,29 @@
       ['torneoNombre', 'ciegas', 'proximo'].forEach(id => ajustarAncho($(id), ancho));
     }
 
-    window.addEventListener('resize', ajustarTextos);
+    window.addEventListener('resize', () => { ajustarTextos(); ajustarPremios(); });
+
+    // La lista de premios tiene que mostrar TODOS los puestos: se prueba
+    // de mayor a menor tamaño de letra y, si en una columna no entra,
+    // se pasa a dos columnas.
+    const TAMANOS_PREMIOS = [5, 4.6, 4.2, 3.8, 3.4, 3.1, 2.8];
+    const TAMANOS_PREMIOS_2COL = [3.2, 2.9, 2.6, 2.3, 2, 1.8];
+
+    function ajustarPremios() {
+      const lista = $('premios');
+      if (!lista || !lista.children.length) return;
+      const entra = () => lista.scrollHeight <= lista.clientHeight + 1;
+      lista.classList.remove('dos-columnas');
+      for (const t of TAMANOS_PREMIOS) {
+        lista.style.fontSize = t + 'vh';
+        if (entra()) return;
+      }
+      lista.classList.add('dos-columnas');
+      for (const t of TAMANOS_PREMIOS_2COL) {
+        lista.style.fontSize = t + 'vh';
+        if (entra()) return;
+      }
+    }
 
     // Puesto abreviado: 1ro, 2do, 3ro, 4to... (la "º" en la tipografía
     // del reloj se confunde con un cero).
@@ -621,9 +827,10 @@
     // CONFIGURACIÓN: cambiar acá si quieren más o menos avisos.
     const SONIDOS = {
       volumen: 0.8,          // 0 a 1
-      avisoUnMinuto: true,   // campanita cuando falta 1 minuto
-      cuentaRegresiva: 5,   // pitido en cada uno de los últimos N segundos (0 = no)
-      finDeNivel: true       // melodía al terminar el nivel o el descanso
+      avisoUnMinuto: false,  // aviso antes de terminar el nivel (elegido: A11 "Sin aviso")
+      segundosAviso: 30,     // cuántos segundos antes suena la campanita
+      cuentaRegresiva: 10,   // pitido en cada uno de los últimos N segundos (0 = no) — B13 "Grave"
+      finDeNivel: true       // al terminar el nivel o el descanso — C3 "Campanada grave"
     };
 
     let audio = null;
@@ -657,12 +864,42 @@
       }
     }
 
+    // Una nota suelta que arranca "retraso" segundos después de ahora.
+    function nota(frecuencia, retraso, duracion, tipo = 'sine', intensidad = 1) {
+      try {
+        const ctx = contextoAudio();
+        const t = ctx.currentTime + 0.02 + retraso;
+        const osc = ctx.createOscillator();
+        const vol = ctx.createGain();
+        osc.type = tipo;
+        osc.frequency.value = frecuencia;
+        vol.gain.setValueAtTime(0.0001, t);
+        vol.gain.exponentialRampToValueAtTime(Math.max(0.0002, SONIDOS.volumen * intensidad), t + 0.01);
+        vol.gain.exponentialRampToValueAtTime(0.0001, t + duracion);
+        osc.connect(vol).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + duracion + 0.05);
+      } catch (e) {
+        console.warn('No se pudo reproducir sonido:', e);
+      }
+    }
+
+    // Campana: suma de parciales inarmónicos que se apagan a distinto ritmo.
+    function campana(frecuencia, retraso, duracion = 1.6, intensidad = 1) {
+      [[1, 1], [2.0, .5], [2.76, .35], [5.4, .18], [8.93, .08]].forEach(([m, v]) =>
+        nota(frecuencia * m, retraso, duracion * (1.2 - m / 12), 'sine', intensidad * v));
+    }
+
+    // Sonidos elegidos en las páginas de prueba (sonidos-reloj.html):
+    //   aviso A11 "Sin aviso" (queda apagado con avisoUnMinuto: false)
+    //   cuenta regresiva B13 "Grave"
+    //   cambio de nivel C3 "Campanada grave"
     const sonido = {
-      prueba: () => tocar([[660, 0.12]]),
-      unMinuto: () => tocar([[660, 0.35], [880, 0.6]], 'sine', 0.08),
-      segundo: () => tocar([[880, 0.12]], 'square', 0),
-      ultimosSegundos: () => tocar([[1175, 0.15]], 'square', 0),
-      finDeNivel: () => tocar([[523, 0.18], [659, 0.18], [784, 0.18], [1046, 0.7]], 'triangle', 0.03)
+      prueba: () => campana(392, 0, 1.2, .6),
+      unMinuto: () => tocar([[660, 0.35], [880, 0.6]], 'sine', 0.08), // se usa solo si se reactiva el aviso
+      segundo: () => nota(220, 0, 0.2, 'triangle'),
+      ultimosSegundos: () => nota(330, 0, 0.2, 'triangle'),
+      finDeNivel: () => [0, 0.8, 1.6].forEach(d => campana(392, d, 2.6, 0.9))
     };
 
     // Control para no repetir sonidos: se guarda qué nivel ya sonó y
@@ -675,7 +912,7 @@
       if (rel.estado !== 'corriendo' || rel.sinEstructura) return;
       const restante = Math.ceil(seg);
 
-      if (SONIDOS.avisoUnMinuto && restante === 30 && sonadoMinutoIndice !== rel.indice) {
+      if (SONIDOS.avisoUnMinuto && restante === SONIDOS.segundosAviso && sonadoMinutoIndice !== rel.indice) {
         sonadoMinutoIndice = rel.indice;
         sonido.unMinuto();
       }
@@ -724,6 +961,7 @@
         datos = d;
         recibidoEn = Date.now();
         $('conexion').classList.remove('error');
+        aplicarTema(d.tema);
         dibujar();
       } catch (e) {
         // Sin conexión: se sigue descontando con los últimos datos.
@@ -731,6 +969,27 @@
       } finally {
         pidiendo = false;
       }
+    }
+
+
+    /* ---------- Tema (apariencia) ---------- */
+    // Lo elige Dirección; la pantalla lo toma en la próxima consulta.
+    const TEMAS_CONOCIDOS = ['clasico', 'crema'];
+    let temaActual = 'clasico';
+
+    function aplicarTema(tema) {
+      if (!TEMAS_CONOCIDOS.includes(tema)) tema = 'clasico';
+      if (tema === temaActual) return;
+      document.body.classList.remove('tema-' + temaActual);
+      document.body.classList.add('tema-' + tema);
+      temaActual = tema;
+      // Cambia la tipografía: se recalculan los tamaños cuando cargue.
+      document.fonts.ready.then(() => { ajustarTextos(); ajustarPremios(); });
+    }
+
+    // Si una fuente termina de cargar después de dibujar, reajustar.
+    if (document.fonts && document.fonts.addEventListener) {
+      document.fonts.addEventListener('loadingdone', () => { ajustarTextos(); ajustarPremios(); });
     }
 
 
@@ -794,17 +1053,18 @@
 
       const grupos = agruparPremios(d.premios);
       const lista = $('premios');
-      lista.classList.toggle('compacta', grupos.length > 7 && grupos.length <= 12);
-      lista.classList.toggle('dos-columnas', grupos.length > 12);
+      lista.classList.remove('dos-columnas');
       lista.innerHTML = grupos.map(g => `
         <div class="premio">
           <span class="puesto">${g.desde === g.hasta ? puestoTexto(g.desde) : puestoTexto(g.desde) + ' a ' + puestoTexto(g.hasta)}</span>
           <span class="monto">${dinero(g.monto)}</span>
         </div>`).join('');
+      ajustarPremios();
 
       // Datos
       $('entradas').textContent = d.jugadores.entradasTotales;
-      $('restantes').textContent = d.jugadores.restantes;
+      // Restantes / inscriptos (buy-ins), así no se pierde el total
+      $('restantes').innerHTML = `${d.jugadores.restantes}<span class="de-total">/ ${d.jugadores.buyins}</span>`;
       $('reentradas').textContent = d.jugadores.reentradas;
       $('puntos').textContent = numero(d.fichas.puntosTotales);
       $('promedio').textContent = numero(d.fichas.stackPromedio);

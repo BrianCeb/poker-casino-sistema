@@ -3,9 +3,14 @@ const ExcelJS = require('exceljs');
 
 const Transaction = require('../models/Transaction');
 const Tournament = require('../models/Tournament');
+const RelojTorneo = require('../models/RelojTorneo');
 
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { diaOperativo } = require('../utils/diaOperativo');
+
+// Mismas funciones que usa el reloj, para que los premios del Excel
+// salgan identicos a los de la pantalla del salon.
+const { porcentajesPremios, montosPremios } = require('../utils/relojCalculos');
 
 const router = express.Router();
 
@@ -992,6 +997,178 @@ router.get(
             color: {
               argb: 'CCCCCC'
             }
+          }
+        };
+      }
+
+
+      // ==================================================
+      // PREMIOS (puesto y monto, para el informe a fiscalización)
+      // ==================================================
+      //
+      // Se calculan igual que en el reloj: con la configuración de
+      // premios del reloj REAL de ese torneo (nunca la copia de prueba),
+      // los jugadores reales (buy-ins, sin re-entradas) y el pozo de
+      // arriba. Si el torneo nunca tuvo reloj configurado, se usa la
+      // tabla automática de la casa (12,5% pagos, redondeo a $1.000).
+      // ==================================================
+
+      const reloj = torneo
+        ? await RelojTorneo
+          .findOne({
+            torneoId: torneo._id
+          })
+          .lean()
+        : null;
+
+      const configPremios = {
+        premios: reloj?.premios || [],
+        porcentajePagados: reloj?.porcentajePagados ?? 12.5
+      };
+
+      const redondeoPremios =
+        reloj?.redondeoPremios ?? 1000;
+
+      const { porcentajes } = porcentajesPremios(
+        buyins.length,
+        configPremios
+      );
+
+      const premios = montosPremios(
+        pozoAcumulado,
+        porcentajes,
+        redondeoPremios
+      );
+
+      const premiosStart =
+        summaryEnd + 3;
+
+      ws.mergeCells(
+        `A${premiosStart}:${lastCol}${premiosStart}`
+      );
+
+      ws.getCell(`A${premiosStart}`).value =
+        'PREMIOS';
+
+      ws.getCell(`A${premiosStart}`).font = {
+        bold: true,
+        size: 14,
+        color: {
+          argb: 'FFFFFFFF'
+        }
+      };
+
+      ws.getCell(`A${premiosStart}`).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: {
+          argb: '0E1A15'
+        }
+      };
+
+      let premiosRow =
+        premiosStart + 1;
+
+      if (!premios.length) {
+
+        ws.getCell(`A${premiosRow}`).value =
+          'Sin premios: no hay buy-ins activos en esta fecha.';
+
+        ws.getCell(`A${premiosRow}`).font = {
+          italic: true,
+          color: {
+            argb: '666666'
+          }
+        };
+
+        premiosRow++;
+
+      } else {
+
+        // Encabezado Puesto / Monto
+        ws.getCell(`A${premiosRow}`).value = 'Puesto';
+        ws.getCell(`B${premiosRow}`).value = 'Monto';
+
+        for (const col of ['A', 'B']) {
+          ws.getCell(`${col}${premiosRow}`).font = {
+            bold: true,
+            color: {
+              argb: 'FFFFFFFF'
+            }
+          };
+
+          ws.getCell(`${col}${premiosRow}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {
+              argb: '1B2E27'
+            }
+          };
+        }
+
+        premiosRow++;
+
+        premios.forEach((p, i) => {
+
+          ws.getCell(`A${premiosRow}`).value =
+            `${i + 1}°`;
+
+          ws.getCell(`B${premiosRow}`).value =
+            p.monto;
+
+          ws.getCell(`B${premiosRow}`).numFmt =
+            '$#,##0';
+
+          for (const col of ['A', 'B']) {
+            ws.getCell(`${col}${premiosRow}`).border = {
+              bottom: {
+                style: 'thin',
+                color: {
+                  argb: 'CCCCCC'
+                }
+              }
+            };
+          }
+
+          premiosRow++;
+        });
+
+        // Total: tiene que dar igual al pozo / prizepool acumulado.
+        ws.getCell(`A${premiosRow}`).value =
+          'Total premios';
+
+        ws.getCell(`B${premiosRow}`).value =
+          premios.reduce((s, p) => s + p.monto, 0);
+
+        ws.getCell(`B${premiosRow}`).numFmt =
+          '$#,##0';
+
+        for (const col of ['A', 'B']) {
+          ws.getCell(`${col}${premiosRow}`).font = {
+            bold: true
+          };
+
+          ws.getCell(`${col}${premiosRow}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {
+              argb: 'E4C55E'
+            }
+          };
+        }
+
+        premiosRow++;
+      }
+
+      if (!reloj) {
+
+        ws.getCell(`A${premiosRow}`).value =
+          'Torneo sin reloj configurado: se usó la tabla automática (12,5% pagos).';
+
+        ws.getCell(`A${premiosRow}`).font = {
+          italic: true,
+          color: {
+            argb: '666666'
           }
         };
       }

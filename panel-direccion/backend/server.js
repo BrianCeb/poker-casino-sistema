@@ -46,10 +46,22 @@ async function startServer(port) {
     res.sendFile(path.join(__dirname, '..', 'renderer', 'reloj.html'));
   });
 
-  // Imagen de fondo del reloj (opcional). Si el archivo no existe, la
-  // pantalla usa un fondo oscuro con degradé.
-  app.get('/reloj-fondo.jpg', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'renderer', 'reloj-fondo.jpg'), err => {
+  // Tipografías del reloj (archivos .woff2 en renderer/fuentes). Solo se
+  // sirven nombres simples terminados en .woff2.
+  app.get('/fuentes/:archivo', (req, res) => {
+    const archivo = req.params.archivo;
+    if (!/^[a-z0-9-]+\.woff2$/i.test(archivo)) return res.status(404).end();
+    res.sendFile(path.join(__dirname, '..', 'renderer', 'fuentes', archivo), err => {
+      if (err && !res.headersSent) res.status(404).end();
+    });
+  });
+
+  // Imágenes de fondo del reloj (opcionales), una por tema:
+  // reloj-fondo.jpg (clásico), reloj-fondo-crema.jpg (crema), etc.
+  // Si el archivo no existe, la pantalla usa un fondo hecho con degradé.
+  app.get(/^\/reloj-fondo(-[a-z0-9]+)?\.jpg$/, (req, res) => {
+    const archivo = req.path.slice(1);
+    res.sendFile(path.join(__dirname, '..', 'renderer', archivo), err => {
       if (err && !res.headersSent) res.status(404).end();
     });
   });
