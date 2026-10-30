@@ -68,6 +68,7 @@ async function obtenerReloj(torneoId) {
     cierreRegistroNivel: anterior.cierreRegistroNivel,
     porcentajePagados: anterior.porcentajePagados,
     redondeoPremios: anterior.redondeoPremios,
+    jugadoresMesaFinal: anterior.jugadoresMesaFinal,
     niveles: anterior.niveles,
     premios: anterior.premios,
     premiosPlantilla: anterior.premiosPlantilla || ''
@@ -88,7 +89,7 @@ async function obtenerReloj(torneoId) {
 const CAMPOS_CONFIG = [
   'stackInicial', 'stackReentry', 'reentradasIlimitadas', 'maxReentradas',
   'cierreRegistroNivel', 'porcentajePagados', 'redondeoPremios', 'niveles', 'premios',
-  'premiosPlantilla'
+  'premiosPlantilla', 'jugadoresMesaFinal'
 ];
 
 function copiarConfig(origen) {
@@ -195,10 +196,15 @@ async function transaccionesDelDia() {
     .lean();
 }
 
+// "Probar anuncio" del panel: queda en memoria 30 segundos para que la
+// TV lo tome en su próxima consulta. No se guarda en la base.
+let anuncioPrueba = null;
+
 // Vista de la pantalla + el tema (apariencia) elegido para la TV.
 async function vistaActual() {
   const vista = await vistaDelTorneo();
   vista.tema = await getTema();
+  if (anuncioPrueba && Date.now() - anuncioPrueba.id < 30000) vista.anuncioPrueba = anuncioPrueba;
   return vista;
 }
 
@@ -279,6 +285,7 @@ router.get('/', ...soloDireccion, async (req, res) => {
         cierreRegistroNivel: r.cierreRegistroNivel,
         porcentajePagados: r.porcentajePagados,
         redondeoPremios: r.redondeoPremios,
+        jugadoresMesaFinal: r.jugadoresMesaFinal === undefined ? 8 : r.jugadoresMesaFinal,
         niveles: r.niveles,
         premios: r.premios,
         premiosPlantilla: r.premiosPlantilla || ''
@@ -308,6 +315,14 @@ router.get('/', ...soloDireccion, async (req, res) => {
     console.error('Error obteniendo reloj:', err);
     res.status(500).json({ error: 'Error al obtener el reloj.' });
   }
+});
+
+// POST /api/reloj/probar-anuncio -> body { tipo: 'burbuja' | 'festejo' }
+// Muestra en la TV el anuncio grande, para verlo sin esperar una burbuja.
+router.post('/probar-anuncio', ...soloDireccion, (req, res) => {
+  const tipo = (req.body || {}).tipo === 'festejo' ? 'festejo' : 'burbuja';
+  anuncioPrueba = { id: Date.now(), tipo };
+  res.json({ ok: true, tipo });
 });
 
 // PUT /api/reloj/tema -> apariencia de la pantalla de la TV. Es un
@@ -347,7 +362,8 @@ router.put('/config', ...soloDireccion, async (req, res) => {
       enteroNoNegativo('stackReentry', 'El stack de re-entry'),
       enteroNoNegativo('maxReentradas', 'El máximo de re-entradas'),
       enteroNoNegativo('cierreRegistroNivel', 'El nivel de cierre de registro'),
-      enteroNoNegativo('redondeoPremios', 'El redondeo de premios')
+      enteroNoNegativo('redondeoPremios', 'El redondeo de premios'),
+      enteroNoNegativo('jugadoresMesaFinal', 'Los jugadores de la mesa final')
     ].filter(Boolean);
     if (errores.length) return res.status(400).json({ error: errores[0] });
 
@@ -616,11 +632,13 @@ router.put('/prueba', ...soloDireccion, async (req, res) => {
       copia.segundosConsumidos = 0;
       copia.inicioNivel = null;
       copia.eliminaciones = 0;
+      copia.renuncias = [];
     }
     if (b.reiniciar) {
       cantidades.buyins = 0;
       cantidades.reentradas = 0;
       copia.eliminaciones = 0;
+      copia.renuncias = [];
     }
     for (const [campo, v] of Object.entries(cantidades)) copia.set('prueba.' + campo, v);
 
@@ -763,6 +781,24 @@ router.post('/accion', ...soloDireccion, async (req, res) => {
       case 'deshacerEliminacion':
         if (reloj.eliminaciones <= 0) return res.status(409).json({ error: 'No hay eliminaciones para deshacer.' });
         reloj.eliminaciones -= 1;
+        break;
+
+      // Fichas renunciadas (surrender): body { accion, cantidad }
+      case 'renunciar': {
+        const cantidad = Number((req.body || {}).cantidad);
+        if (!Number.isInteger(cantidad) || cantidad <= 0) {
+          return res.status(400).json({ error: 'Las fichas renunciadas deben ser un número entero mayor a 0.' });
+        }
+        if (cantidad > 1e9) return res.status(400).json({ error: 'La cantidad de fichas no es válida.' });
+        reloj.renuncias.push({ cantidad, en: new Date() });
+        break;
+      }
+
+      case 'deshacerRenuncia':
+        if (!reloj.renuncias || !reloj.renuncias.length) {
+          return res.status(409).json({ error: 'No hay fichas renunciadas para deshacer.' });
+        }
+        reloj.renuncias.pop();
         break;
 
       default:

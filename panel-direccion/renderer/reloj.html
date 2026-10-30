@@ -24,10 +24,15 @@
 
     TEMAS: la apariencia se elige desde Dirección → Reloj → Configuración
     y premios → "Pantalla de la TV". Cada tema es una clase en el body
-    (tema-clasico, tema-crema) con sus estilos al final del <style>.
+    (tema-clasico, tema-crema, ...) con sus estilos al final del <style>.
       · Clásico: fondo reloj-fondo.jpg, Anton, dorado sobre oscuro.
       · Crema: fondo reloj-fondo-crema.jpg, Oswald (renderer/fuentes),
         textos marrón y dorado oscuro sobre fondo claro.
+      · Funny Sundays: fondo reloj-fondo-funny.jpg, como el clásico pero
+        con el nombre en neón de dos tonos (Chewy, renderer/fuentes).
+        La firma de Arena Poker se agrega aparte (reloj-firma.png).
+      · Bounty Hunter: fondo reloj-fondo-bounty.jpg (con el logo), colores
+        del crema, Black Ops One; no muestra el nombre del torneo.
     Para cambiar la imagen de un tema basta con reemplazar su .jpg en
     renderer/ (mismo nombre).
   -->
@@ -40,9 +45,15 @@
       --tenue: rgba(255, 236, 200, .72);
       --rojo: #FF4D3D;
       --verde: #3FE08A;
-      /* Transparencia de los bloques: 0 = invisible, 1 = negro total */
-      --caja: rgba(0, 0, 0, .2);
-      --borde: rgba(255, 170, 40, .18);
+      /* Verde del punto de conexión (arriba a la derecha) y del registro
+         abierto; rojo de alerta para el registro cerrado */
+      --conectado: #2DA163;
+      --alerta: #FF3B30;
+      /* Recuadros de los bloques: sin recuadro, el texto queda "en el
+         aire" sobre el fondo. Para volver a mostrarlos:
+         --caja: rgba(0, 0, 0, .2);  --borde: rgba(255, 170, 40, .18); */
+      --caja: transparent;
+      --borde: transparent;
       --fuente: 'Anton', Impact, 'Arial Narrow Bold', sans-serif
     }
 
@@ -88,8 +99,14 @@
     .pantalla {
       height: 100vh;
       display: grid;
-      /* Izquierda (premios) más ancha, derecha (datos) más angosta */
-      grid-template-columns: 30vw 1fr 22vw;
+      /* Izquierda (premios) más ancha, derecha (datos) más angosta.
+         Las dos columnas de los costados reservan el mismo ancho (30vw)
+         para que el centro (reloj) quede justo en la mitad de la
+         pantalla, alineado con la firma del fondo; la columna derecha
+         usa solo 22vw pegada al borde (ver .columna.derecha). */
+      grid-template-columns: 30vw 1fr 30vw;
+      /* Una sola fila del alto de la pantalla: nada la puede estirar */
+      grid-template-rows: minmax(0, 1fr);
       gap: 1.5vw;
       padding: 3vh 2vw 2.5vh
     }
@@ -98,6 +115,31 @@
       display: flex;
       flex-direction: column;
       gap: 2vh;
+      min-height: 0
+    }
+
+    /* Mismo ancho que la columna de premios: los datos quedan a la
+       misma distancia del reloj que los premios estimados. */
+    /* Los bloques de la derecha se reparten en todo el alto: los
+       detalles del torneo bajan y el descanso queda abajo de todo. */
+    .columna.derecha {
+      width: 30vw;
+      justify-self: end;
+      gap: 1.2vh
+    }
+
+    .columna.derecha .bloque {
+      padding-top: 1vh;
+      padding-bottom: 1vh
+    }
+
+    /* "Detalles del torneo" se estira hasta el descanso (que queda
+       abajo de todo) y reparte sus renglones en ese alto. */
+    .columna.derecha .detalles {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
       min-height: 0
     }
 
@@ -152,20 +194,29 @@
     }
 
     .lista-premios.dos-columnas {
-      grid-template-columns: 1fr 1fr;
-      column-gap: 1vw
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-auto-flow: column;
+      column-gap: 2vw
     }
 
     .premio {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
+      gap: .8vw;
       padding: 0 .4vw;
       line-height: 1.15
     }
 
     .premio .puesto {
       color: var(--tenue)
+    }
+
+    /* Puesto y monto nunca se parten en dos renglones: si no entran, el
+       ajuste automático achica la letra. */
+    .premio .puesto,
+    .premio .monto {
+      white-space: nowrap
     }
 
     .premio:first-child .monto {
@@ -176,16 +227,88 @@
 
     /* El padding de abajo deja libre la marca (logo) que viene en la
        imagen de fondo. Si cambian el fondo, ajustar --espacio-logo. */
+    /* Tres partes: arriba (nombre), en el medio el nivel pegado al reloj
+       y abajo las ciegas. Arriba y abajo van a los extremos y el reloj
+       queda en el medio con el mismo aire a cada lado. */
     .centro {
       --espacio-logo: 14vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+      justify-items: center;
       text-align: center;
       min-width: 0;
+      min-height: 0;
       padding-bottom: var(--espacio-logo)
     }
+
+    .centro .arriba {
+      width: 100%;
+      position: relative;
+      align-self: start
+    }
+
+    /* El reloj queda en la franja del medio; el nivel cuelga arriba del
+       reloj sin correrlo del centro. */
+    .centro .medio {
+      position: relative
+    }
+
+    .centro .medio .nivel {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0
+    }
+
+    .centro .abajo {
+      align-self: center
+    }
+
+    /* Fondos con la firma abajo (clásico y crema): queda menos alto
+       libre, así que el bloque de ciegas va un poco más compacto. */
+    body.tema-clasico .ciegas,
+    body.tema-crema .ciegas,
+    body.tema-funny .ciegas {
+      font-size: 9vh
+    }
+
+    body.tema-clasico .ciegas-rotulo,
+    body.tema-crema .ciegas-rotulo,
+    body.tema-funny .ciegas-rotulo {
+      font-size: 3vh
+    }
+
+    body.tema-clasico .proximo,
+    body.tema-crema .proximo,
+    body.tema-funny .proximo {
+      margin-top: .6vh
+    }
+
+    body.tema-clasico .proximo .valor,
+    body.tema-crema .proximo .valor,
+    body.tema-funny .proximo .valor {
+      font-size: 4.4vh
+    }
+
+    body.tema-clasico .tiempo {
+      font-size: 25vh
+    }
+
+    /* El cartel "Pausado" flota debajo del nombre: no ocupa lugar */
+    .estado-lugar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      margin-top: 1vh;
+      z-index: 2
+    }
+
+    .centro .medio .nivel {
+      margin-top: 0
+    }
+
+
 
     .torneo-nombre {
       font-size: 9vh;
@@ -238,8 +361,13 @@
     }
 
     /* El reloj: cada dígito en una caja de ancho fijo para que los
-       números no "bailen" al cambiar. */
+       números no "bailen" al cambiar. El ancho de la caja es apenas
+       menos que el ancho real del número en la tipografía (Anton: 0,494)
+       para que queden juntos. Para separarlos más o menos, cambiar
+       --ancho-digito y --ancho-sep. */
     .tiempo {
+      --ancho-digito: .48em;
+      --ancho-sep: .22em;
       font-size: 26vh;
       line-height: .95;
       display: flex;
@@ -248,12 +376,12 @@
 
     .tiempo span {
       display: inline-block;
-      width: .56em;
+      width: var(--ancho-digito);
       text-align: center
     }
 
     .tiempo span.sep {
-      width: .26em
+      width: var(--ancho-sep)
     }
 
     .tiempo.detenido {
@@ -319,8 +447,8 @@
       justify-content: space-between;
       align-items: baseline;
       gap: 1vw;
-      padding: .4vh .3vw;
-      font-size: 3.3vh
+      padding: .35vh .3vw;
+      font-size: 3.6vh
     }
 
     .fila-dato+.fila-dato {
@@ -329,7 +457,7 @@
 
     .fila-dato .etq {
       color: var(--tenue);
-      font-size: 2.6vh;
+      font-size: 2.9vh;
       text-align: left
     }
 
@@ -338,15 +466,15 @@
     }
 
     .detalles .fila-dato {
-      font-size: 2.7vh
+      font-size: 3.4vh
     }
 
     .detalles .fila-dato .etq {
-      font-size: 2.2vh
+      font-size: 2.8vh
     }
 
     .detalles .rotulo {
-      font-size: 2.2vh
+      font-size: 2.9vh
     }
 
     /* "153 / 160": restantes / inscriptos. Mismo tamaño, el total
@@ -358,11 +486,11 @@
     }
 
     .registro-abierto {
-      color: var(--verde)
+      color: var(--conectado)
     }
 
     .registro-cerrado {
-      color: var(--rojo)
+      color: var(--alerta)
     }
 
     /* ---------- Varios ---------- */
@@ -374,8 +502,7 @@
       width: 1.1vh;
       height: 1.1vh;
       border-radius: 50%;
-      background: var(--verde);
-      opacity: .7
+      background: var(--conectado)
     }
 
     .conexion.error {
@@ -447,8 +574,203 @@
       height: 100vh
     }
 
+    /* ---------- Burbuja ---------- */
+
+    .estado-lugar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .6vh
+    }
+
+    /* Cartel que queda mientras dura la burbuja: rojo, late despacio */
+    .cartel-burbuja {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 1.2vh;
+      padding: .35vh 2.2vh;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #FF5A4A 0%, #C81E1E 100%);
+      color: #fff;
+      font-family: var(--fuente);
+      font-size: 3vh;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      text-shadow: 0 .2vh .4vh rgba(0, 0, 0, .45);
+      box-shadow: 0 0 0 .3vh rgba(255, 255, 255, .25), 0 0 2vh rgba(255, 59, 48, .7);
+      animation: latidoBurbuja 1.6s ease-in-out infinite;
+      white-space: nowrap
+    }
+
+    .cartel-burbuja small {
+      font-size: .62em;
+      letter-spacing: .06em;
+      opacity: .92
+    }
+
+    @keyframes latidoBurbuja {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 .3vh rgba(255, 255, 255, .25), 0 0 1.4vh rgba(255, 59, 48, .55)
+      }
+
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 .3vh rgba(255, 255, 255, .35), 0 0 3.2vh rgba(255, 59, 48, .95)
+      }
+    }
+
+    /* Anuncio a pantalla completa (unos segundos) */
+    .anuncio {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2vh;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 50%, rgba(20, 6, 12, .9) 0%, rgba(0, 0, 0, .95) 70%);
+      font-family: var(--fuente);
+      text-align: center;
+      animation: anuncioFondo .5s ease-out both
+    }
+
+    .anuncio.saliendo {
+      animation: anuncioSalida .6s ease-in both
+    }
+
+    .anuncio-titulo {
+      position: relative;
+      font-size: 17vh;
+      line-height: 1;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #FFE27A 0%, #FFB21E 55%, #FF8A00 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 2.5vh rgba(255, 160, 30, .55));
+      animation: anuncioTitulo .9s cubic-bezier(.2, 1.4, .4, 1) both, anuncioBrillo 1.8s ease-in-out .9s infinite;
+      padding: 0 4vw
+    }
+
+    .anuncio.burbuja .anuncio-titulo {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFB3AA 45%, #FF3B30 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 0 2.5vh rgba(255, 59, 48, .7))
+    }
+
+    .anuncio-sub {
+      position: relative;
+      font-size: 5vh;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #FFF4DC;
+      text-shadow: 0 .3vh .6vh rgba(0, 0, 0, .8);
+      animation: anuncioSub .6s ease-out .5s both
+    }
+
+    /* Burbujas (o monedas, en el festejo) que suben */
+    .anuncio-burbujas span {
+      position: absolute;
+      bottom: -15vh;
+      border-radius: 50%;
+      border: .35vh solid rgba(255, 255, 255, .55);
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, .08) 35%, rgba(255, 255, 255, 0) 70%);
+      animation: subir linear infinite
+    }
+
+    .anuncio.festejo .anuncio-burbujas span {
+      border-color: rgba(255, 210, 63, .9);
+      background: radial-gradient(circle at 35% 30%, #FFF1B0 0%, #FFC23A 45%, #C88400 100%)
+    }
+
+    @keyframes subir {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0
+      }
+
+      10% {
+        opacity: 1
+      }
+
+      50% {
+        transform: translate(3vw, -60vh)
+      }
+
+      100% {
+        transform: translate(-2vw, -125vh);
+        opacity: .2
+      }
+    }
+
+    @keyframes anuncioFondo {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes anuncioSalida {
+      to {
+        opacity: 0
+      }
+    }
+
+    @keyframes anuncioTitulo {
+      0% {
+        transform: scale(.3);
+        opacity: 0
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    @keyframes anuncioBrillo {
+      0%, 100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.04)
+      }
+    }
+
+    @keyframes anuncioSub {
+      from {
+        transform: translateY(2vh);
+        opacity: 0
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
+
+
     .oculto {
       display: none !important
+    }
+
+    .firma {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 1.2vh;
+      transform: translateX(-50%);
+      width: 16vw;
+      height: auto;
+      pointer-events: none
     }
 
     /* =====================================================
@@ -487,8 +809,13 @@
       /* rótulos */
       --verde: #1E8E4E;
       --rojo: #C62828;
-      --caja: rgba(255, 252, 242, .7);
-      --borde: rgba(138, 106, 31, .25);
+      /* Sin recuadros. Para volver a mostrarlos:
+         --caja: rgba(255, 252, 242, .86);  --borde: rgba(138, 106, 31, .25); */
+      --caja: transparent;
+      --borde: transparent;
+      /* Halo crema alrededor de las letras: sin recuadro, ayuda a que se
+         lean sobre la ficha y la pica del fondo */
+      --halo: 0 0 .5vh rgba(255, 250, 238, .95), 0 0 1.4vh rgba(255, 250, 238, .85);
       --fuente: 'Oswald', 'Arial Narrow', sans-serif;
 
       background:
@@ -506,12 +833,9 @@
       filter: none
     }
 
+    body.tema-crema .pantalla,
     body.tema-crema .sombra {
-      text-shadow: none
-    }
-
-    body.tema-crema .bloque {
-      box-shadow: 0 .6vh 2vh rgba(0, 0, 0, .08)
+      text-shadow: var(--halo)
     }
 
     /* Pesos: números en negrita, rótulos finos */
@@ -565,7 +889,7 @@
     }
 
     body.tema-crema .fila-dato .val.registro-cerrado {
-      color: var(--rojo)
+      color: #E0241B
     }
 
     body.tema-crema .fila-dato+.fila-dato {
@@ -578,11 +902,13 @@
 
     /* Reloj: Oswald es más angosta, así que va un poco más grande */
     body.tema-crema .tiempo {
-      font-size: 28vh
+      font-size: 26vh
     }
 
-    body.tema-crema .tiempo span {
-      width: .5em
+    /* Oswald: los números miden ~0,51-0,55 */
+    body.tema-crema .tiempo {
+      --ancho-digito: .5em;
+      --ancho-sep: .21em
     }
 
     body.tema-crema .ciegas {
@@ -616,6 +942,203 @@
     body.tema-crema .conexion.error {
       background: var(--rojo)
     }
+
+    /* =====================================================
+       TEMA FUNNY SUNDAYS · fondo oscuro + nombre en neón (Chewy)
+       Mismo estilo dorado que el clásico; cambia el fondo y el nombre:
+       primera palabra en neón rojo, el resto en neón violeta.
+       ===================================================== */
+
+    @font-face {
+      font-family: 'Chewy';
+      font-display: swap;
+      src: url('/fuentes/chewy-400.woff2') format('woff2')
+    }
+
+    body.tema-funny {
+      --neon-1: #FF3B4E;
+      --neon-2: #A855F7;
+      background:
+        url('reloj-fondo-funny.jpg') center / cover no-repeat,
+        radial-gradient(ellipse at 15% 20%, rgba(200, 20, 40, .35) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 80%, rgba(120, 40, 200, .35) 0%, transparent 45%),
+        #050307
+    }
+
+    /* El fondo no trae firma abajo: el centro usa casi todo el alto y
+       el reloj queda justo en la mitad de la pantalla (tres franjas:
+       las de arriba y abajo miden lo mismo). El nivel va pegado arriba
+       del reloj sin correrlo del centro. */
+    /* Este fondo no trae la firma: se agrega como imagen aparte
+       (renderer/reloj-firma.png) y el centro le deja lugar abajo. */
+    body.tema-funny .centro {
+      --espacio-logo: 10vh
+    }
+
+    body.tema-funny .firma {
+      display: block
+    }
+
+    /* El nombre baja al medio del espacio libre entre el borde de arriba
+       y el "— Nivel —" (que cuelga arriba del reloj, ~6vh). */
+    body.tema-funny .centro .arriba {
+      align-self: center;
+      margin-bottom: 6vh
+    }
+
+    body.tema-funny .torneo-nombre {
+      font-family: 'Chewy', 'Arial Rounded MT Bold', sans-serif;
+      font-size: 10vh;
+      text-transform: none;
+      background: none;
+      -webkit-background-clip: border-box;
+      background-clip: border-box;
+      filter: none;
+      color: #FFE8EC
+    }
+
+    body.tema-funny .torneo-nombre .n1 {
+      color: #FFE8EC;
+      text-shadow: 0 0 .4vh #fff, 0 0 1.2vh var(--neon-1), 0 0 2.6vh var(--neon-1), 0 0 5vh var(--neon-1);
+      animation: titileo 9s linear infinite
+    }
+
+    body.tema-funny .torneo-nombre .n2 {
+      color: #F3E8FF;
+      text-shadow: 0 0 .4vh #fff, 0 0 1.2vh var(--neon-2), 0 0 2.6vh var(--neon-2), 0 0 5vh var(--neon-2);
+      /* Otro ritmo y otro arranque: los dos carteles no titilan juntos */
+      animation: titileo 13s linear 4s infinite
+    }
+
+    /* Titileo de neón: casi siempre prendido, y de vez en cuando un par
+       de parpadeos rápidos como un tubo que falla. */
+    @keyframes titileo {
+      0%, 61%, 63.5%, 65%, 100% {
+        opacity: 1
+      }
+
+      62% {
+        opacity: .25
+      }
+
+      64% {
+        opacity: .5
+      }
+
+      64.6% {
+        opacity: .15
+      }
+    }
+
+    /* Las animaciones de la TV (neón, burbuja, anuncios) funcionan
+       siempre, aunque Windows tenga apagados los efectos de animación. */
+
+    /* =====================================================
+       TEMA BOUNTY HUNTER · fondo claro con el logo + Black Ops One
+       Usa los colores del tema crema (el body lleva tema-crema y
+       tema-bounty). El logo del fondo hace de título: el nombre del
+       torneo no se muestra y el reloj arranca debajo del logo.
+       ===================================================== */
+
+    @font-face {
+      font-family: 'Black Ops One';
+      font-display: swap;
+      src: url('/fuentes/black-ops-one-400.woff2') format('woff2')
+    }
+
+    body.tema-bounty {
+      --fuente: 'Black Ops One', 'Arial Black', sans-serif;
+      background:
+        url('reloj-fondo-bounty.jpg') center / cover no-repeat,
+        radial-gradient(ellipse at 50% 40%, #FFF9EC 0%, #EFE3C8 100%)
+    }
+
+    /* Black Ops One tiene un solo grosor: sin negrita "falsa" */
+    body.tema-bounty,
+    body.tema-bounty * {
+      font-weight: 400 !important;
+      font-synthesis: none
+    }
+
+    /* Centro: debajo del logo, con lugar abajo para la firma */
+    body.tema-bounty .centro {
+      --espacio-logo: 12vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      padding-top: 29vh
+    }
+
+    body.tema-bounty .torneo-nombre {
+      display: none
+    }
+
+    body.tema-bounty .estado-lugar {
+      position: static;
+      margin: 0
+    }
+
+    body.tema-bounty .centro .medio .nivel {
+      position: static;
+      font-size: 5vh
+    }
+
+    body.tema-bounty .tiempo {
+      font-size: 20vh;
+      --ancho-digito: .72em;
+      --ancho-sep: .3em
+    }
+
+    body.tema-bounty .ciegas {
+      font-size: 7.5vh
+    }
+
+    body.tema-bounty .ciegas-rotulo {
+      font-size: 2.6vh
+    }
+
+    body.tema-bounty .proximo {
+      margin-top: .8vh
+    }
+
+    body.tema-bounty .proximo .valor {
+      font-size: 4vh
+    }
+
+    /* Letra ancha: números y datos un poco más chicos para que entren */
+    body.tema-bounty .grande {
+      font-size: 6.2vh
+    }
+
+    body.tema-bounty .mediano {
+      font-size: 4vh
+    }
+
+    body.tema-bounty .fila-dato {
+      font-size: 3.4vh;
+      padding-top: .7vh;
+      padding-bottom: .7vh
+    }
+
+    body.tema-bounty .fila-dato .etq {
+      font-size: 2.6vh
+    }
+
+    body.tema-bounty .detalles .fila-dato {
+      font-size: 3.3vh
+    }
+
+    body.tema-bounty .detalles .fila-dato .etq,
+    body.tema-bounty .detalles .rotulo,
+    body.tema-bounty .rotulo {
+      font-size: 2.6vh
+    }
+
+    /* "Premios estimados · Cobran 12" en un solo renglón */
+    body.tema-bounty #premiosTitulo {
+      font-size: 2.2vh;
+      white-space: nowrap
+    }
   </style>
 </head>
 
@@ -637,43 +1160,42 @@
         <div class="lista-premios sombra" id="premios"></div>
       </div>
 
-      <div class="bloque">
-        <div class="rotulo sombra">Próximo descanso</div>
-        <div class="mediano oro" id="descanso">—</div>
-      </div>
-
     </section>
 
 
     <!-- CENTRO: RELOJ -->
     <section class="centro">
 
-      <div style="width:100%">
+      <div class="arriba">
         <div class="torneo-nombre oro" id="torneoNombre">—</div>
-        <div class="nivel oro" id="nivel">—</div>
-        <div style="height:5vh;margin-top:1vh">
+        <div class="estado-lugar">
           <span class="estado oculto" id="estado">Pausado</span>
+          <span class="cartel-burbuja oculto" id="burbuja"></span>
         </div>
       </div>
 
-      <div class="tiempo oro detenido" id="tiempo"></div>
+      <!-- El nivel va pegado al reloj -->
+      <div class="medio">
+        <div class="nivel oro" id="nivel">—</div>
+        <div class="tiempo oro detenido" id="tiempo"></div>
+      </div>
 
-      <div>
+      <div class="abajo">
         <div class="ciegas-rotulo sombra" id="ciegasRotulo">Ciegas</div>
         <div class="ciegas oro" id="ciegas">—</div>
         <div class="ciegas-leyenda sombra" id="ciegasLeyenda">CHICA · GRANDE · ANTE</div>
-      </div>
 
-      <div class="proximo" id="proximoWrap">
-        <div class="ciegas-rotulo sombra">Próximo nivel</div>
-        <div class="valor oro" id="proximo">—</div>
+        <div class="proximo" id="proximoWrap">
+          <div class="ciegas-rotulo sombra">Próximo nivel</div>
+          <div class="valor oro" id="proximo">—</div>
+        </div>
       </div>
 
     </section>
 
 
     <!-- DERECHA: DATOS Y DETALLES -->
-    <section class="columna">
+    <section class="columna derecha">
 
       <div class="bloque sombra">
         <div class="fila-dato"><span class="etq">Total entradas</span><span class="val" id="entradas">0</span></div>
@@ -684,9 +1206,11 @@
       <div class="bloque sombra">
         <div class="fila-dato"><span class="etq">Fichas totales</span><span class="val" id="puntos">0</span></div>
         <div class="fila-dato"><span class="etq">Stack promedio</span><span class="val" id="promedio">0</span></div>
+        <!-- Solo aparece si alguien renunció fichas -->
+        <div class="fila-dato oculto" id="renunciadasWrap"><span class="etq">Fichas renunciadas</span><span class="val" id="renunciadas">0</span></div>
       </div>
 
-      <div class="bloque detalles sombra" style="flex:1">
+      <div class="bloque detalles sombra">
         <div class="rotulo" style="margin-bottom:.6vh">Detalles del torneo</div>
         <div class="fila-dato"><span class="etq">Entrada</span><span class="val" id="detEntrada">$0</span></div>
         <div class="fila-dato"><span class="etq">Stack inicial</span><span class="val" id="detStack">0</span></div>
@@ -695,13 +1219,28 @@
         <div class="fila-dato" id="detCierreWrap"><span class="etq" id="detCierreEtq">Cierra en</span><span class="val" id="detCierre">—</span></div>
       </div>
 
+      <!-- Abajo a la derecha -->
+      <div class="bloque descanso-bloque">
+        <div class="rotulo sombra">Próximo descanso</div>
+        <div class="mediano oro" id="descanso">—</div>
+      </div>
+
     </section>
 
   </div>
 
+  <!-- Firma de Arena Poker para los fondos que no la traen dibujada -->
+  <img class="firma" id="firma" src="reloj-firma.png" alt="" onerror="this.remove()">
+
   <span class="conexion" id="conexion" title="Conexión"></span>
   <div class="modo-prueba oculto" id="modoPrueba">Modo prueba · datos ficticios</div>
   <div class="mensaje-central oculto" id="mensajeCentral"></div>
+  <!-- Anuncio animado: empieza / se rompe la burbuja, mesa final -->
+  <div class="anuncio oculto" id="anuncio" aria-live="polite">
+    <div class="anuncio-burbujas" id="anuncioBurbujas"></div>
+    <div class="anuncio-titulo" id="anuncioTitulo"></div>
+    <div class="anuncio-sub" id="anuncioSub"></div>
+  </div>
   <div class="ayuda-fullscreen" id="ayuda">Clic para pantalla completa</div>
   <div class="aviso-sonido oculto" id="avisoSonido">🔇 Hacé clic en la pantalla para activar el sonido</div>
 
@@ -752,10 +1291,13 @@
     // Dibuja el reloj con cada dígito en su propia caja (no "baila").
     function pintarTiempo(texto) {
       if (texto === ultimoTiempoTexto) return;
+      const cambioLargo = texto.length !== ultimoTiempoTexto.length;
       ultimoTiempoTexto = texto;
       $('tiempo').innerHTML = [...texto]
         .map(c => `<span class="${c === ':' ? 'sep' : ''}">${c}</span>`)
         .join('');
+      // Pasó de "1:00:00" a "59:59" (o al revés): reajustar el tamaño.
+      if (cambioLargo) ajustarTiempo();
     }
 
     // Achica la letra de un elemento hasta que entre en su ancho
@@ -776,6 +1318,23 @@
     function ajustarTextos() {
       const ancho = document.querySelector('.centro').clientWidth;
       ['torneoNombre', 'ciegas', 'proximo'].forEach(id => ajustarAncho($(id), ancho));
+      ajustarTiempo();
+    }
+
+    // El reloj puede pasarse un poco del centro (hay aire hasta las
+    // columnas); se achica solo si no entra, por ej. con horas "1:20:00".
+    // Se mide sumando el ancho de cada número (cajas de ancho fijo).
+    function ajustarTiempo() {
+      const el = $('tiempo');
+      const anchoMax = document.querySelector('.centro').clientWidth + window.innerWidth * 0.03;
+      el.style.fontSize = '';
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      const anchoTexto = () => [...el.children].reduce((s, c) => s + c.getBoundingClientRect().width, 0);
+      let tam = base;
+      while (anchoTexto() > anchoMax && tam > base * 0.4) {
+        tam *= 0.95;
+        el.style.fontSize = tam + 'px';
+      }
     }
 
     window.addEventListener('resize', () => { ajustarTextos(); ajustarPremios(); });
@@ -784,18 +1343,25 @@
     // de mayor a menor tamaño de letra y, si en una columna no entra,
     // se pasa a dos columnas.
     const TAMANOS_PREMIOS = [5, 4.6, 4.2, 3.8, 3.4, 3.1, 2.8];
-    const TAMANOS_PREMIOS_2COL = [3.2, 2.9, 2.6, 2.3, 2, 1.8];
+    const TAMANOS_PREMIOS_2COL = [4.2, 3.8, 3.5, 3.2, 2.9, 2.6, 2.3, 2, 1.8, 1.6, 1.45];
 
     function ajustarPremios() {
       const lista = $('premios');
       if (!lista || !lista.children.length) return;
-      const entra = () => lista.scrollHeight <= lista.clientHeight + 1;
+      // Entra si no se pasa de alto y ningún renglón se pisa a lo ancho.
+      const entra = () => lista.scrollHeight <= lista.clientHeight + 1 &&
+        lista.scrollWidth <= lista.clientWidth + 1 &&
+        [...lista.children].every(f => f.scrollWidth <= f.clientWidth + 1);
       lista.classList.remove('dos-columnas');
+      lista.style.gridTemplateRows = '';
       for (const t of TAMANOS_PREMIOS) {
         lista.style.fontSize = t + 'vh';
         if (entra()) return;
       }
+      // Dos columnas que se leen de arriba hacia abajo: la primera mitad
+      // de los puestos a la izquierda y el resto a la derecha.
       lista.classList.add('dos-columnas');
+      lista.style.gridTemplateRows = `repeat(${Math.ceil(lista.children.length / 2)}, min-content)`;
       for (const t of TAMANOS_PREMIOS_2COL) {
         lista.style.fontSize = t + 'vh';
         if (entra()) return;
@@ -831,6 +1397,14 @@
       segundosAviso: 30,     // cuántos segundos antes suena la campanita
       cuentaRegresiva: 10,   // pitido en cada uno de los últimos N segundos (0 = no) — B13 "Grave"
       finDeNivel: true       // al terminar el nivel o el descanso — C3 "Campanada grave"
+    };
+
+    // Anuncios a pantalla completa cuando empieza o se rompe una burbuja.
+    const ANUNCIOS = {
+      activos: true,       // false = solo el cartel, sin anuncio grande
+      segundos: 8,         // cuánto dura el anuncio en pantalla
+      festejos: true,      // "¡Estamos en los premios!" y "¡Mesa final!"
+      sonido: true         // campanitas al aparecer el anuncio
     };
 
     let audio = null;
@@ -899,7 +1473,8 @@
       unMinuto: () => tocar([[660, 0.35], [880, 0.6]], 'sine', 0.08), // se usa solo si se reactiva el aviso
       segundo: () => nota(220, 0, 0.2, 'triangle'),
       ultimosSegundos: () => nota(330, 0, 0.2, 'triangle'),
-      finDeNivel: () => [0, 0.8, 1.6].forEach(d => campana(392, d, 2.6, 0.9))
+      finDeNivel: () => [0, 0.8, 1.6].forEach(d => campana(392, d, 2.6, 0.9)),
+      anuncio: () => [523, 659, 784, 1046].forEach((f, i) => campana(f, i * 0.18, 1.6, 0.6))
     };
 
     // Control para no repetir sonidos: se guarda qué nivel ya sonó y
@@ -972,17 +1547,47 @@
     }
 
 
+    /* ---------- Nombre del torneo ---------- */
+    // En el tema Funny Sundays el nombre va en neón de dos colores:
+    // la primera palabra en rojo y el resto en violeta.
+    function pintarNombre(nombre) {
+      const el = $('torneoNombre');
+      nombre = String(nombre || '');
+      if (temaActual === 'funny') {
+        const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const [primera, ...resto] = nombre.trim().split(/\s+/);
+        // Solo se reescribe si cambió el nombre o el tema (si no, se
+        // reiniciaría la animación del neón en cada consulta).
+        const clave = 'funny|' + nombre;
+        if (el.dataset.pintado === clave) return;
+        el.dataset.pintado = clave;
+        el.innerHTML = `<span class="n1">${esc(primera || '')}</span>` + (resto.length ? ` <span class="n2">${esc(resto.join(' '))}</span>` : '');
+      } else if (el.dataset.pintado !== 'texto|' + nombre) {
+        el.dataset.pintado = 'texto|' + nombre;
+        el.textContent = nombre;
+      }
+    }
+
+
     /* ---------- Tema (apariencia) ---------- */
     // Lo elige Dirección; la pantalla lo toma en la próxima consulta.
-    const TEMAS_CONOCIDOS = ['clasico', 'crema'];
+    // Clases de cada tema. Bounty Hunter usa los colores del crema y
+    // encima sus propios cambios.
+    const CLASES_TEMA = {
+      clasico: ['tema-clasico'],
+      crema: ['tema-crema'],
+      funny: ['tema-funny'],
+      bounty: ['tema-crema', 'tema-bounty']
+    };
     let temaActual = 'clasico';
 
     function aplicarTema(tema) {
-      if (!TEMAS_CONOCIDOS.includes(tema)) tema = 'clasico';
+      if (!CLASES_TEMA[tema]) tema = 'clasico';
       if (tema === temaActual) return;
-      document.body.classList.remove('tema-' + temaActual);
-      document.body.classList.add('tema-' + tema);
+      document.body.classList.remove(...CLASES_TEMA[temaActual]);
+      document.body.classList.add(...CLASES_TEMA[tema]);
       temaActual = tema;
+      if (datos && datos.torneo) pintarNombre(datos.torneo.nombre);
       // Cambia la tipografía: se recalculan los tamaños cuando cargue.
       document.fonts.ready.then(() => { ajustarTextos(); ajustarPremios(); });
     }
@@ -990,6 +1595,60 @@
     // Si una fuente termina de cargar después de dibujar, reajustar.
     if (document.fonts && document.fonts.addEventListener) {
       document.fonts.addEventListener('loadingdone', () => { ajustarTextos(); ajustarPremios(); });
+    }
+
+
+    /* ---------- Burbuja ---------- */
+    // El backend avisa el estado (d.burbuja). Acá se muestra el cartel
+    // mientras dure y se lanza el anuncio grande solo cuando CAMBIA el
+    // estado (al abrir la pantalla en plena burbuja no se repite).
+    let burbujaAnterior = null;
+    let ultimoAnuncioPrueba;
+    let timerAnuncio = null;
+
+    function pintarBurbuja(d) {
+      const b = d.burbuja || {};
+      const quedan = d.jugadores ? d.jugadores.restantes : 0;
+      const cartel = $('burbuja');
+      let titulo = '', detalle = '';
+      if (b.premios && b.mesaFinal) { titulo = 'Burbuja'; detalle = `Premios y mesa final · Quedan ${quedan}`; }
+      else if (b.premios) { titulo = 'Burbuja'; detalle = `Quedan ${quedan} · Cobran ${b.cobran}`; }
+      else if (b.mesaFinal) { titulo = 'Burbuja de mesa final'; detalle = `Quedan ${quedan}`; }
+      cartel.classList.toggle('oculto', !titulo);
+      if (titulo) cartel.innerHTML = `${titulo}<small>${detalle}</small>`;
+
+      const antes = burbujaAnterior;
+      burbujaAnterior = { ...b };
+      if (!antes || !ANUNCIOS.activos) return;
+
+      if (b.premios && !antes.premios) {
+        mostrarAnuncio('burbuja', '¡Burbuja!', b.mesaFinal ? `Premios y mesa final · Quedan ${quedan}` : `Quedan ${quedan} · Cobran ${b.cobran}`);
+      } else if (b.mesaFinal && !antes.mesaFinal) {
+        mostrarAnuncio('burbuja', '¡Burbuja de mesa final!', `Quedan ${quedan} · Juegan la final ${b.jugadoresMesaFinal}`);
+      } else if (ANUNCIOS.festejos && b.enMesaFinal && antes.mesaFinal) {
+        mostrarAnuncio('festejo', '¡Mesa final!', `Quedan ${quedan} jugadores`);
+      } else if (ANUNCIOS.festejos && b.enPremios && antes.premios) {
+        mostrarAnuncio('festejo', '¡En los premios!', `Los ${quedan} que quedan cobran`);
+      }
+    }
+
+    function mostrarAnuncio(tipo, titulo, sub) {
+      const a = $('anuncio');
+      clearTimeout(timerAnuncio);
+      a.className = 'anuncio ' + tipo;
+      $('anuncioTitulo').textContent = titulo;
+      $('anuncioSub').textContent = sub;
+      // Burbujas (o monedas) que suben, con tamaños y tiempos al azar
+      $('anuncioBurbujas').innerHTML = Array.from({ length: 22 }, () => {
+        const tam = 3 + Math.random() * 9;
+        return `<span style="left:${Math.random() * 100}vw;width:${tam}vh;height:${tam}vh;` +
+          `animation-duration:${4 + Math.random() * 4}s;animation-delay:${-Math.random() * 4}s"></span>`;
+      }).join('');
+      if (ANUNCIOS.sonido) sonido.anuncio();
+      timerAnuncio = setTimeout(() => {
+        a.classList.add('saliendo');
+        timerAnuncio = setTimeout(() => a.classList.add('oculto'), 600);
+      }, ANUNCIOS.segundos * 1000);
     }
 
 
@@ -1008,7 +1667,7 @@
       $('modoPrueba').classList.toggle('oculto', !d.modoPrueba);
       document.body.classList.toggle('con-prueba', !!d.modoPrueba);
 
-      $('torneoNombre').textContent = d.torneo.nombre;
+      pintarNombre(d.torneo.nombre);
 
       // Estado (pausado / por comenzar / finalizado)
       const rel = d.reloj;
@@ -1068,6 +1727,23 @@
       $('reentradas').textContent = d.jugadores.reentradas;
       $('puntos').textContent = numero(d.fichas.puntosTotales);
       $('promedio').textContent = numero(d.fichas.stackPromedio);
+      // Fichas renunciadas: el renglón aparece solo si hay alguna
+      const renunciadas = Number(d.fichas.fichasRenunciadas || 0);
+      $('renunciadasWrap').classList.toggle('oculto', renunciadas <= 0);
+      $('renunciadas').textContent = numero(renunciadas);
+
+      pintarBurbuja(d);
+
+      // "Probar anuncio" desde el panel: se muestra una sola vez
+      if (d.anuncioPrueba && d.anuncioPrueba.id !== ultimoAnuncioPrueba) {
+        const primera = ultimoAnuncioPrueba === undefined;
+        ultimoAnuncioPrueba = d.anuncioPrueba.id;
+        // Al abrir la pantalla no se repite uno viejo (más de 20 s)
+        if (!primera || Date.now() - d.anuncioPrueba.id < 20000) {
+          const festejo = d.anuncioPrueba.tipo === 'festejo';
+          mostrarAnuncio(festejo ? 'festejo' : 'burbuja', festejo ? '¡En los premios!' : '¡Burbuja!', 'Anuncio de prueba');
+        }
+      }
 
       // Detalles
       $('detEntrada').textContent = dinero(d.torneo.buyIn);
@@ -1112,14 +1788,13 @@
         estadoReg.textContent = 'Abierto';
         estadoReg.className = 'val registro-abierto';
         cierreWrap.classList.remove('oculto');
-        $('detCierreEtq').textContent = `Cierra (fin nivel ${reg.cierreNivel})`;
+        $('detCierreEtq').textContent = 'Cierra en';
         $('detCierre').textContent = fmtTiempo(segundosAhora(reg.cierraEnSegundos));
       } else {
         estadoReg.textContent = 'Cerrado';
         estadoReg.className = 'val registro-cerrado';
-        cierreWrap.classList.remove('oculto');
-        $('detCierreEtq').textContent = 'Cerró al final del nivel';
-        $('detCierre').textContent = reg.cierreNivel;
+        // Cerrado: alcanza con "Registro: Cerrado"
+        cierreWrap.classList.add('oculto');
       }
     }
 

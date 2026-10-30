@@ -9,7 +9,9 @@ const Config = require('../models/Config');
 // mesas de Rotación.
 const TEMAS = [
   { id: 'clasico', nombre: 'Clásica · fondo oscuro, dorado, tipografía Anton', fondo: 'reloj-fondo.jpg' },
-  { id: 'crema', nombre: 'Crema y dorado oscuro · tipografía Oswald', fondo: 'reloj-fondo-crema.jpg' }
+  { id: 'crema', nombre: 'Crema y dorado oscuro · tipografía Oswald', fondo: 'reloj-fondo-crema.jpg' },
+  { id: 'funny', nombre: 'Funny Sundays · fondo oscuro, nombre en neón', fondo: 'reloj-fondo-funny.jpg' },
+  { id: 'bounty', nombre: 'Bounty Hunter · fondo claro con logo, tipografía Black Ops One', fondo: 'reloj-fondo-bounty.jpg' }
 ];
 
 const CLAVE = 'relojTema';

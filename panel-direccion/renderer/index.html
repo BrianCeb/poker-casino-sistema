@@ -887,6 +887,17 @@
       opacity: .5
     }
 
+    /* Línea que marca dónde se cierra el registro */
+    .estructura-tabla tr.cierre-registro td {
+      background: rgba(193, 80, 58, .14);
+      border-top: 2px solid var(--danger2);
+      border-bottom: 2px solid var(--danger2);
+      color: var(--danger2);
+      font-weight: 700;
+      text-align: center;
+      padding: 7px 10px
+    }
+
     .estructura-tabla .num {
       font: 16px 'Bebas Neue';
       color: var(--dim);
@@ -1734,6 +1745,18 @@
               <button class="btn btn-sm" id="relojBtnEliminar" type="button">− Eliminado</button>
               <button class="btn btn-sm" id="relojBtnDeshacer" type="button">Deshacer</button>
             </div>
+            <div class="rake-help" id="relojBurbujaInfo"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Fichas renunciadas</div>
+            <div class="val" id="relojRenunciadas">0</div>
+            <div class="sub-acc" style="flex-wrap:wrap">
+              <input id="relojRenunciaCant" type="number" min="1" step="1" placeholder="Cantidad" style="width:120px">
+              <button class="btn btn-sm" id="relojBtnRenunciar" type="button">Renunciar fichas</button>
+              <button class="btn btn-sm" id="relojBtnDeshacerRenuncia" type="button">Deshacer</button>
+            </div>
+            <div class="rake-help">Se descuentan de las fichas totales. En la TV aparecen solo si hay alguna.</div>
           </div>
 
           <div class="stat">
@@ -1791,6 +1814,14 @@
           </div>
           <div>
             <button class="btn" id="relojPlantillaAplicar" type="button">Aplicar plantilla</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:14px;align-items:flex-end">
+          <div class="field" style="max-width:420px">
+            <label>El registro cierra al terminar el nivel</label>
+            <select id="relojEstructuraCierre"></select>
+            <div class="rake-help">Si después de ese nivel hay un descanso, el registro sigue abierto durante el descanso y cierra cuando empieza el nivel siguiente. Se guarda con la estructura y con las plantillas.</div>
           </div>
         </div>
 
@@ -1855,11 +1886,6 @@
             <input id="relojCfgStackRe" type="number" min="0" step="1" placeholder="Igual al inicial">
             <div class="rake-help">Vacío o 0 = igual al stack inicial.</div>
           </div>
-          <div class="field">
-            <label>Cierre de registro (al final del nivel)</label>
-            <input id="relojCfgCierre" type="number" min="0" step="1">
-            <div class="rake-help">0 = sin definir.</div>
-          </div>
         </div>
 
         <div class="row" style="margin-top:14px">
@@ -1882,6 +1908,11 @@
             <label>Redondear premios a</label>
             <input id="relojCfgRedondeo" type="number" min="0" step="100">
           </div>
+          <div class="field">
+            <label>Jugadores en la mesa final</label>
+            <input id="relojCfgMesaFinal" type="number" min="0" step="1">
+            <div class="rake-help">La burbuja de mesa final sale cuando quedan estos + 1. 0 = sin burbuja de mesa final.</div>
+          </div>
         </div>
 
         <div class="actions" style="margin-top:18px;align-items:center">
@@ -1902,6 +1933,11 @@
             <select id="relojTema"></select>
             <div class="rake-help" id="relojTemaAyuda"></div>
           </div>
+        </div>
+        <div class="actions" style="margin-top:14px;align-items:center">
+          <button class="btn" id="relojProbarBurbuja" type="button">Probar anuncio de burbuja</button>
+          <button class="btn" id="relojProbarFestejo" type="button">Probar festejo "En los premios"</button>
+          <span class="rake-help">Se ve en la TV a los pocos segundos. No cambia nada del torneo.</span>
         </div>
       </div>
 
@@ -4654,6 +4690,8 @@
     let relojTickInterval = null;
     let relojPidiendo = false;
     let relojEstructuraEdit = [];
+    // Nivel al final del cual cierra el registro (0 = sin cierre)
+    let relojCierreEdit = 0;
     let relojEstructuraSucia = false;
     let relojEstructuraRenderizada = '';
     let relojCfgSucia = false;
@@ -4803,12 +4841,22 @@
       // Datos
       const j = d.jugadores;
       $('relojRestantes').textContent = `${j.restantes} / ${j.buyins}`;
+      const bb = d.burbuja || {};
+      $('relojBurbujaInfo').textContent =
+        bb.premios && bb.mesaFinal ? 'Burbuja de premios y de mesa final (se ve en la TV)' :
+        bb.premios ? `Burbuja de premios: cobran ${bb.cobran} (se ve en la TV)` :
+        bb.mesaFinal ? `Burbuja de mesa final: juegan ${bb.jugadoresMesaFinal} (se ve en la TV)` :
+        bb.enMesaFinal ? 'Mesa final' :
+        bb.enPremios ? 'En los premios' : '';
+      $('relojRenunciadas').textContent = fichas(d.fichas.fichasRenunciadas || 0);
       $('relojEntradas').textContent = j.entradasTotales;
       $('relojEntradasDetalle').textContent = `${j.buyins} buy-ins · ${j.reentradas} re-entradas · ${j.eliminaciones} eliminados`;
       $('relojPozo').textContent = money(d.pozo);
       $('relojBounty').textContent = d.torneo.tipo === 'mistery_bounty' ? 'Bounties aparte: ' + money(d.bounty) : '';
       $('relojStackProm').textContent = fichas(d.fichas.stackPromedio);
-      $('relojPuntos').textContent = 'Fichas en juego: ' + fichas(d.fichas.puntosTotales) + (d.fichas.stackInicial ? '' : ' · falta cargar el stack inicial');
+      $('relojPuntos').textContent = 'Fichas en juego: ' + fichas(d.fichas.puntosTotales) +
+        (d.fichas.fichasRenunciadas ? ' (ya descontadas ' + fichas(d.fichas.fichasRenunciadas) + ' renunciadas)' : '') +
+        (d.fichas.stackInicial ? '' : ' · falta cargar el stack inicial');
 
       const reg = d.registro;
       if (!reg.cierreNivel) {
@@ -4819,7 +4867,7 @@
         $('relojRegistroDetalle').textContent = 'Cierra en ' + fmtTiempo(reg.cierraEnSegundos);
       } else {
         $('relojRegistro').textContent = 'Cerrado';
-        $('relojRegistroDetalle').textContent = 'Cerró al final del nivel ' + reg.cierreNivel;
+        $('relojRegistroDetalle').textContent = 'Cerró al empezar el nivel ' + (reg.cierraAlEmpezarNivel || reg.cierreNivel + 1);
       }
 
       $('relojDescanso').textContent = d.proximoDescanso ? fmtTiempo(d.proximoDescanso.empiezaEnSegundos) : '—';
@@ -4847,15 +4895,15 @@
       const c = relojData.config;
       $('relojCfgStack').value = c.stackInicial || '';
       $('relojCfgStackRe').value = c.stackReentry || '';
-      $('relojCfgCierre').value = c.cierreRegistroNivel || 0;
       $('relojCfgIlimitadas').value = c.reentradasIlimitadas !== false ? 'si' : 'no';
       $('relojCfgMax').value = c.maxReentradas || 0;
       $('relojCfgPct').value = c.porcentajePagados;
       $('relojCfgRedondeo').value = c.redondeoPremios;
+      $('relojCfgMesaFinal').value = c.jugadoresMesaFinal === undefined ? 8 : c.jugadoresMesaFinal;
       $('relojCfgMaxWrap').classList.toggle('hidden', $('relojCfgIlimitadas').value === 'si');
     }
 
-    ['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgIlimitadas', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo']
+    ['relojCfgStack', 'relojCfgStackRe', 'relojCfgIlimitadas', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo', 'relojCfgMesaFinal']
       .forEach(id => {
         $(id).addEventListener('input', () => {
           relojCfgSucia = true;
@@ -4864,17 +4912,17 @@
         });
       });
 
-    enterSubmit(['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo'], 'relojCfgGuardar');
+    enterSubmit(['relojCfgStack', 'relojCfgStackRe', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo', 'relojCfgMesaFinal'], 'relojCfgGuardar');
 
     $('relojCfgGuardar').onclick = async () => {
       const body = {
         stackInicial: Number($('relojCfgStack').value || 0),
         stackReentry: Number($('relojCfgStackRe').value || 0),
-        cierreRegistroNivel: Number($('relojCfgCierre').value || 0),
         reentradasIlimitadas: $('relojCfgIlimitadas').value === 'si',
         maxReentradas: Number($('relojCfgMax').value || 0),
         porcentajePagados: Number($('relojCfgPct').value),
-        redondeoPremios: Number($('relojCfgRedondeo').value || 0)
+        redondeoPremios: Number($('relojCfgRedondeo').value || 0),
+        jugadoresMesaFinal: Number($('relojCfgMesaFinal').value || 0)
       };
       try {
         const r = await api('/reloj/config', {
@@ -4930,6 +4978,22 @@
       }
     };
 
+    async function relojProbarAnuncio(tipo) {
+      try {
+        const r = await api('/reloj/probar-anuncio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipo })
+        });
+        if (!r.ok) throw new Error((await r.json()).error);
+        showToast('Anuncio enviado', 'Mirá la TV: aparece en unos segundos.');
+      } catch (e) {
+        showToast('No se pudo enviar', e.message, 'error');
+      }
+    }
+    $('relojProbarBurbuja').onclick = () => relojProbarAnuncio('burbuja');
+    $('relojProbarFestejo').onclick = () => relojProbarAnuncio('festejo');
+
     /* ---------- Estructura ---------- */
 
     function filaBloqueada(i) {
@@ -4953,13 +5017,28 @@
 
       if (modo !== 'edit') {
         relojEstructuraEdit = JSON.parse(JSON.stringify(relojData.config.niveles || []));
+        relojCierreEdit = Number(relojData.config.cierreRegistroNivel || 0);
       }
 
       const rel = relojData.reloj;
       // En el refresco automatico solo se redibuja si cambio algo.
-      const firma = JSON.stringify([relojEstructuraEdit, rel.estado, rel.indice]);
+      const firma = JSON.stringify([relojEstructuraEdit, relojCierreEdit, rel.estado, rel.indice]);
       if (modo === 'poll' && firma === relojEstructuraRenderizada) return;
       relojEstructuraRenderizada = firma;
+
+      // Posición después de la cual va la línea de cierre: el nivel de
+      // cierre y, si le siguen descansos, el último de ellos.
+      let posCierre = -1;
+      if (relojCierreEdit > 0) {
+        let num = 0;
+        relojEstructuraEdit.forEach((n, i) => { if (n.tipo !== 'descanso' && ++num === relojCierreEdit) posCierre = i; });
+        while (posCierre >= 0 && relojEstructuraEdit[posCierre + 1] && relojEstructuraEdit[posCierre + 1].tipo === 'descanso') posCierre++;
+      }
+      const cantNiveles = relojEstructuraEdit.filter(n => n.tipo !== 'descanso').length;
+      const sel = $('relojEstructuraCierre');
+      sel.innerHTML = '<option value="0">Sin cierre</option>' +
+        Array.from({ length: Math.max(cantNiveles, relojCierreEdit) }, (_, k) => `<option value="${k + 1}">Nivel ${k + 1}</option>`).join('');
+      sel.value = String(relojCierreEdit);
 
       let numero = 0;
       $('relojEstructuraBody').innerHTML = relojEstructuraEdit.map((n, i) => {
@@ -4992,7 +5071,9 @@
               <button class="btn btn-sm" type="button" onclick="relojMoverFila(${i},1)" ${dis} title="Bajar">↓</button>
               <button class="btn btn-sm danger" type="button" onclick="relojBorrarFila(${i})" ${dis} title="Borrar">✕</button>
             </td>
-          </tr>`;
+          </tr>` + (i === posCierre
+            ? `<tr class="cierre-registro"><td colspan="7">🔒 Cierra el registro: desde el nivel ${relojCierreEdit + 1} no se aceptan más entradas</td></tr>`
+            : '');
       }).join('');
 
       $('relojEstructuraVacia').classList.toggle('hidden', relojEstructuraEdit.length > 0);
@@ -5044,6 +5125,12 @@
       renderEstructura('edit');
     };
 
+    $('relojEstructuraCierre').onchange = () => {
+      relojCierreEdit = Number($('relojEstructuraCierre').value || 0);
+      marcarEstructuraSucia(true);
+      renderEstructura('edit');
+    };
+
     $('relojEstructuraDescartar').onclick = () => {
       marcarEstructuraSucia(false);
       renderEstructura('reset');
@@ -5058,6 +5145,14 @@
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.error);
+        // El cierre de registro se guarda junto con la estructura
+        const rc = await api('/reloj/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cierreRegistroNivel: relojCierreEdit })
+        });
+        const dc = await rc.json();
+        if (!rc.ok) throw new Error(dc.error);
         marcarEstructuraSucia(false);
         showToast('Estructura guardada', 'La pantalla del reloj ya usa la estructura nueva.');
         await loadReloj();
@@ -5133,7 +5228,7 @@
       const body = {
         nombre,
         niveles: relojEstructuraEdit,
-        cierreRegistroNivel: Number($('relojCfgCierre').value || 0)
+        cierreRegistroNivel: relojCierreEdit
       };
       try {
         const r = await api(existente ? '/reloj/plantillas/' + existente._id : '/reloj/plantillas', {
@@ -5851,6 +5946,26 @@
     enterSubmit(['relojPonerTiempo'], 'relojBtnPoner');
     $('relojBtnEliminar').onclick = () => relojAccion('eliminar');
     $('relojBtnDeshacer').onclick = () => relojAccion('deshacerEliminacion');
+
+    $('relojBtnRenunciar').onclick = async () => {
+      const cantidad = Number($('relojRenunciaCant').value || 0);
+      if (!Number.isInteger(cantidad) || cantidad <= 0) {
+        showToast('Falta la cantidad', 'Escribí cuántas fichas se renunciaron.', 'error');
+        return;
+      }
+      const ok = await openConfirmModal({
+        title: 'Renunciar fichas',
+        message: `Se descuentan ${fichas(cantidad)} fichas del total del torneo.`,
+        confirmText: 'Renunciar'
+      });
+      if (ok !== true) return;
+      if (await relojAccion('renunciar', { cantidad })) {
+        $('relojRenunciaCant').value = '';
+        showToast('Fichas renunciadas', fichas(cantidad) + ' fichas descontadas del total.');
+      }
+    };
+    $('relojBtnDeshacerRenuncia').onclick = () => relojAccion('deshacerRenuncia');
+    enterSubmit(['relojRenunciaCant'], 'relojBtnRenunciar');
 
     $('relojBtnReiniciar').onclick = async () => {
       const ok = await openConfirmModal({
