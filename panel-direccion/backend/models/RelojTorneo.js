@@ -99,6 +99,10 @@ const relojTorneoSchema = new mongoose.Schema({
   // mostrar cual esta en uso). Se vacia si la tabla se edita a mano.
   premiosPlantilla: { type: String, default: '' },
 
+  // Jugadores que juegan la mesa final. La "burbuja de mesa final" se
+  // muestra cuando quedan estos + 1. 0 = sin burbuja de mesa final.
+  jugadoresMesaFinal: { type: Number, min: 0, default: 8 },
+
   // ---------------- DATOS EN VIVO ----------------
 
   // Eliminaciones DEFINITIVAS: Direccion suma 1 solo cuando el jugador
@@ -108,6 +112,17 @@ const relojTorneoSchema = new mongoose.Schema({
   // buy-ins es la cantidad de jugadores distintos, entonces:
   //   jugadores restantes = buy-ins - eliminaciones
   eliminaciones: { type: Number, min: 0, default: 0 },
+
+  // Fichas renunciadas (surrender): cada carga del supervisor por
+  // separado, para poder deshacer la ultima. Se descuentan de las
+  // fichas totales (y por lo tanto del stack promedio).
+  renuncias: {
+    type: [{
+      cantidad: { type: Number, min: 1, required: true },
+      en: { type: Date, default: Date.now }
+    }],
+    default: []
+  },
 
   // ---------------- MODO PRUEBA ----------------
   // En el reloj REAL solo se usa "activa": indica que Direccion esta
