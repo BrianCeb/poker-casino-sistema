@@ -7,6 +7,7 @@ const authRouter = require('./routes/auth');
 const playersRouter = require('./routes/players');
 const tournamentRouter = require('./routes/tournament');
 const transactionsRouter = require('./routes/transactions');
+const pagosRouter = require('./routes/pagos');
 
 async function startServer(port) {
   await connectDB();
@@ -21,6 +22,7 @@ async function startServer(port) {
   app.use('/api/players', playersRouter);
   app.use('/api/tournament', tournamentRouter);
   app.use('/api/transactions', transactionsRouter);
+  app.use('/api/pagos', pagosRouter);
 
   return new Promise((resolve) => {
     const server = app.listen(port, '127.0.0.1', () => {

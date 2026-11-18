@@ -1,6 +1,7 @@
 const express = require('express');
 const Player = require('../models/Player');
 const Transaction = require('../models/Transaction');
+const Pago = require('../models/Pago');
 const requireAuth = require('../middleware/auth').requireAuth;
 const requireRole = require('../middleware/auth').requireRole;
 const router = express.Router();
@@ -34,8 +35,30 @@ router.get('/', requireAuth, requireRole('direccion'), async (req, res) => {
 // - operaciones: cantidad total de compras
 // - recurrencia: cantidad de fechas operativas DISTINTAS en las que jugo
 // - ultimaFecha: la fecha operativa mas reciente en la que jugo
+// Y lo que COBRO (pagos de Caja no anulados, por DNI):
+// - premios / premiosMonto / mejorPuesto
+// - bounties / bountiesMonto
+// - hunters / hunterMonto
+// - totalCobrado y balance (= totalCobrado - totalGastado)
 router.get('/estadisticas', requireAuth, requireRole('direccion'), async (req, res) => {
   try {
+    const cobrosPromise = Pago.aggregate([
+      { $match: { anulado: { $ne: true }, dni: { $nin: ['', null] } } },
+      {
+        $group: {
+          _id: '$dni',
+          premios: { $sum: { $cond: [{ $eq: ['$tipo', 'premio'] }, 1, 0] } },
+          premiosMonto: { $sum: { $cond: [{ $eq: ['$tipo', 'premio'] }, '$monto', 0] } },
+          mejorPuesto: { $min: { $cond: [{ $eq: ['$tipo', 'premio'] }, '$puesto', null] } },
+          bounties: { $sum: { $cond: [{ $eq: ['$tipo', 'bounty'] }, 1, 0] } },
+          bountiesMonto: { $sum: { $cond: [{ $eq: ['$tipo', 'bounty'] }, '$monto', 0] } },
+          hunters: { $sum: { $cond: [{ $eq: ['$tipo', 'hunter'] }, 1, 0] } },
+          hunterMonto: { $sum: { $cond: [{ $eq: ['$tipo', 'hunter'] }, '$monto', 0] } },
+          totalCobrado: { $sum: '$monto' }
+        }
+      }
+    ]);
+
     const stats = await Transaction.aggregate([
       { $match: { anulado: { $ne: true } } },
       {
@@ -63,6 +86,22 @@ router.get('/estadisticas', requireAuth, requireRole('direccion'), async (req, r
       },
       { $sort: { apellido: 1 } }
     ]);
+
+    // Se suma lo cobrado a cada jugador. La respuesta sigue siendo la
+    // misma lista de antes, con campos nuevos.
+    const cobros = new Map((await cobrosPromise).map(c => [c._id, c]));
+    for (const p of stats) {
+      const c = cobros.get(p.dni) || {};
+      p.premios = c.premios || 0;
+      p.premiosMonto = c.premiosMonto || 0;
+      p.mejorPuesto = c.mejorPuesto || null;
+      p.bounties = c.bounties || 0;
+      p.bountiesMonto = c.bountiesMonto || 0;
+      p.hunters = c.hunters || 0;
+      p.hunterMonto = c.hunterMonto || 0;
+      p.totalCobrado = c.totalCobrado || 0;
+      p.balance = p.totalCobrado - Number(p.totalGastado || 0);
+    }
     res.json(stats);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener las estadísticas.' });

@@ -44,6 +44,33 @@ const tournamentSchema = new mongoose.Schema({
     default: 0
   },
 
+  // HUNTER (solo torneos con bounty): monto fijo por Buy-in y Re-Entry
+  // que sale de la parte que iba al pozo y arma la bolsa del premio
+  // Hunter (para el jugador que mas bounties cobra).
+  hunterAporte: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+
+  // Direccion puede habilitar el pago del Hunter a mano (por ejemplo,
+  // si el bounty del ganador no se cobra como ticket). Si no, se habilita
+  // solo cuando se pagaron todos los bounties.
+  hunterHabilitado: {
+    type: Boolean,
+    default: false
+  },
+
+  hunterHabilitadoPor: {
+    type: String,
+    default: ''
+  },
+
+  hunterHabilitadoEn: {
+    type: Date,
+    default: null
+  },
+
   fecha: {
     type: String,
     required: true,

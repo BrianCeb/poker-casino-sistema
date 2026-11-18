@@ -167,11 +167,12 @@ function tablaAutomatica(porcentajePagados = 12.5, hastaJugadores = 200) {
 // desglose de Mistery Bounty), sin guardar nada en la base.
 function transaccionesDePrueba(torneo, prueba) {
   const armar = (tipo, monto) => {
-    const t = { tipo, monto, desglose: { rake: 0, bounty: 0, prizepool: 0 } };
+    const t = { tipo, monto, desglose: { rake: 0, bounty: 0, hunter: 0, prizepool: 0 } };
     if (torneo.tipo === 'mistery_bounty') {
       const rake = Number(torneo.mbRake || 0);
       const bounty = Number(torneo.mbBounty || 0);
-      t.desglose = { rake, bounty, prizepool: monto - rake - bounty };
+      const hunter = Number(torneo.hunterAporte || 0);
+      t.desglose = { rake, bounty, hunter, prizepool: monto - rake - bounty - hunter };
     }
     return t;
   };
@@ -209,18 +210,20 @@ function calcularPozo(transaccionesActivas, torneo) {
   if (torneo && torneo.tipo === 'mistery_bounty') {
     let rake = 0;
     let bounty = 0;
+    let hunter = 0;
     let prizepool = 0;
     for (const t of transaccionesActivas) {
       const d = t.desglose || {};
       rake += Number(d.rake || 0);
       bounty += Number(d.bounty || 0);
+      hunter += Number(d.hunter || 0);
       prizepool += Number(d.prizepool || 0);
     }
-    return { recaudado, rake, bounty, pozo: Math.max(0, prizepool) };
+    return { recaudado, rake, bounty, hunter, pozo: Math.max(0, prizepool) };
   }
 
   const rake = transaccionesActivas.length * Number((torneo && torneo.rake) || 0);
-  return { recaudado, rake, bounty: 0, pozo: Math.max(0, recaudado - rake) };
+  return { recaudado, rake, bounty: 0, hunter: 0, pozo: Math.max(0, recaudado - rake) };
 }
 
 

@@ -97,16 +97,21 @@ router.post('/', requireAuth, requireRole('caja'), async (req, res) => {
     // buy-in y recompra), el resto del monto cobrado es Prizepool. Se
     // calcula y guarda ahora para que quede "fotografiado" en la
     // transacción, sin depender de la config del torneo a futuro.
-    let desglose = { rake: 0, bounty: 0, prizepool: 0 };
+    //
+    // Hunter: monto fijo por operacion que tambien sale de lo que iba al
+    // pozo y arma la bolsa del premio Hunter.
+    let desglose = { rake: 0, bounty: 0, hunter: 0, prizepool: 0 };
 
     if (torneo.tipo === 'mistery_bounty') {
       const mbRake = Number(torneo.mbRake || 0);
       const mbBounty = Number(torneo.mbBounty || 0);
+      const hunter = Number(torneo.hunterAporte || 0);
 
       desglose = {
         rake: mbRake,
         bounty: mbBounty,
-        prizepool: amount - mbRake - mbBounty
+        hunter,
+        prizepool: amount - mbRake - mbBounty - hunter
       };
     }
 

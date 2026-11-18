@@ -17,6 +17,7 @@ const transactionSchema = new mongoose.Schema({
   desglose: {
     rake: { type: Number, default: 0 },
     bounty: { type: Number, default: 0 },
+    hunter: { type: Number, default: 0 },
     prizepool: { type: Number, default: 0 }
   },
   // Anulacion: no se borra el registro, queda como historial pero no
