@@ -1,5 +1,12 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
 const Tournament = require('../models/Tournament');
+const Transaction = require('../models/Transaction');
+const Pago = require('../models/Pago');
+const RelojTorneo = require('../models/RelojTorneo');
+const RelojPrueba = require('../models/RelojPrueba');
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { diaOperativo } = require('../utils/diaOperativo');
 
@@ -25,6 +32,7 @@ router.get('/', requireAuth, async (req, res) => {
         tipo: 'normal',
         mbRake: 0,
         mbBounty: 0,
+        hunterAporte: 0,
         fecha: diaOperativo(),
         activo: false
       });
@@ -51,7 +59,7 @@ router.get('/historial', requireAuth, requireRole('direccion'), async (req, res)
     const torneos = await Tournament
       .find({})
       .sort({ fecha: -1, createdAt: -1 })
-      .select('nombre fecha buyIn recompra rake tipo mbRake mbBounty activo')
+      .select('nombre fecha buyIn recompra rake tipo mbRake mbBounty hunterAporte activo')
       .lean();
 
     res.json(torneos);
@@ -81,7 +89,8 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
       fecha,
       tipo,
       mbRake,
-      mbBounty
+      mbBounty,
+      hunterAporte
     } = req.body || {};
 
     // Si no mandan fecha, usamos el dia operativo (no medianoche calendario)
@@ -129,6 +138,7 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
     let rakeNum;
     let mbRakeNum = 0;
     let mbBountyNum = 0;
+    let hunterNum = 0;
 
     if (tipoTorneo === 'mistery_bounty') {
 
@@ -164,15 +174,27 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
         });
       }
 
-      if (mbRakeNum + mbBountyNum > buyInNum) {
+      // Hunter: monto fijo por operacion que sale de lo que iba al pozo.
+      // Si no lo mandan, se usa el valor por defecto de la casa ($1.500).
+      hunterNum = hunterAporte == null || hunterAporte === '' ? 1500 : Number(hunterAporte);
+
+      if (!Number.isFinite(hunterNum) || hunterNum < 0) {
         return res.status(400).json({
-          error: 'La suma de Rake y Bounty no puede superar el buy-in.'
+          error: 'El aporte al Hunter debe ser un número válido, mayor o igual a 0.'
         });
       }
 
-      if (recompraNum > 0 && (mbRakeNum + mbBountyNum) > recompraNum) {
+      const descuentos = mbRakeNum + mbBountyNum + hunterNum;
+
+      if (descuentos > buyInNum) {
         return res.status(400).json({
-          error: 'La suma de Rake y Bounty no puede superar el monto de la recompra.'
+          error: 'La suma de Rake, Bounty y Hunter no puede superar el buy-in.'
+        });
+      }
+
+      if (recompraNum > 0 && descuentos > recompraNum) {
+        return res.status(400).json({
+          error: 'La suma de Rake, Bounty y Hunter no puede superar el monto de la recompra.'
         });
       }
 
@@ -229,6 +251,7 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
       tipo: tipoTorneo,
       mbRake: mbRakeNum,
       mbBounty: mbBountyNum,
+      hunterAporte: hunterNum,
       fecha: torneoFecha,
       activo: true
     });
@@ -245,5 +268,139 @@ router.post('/', requireAuth, requireRole('direccion'), async (req, res) => {
   }
 });
 
+
+// ======================================================
+// BORRAR TORNEO (pensado para torneos de PRUEBA)
+// ======================================================
+// Hace lo mismo que el script borrar-torneo-prueba.js, pero desde el
+// panel y con mas cuidado:
+//  - Borra el torneo, sus operaciones (Buy-in / Re-Entry), sus pagos
+//    (premios, bounties, Hunter), su reloj y la copia de prueba del reloj.
+//  - Las operaciones se buscan por torneoId. Las viejas sin torneoId solo
+//    si coinciden nombre Y fecha (nunca solo por nombre: "Funny Sundays"
+//    se repite todas las semanas).
+//  - NUNCA toca jugadores ni otros torneos.
+//  - Antes de borrar guarda TODO en un archivo JSON dentro de
+//    BACKUP_DIR/torneos-borrados/. Si no puede guardarlo, no borra nada.
+//  - Para confirmar hay que escribir el nombre exacto del torneo.
+// ======================================================
+
+function filtroOperaciones(torneo) {
+  return {
+    $or: [
+      { torneoId: torneo._id },
+      { torneoId: null, torneo: torneo.nombre, fecha: torneo.fecha }
+    ]
+  };
+}
+
+async function datosDelTorneo(torneo) {
+  const [operaciones, pagos, reloj, relojPrueba] = await Promise.all([
+    Transaction.find(filtroOperaciones(torneo)).lean(),
+    Pago.find({ torneoId: torneo._id }).lean(),
+    RelojTorneo.findOne({ torneoId: torneo._id }).lean(),
+    RelojPrueba.findOne({ torneoId: torneo._id }).lean()
+  ]);
+  return { operaciones, pagos, reloj, relojPrueba };
+}
+
+function idValido(id) {
+  return mongoose.Types.ObjectId.isValid(id) && String(new mongoose.Types.ObjectId(id)) === id;
+}
+
+
+// GET /api/tournament/:id/borrado -> lo que se borraria (no borra nada).
+router.get('/:id/borrado', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    if (!idValido(req.params.id)) return res.status(400).json({ error: 'Torneo inválido.' });
+    const torneo = await Tournament.findById(req.params.id).lean();
+    if (!torneo) return res.status(404).json({ error: 'Torneo no encontrado.' });
+
+    const d = await datosDelTorneo(torneo);
+    const activas = d.operaciones.filter(t => !t.anulado);
+
+    res.json({
+      torneo: { id: torneo._id, nombre: torneo.nombre, fecha: torneo.fecha, activo: !!torneo.activo },
+      operaciones: {
+        total: d.operaciones.length,
+        activas: activas.length,
+        anuladas: d.operaciones.length - activas.length,
+        recaudado: activas.reduce((s, t) => s + Number(t.monto || 0), 0),
+        jugadores: new Set(d.operaciones.map(t => t.dni)).size
+      },
+      pagos: {
+        total: d.pagos.length,
+        monto: d.pagos.filter(p => !p.anulado).reduce((s, p) => s + Number(p.monto || 0), 0)
+      },
+      reloj: !!d.reloj,
+      relojPrueba: !!d.relojPrueba
+    });
+  } catch (err) {
+    console.error('Error armando vista previa de borrado:', err);
+    res.status(500).json({ error: 'Error al revisar el torneo.' });
+  }
+});
+
+
+// DELETE /api/tournament/:id  { confirmacion: "<nombre exacto>" }
+router.delete('/:id', requireAuth, requireRole('direccion'), async (req, res) => {
+  try {
+    if (!idValido(req.params.id)) return res.status(400).json({ error: 'Torneo inválido.' });
+    const torneo = await Tournament.findById(req.params.id).lean();
+    if (!torneo) return res.status(404).json({ error: 'Torneo no encontrado.' });
+
+    const confirmacion = String((req.body || {}).confirmacion || '').trim();
+    if (confirmacion !== String(torneo.nombre).trim()) {
+      return res.status(400).json({ error: 'Para borrar tenés que escribir el nombre exacto del torneo.' });
+    }
+
+    const d = await datosDelTorneo(torneo);
+    const usuario = req.user.username || req.user.sub;
+
+    // 1) Respaldo. Si falla, no se borra nada.
+    let archivo;
+    try {
+      const dir = path.join(process.env.BACKUP_DIR || './backups', 'torneos-borrados');
+      fs.mkdirSync(dir, { recursive: true });
+      const slug = String(torneo.nombre).normalize('NFD').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+      archivo = path.join(dir, `${torneo.fecha}_${slug}_${torneo._id}.json`);
+      fs.writeFileSync(archivo, JSON.stringify({
+        borradoPor: usuario,
+        borradoEn: new Date().toISOString(),
+        torneo,
+        ...d
+      }, null, 2));
+    } catch (err) {
+      console.error('No se pudo guardar el respaldo del torneo a borrar:', err);
+      return res.status(500).json({ error: 'No se pudo guardar el respaldo del torneo, así que no se borró nada.' });
+    }
+
+    // 2) Borrado.
+    const [ops, pagos, reloj, relojPrueba, t] = await Promise.all([
+      Transaction.deleteMany(filtroOperaciones(torneo)),
+      Pago.deleteMany({ torneoId: torneo._id }),
+      RelojTorneo.deleteMany({ torneoId: torneo._id }),
+      RelojPrueba.deleteMany({ torneoId: torneo._id }),
+      Tournament.deleteOne({ _id: torneo._id })
+    ]);
+
+    console.log(`Torneo borrado por ${usuario}: "${torneo.nombre}" (${torneo.fecha}) — respaldo en ${archivo}`);
+
+    res.json({
+      ok: true,
+      borrados: {
+        operaciones: ops.deletedCount,
+        pagos: pagos.deletedCount,
+        reloj: reloj.deletedCount + relojPrueba.deletedCount,
+        torneo: t.deletedCount
+      },
+      respaldo: path.basename(archivo),
+      eraActivo: !!torneo.activo
+    });
+  } catch (err) {
+    console.error('Error borrando torneo:', err);
+    res.status(500).json({ error: 'Error al borrar el torneo.' });
+  }
+});
 
 module.exports = router;

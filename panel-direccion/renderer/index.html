@@ -484,6 +484,12 @@
       padding: 25px
     }
 
+    /* Estadisticas: tabla ancha con scroll horizontal, sin cortar celdas */
+    #tab-estadisticas td,
+    #tab-estadisticas th {
+      white-space: nowrap
+    }
+
     .rake-help {
       font-size: 11px;
       color: var(--dim);
@@ -887,6 +893,17 @@
       opacity: .5
     }
 
+    /* Línea que marca dónde se cierra el registro */
+    .estructura-tabla tr.cierre-registro td {
+      background: rgba(193, 80, 58, .14);
+      border-top: 2px solid var(--danger2);
+      border-bottom: 2px solid var(--danger2);
+      color: var(--danger2);
+      font-weight: 700;
+      text-align: center;
+      padding: 7px 10px
+    }
+
     .estructura-tabla .num {
       font: 16px 'Bebas Neue';
       color: var(--dim);
@@ -1144,6 +1161,10 @@
         Control
       </button>
 
+      <button class="tab" data-tab="pagos">
+        Pagos
+      </button>
+
       <button class="tab" data-tab="rotacion">
         Rotación
       </button>
@@ -1287,7 +1308,8 @@
             <h2>Estadísticas por jugador</h2>
 
             <p class="sub">
-              Hacé clic en una columna para ordenar. Solo cuenta compras no anuladas.
+              Hacé clic en una columna para ordenar. Solo cuenta compras y pagos no anulados.
+              Balance = lo cobrado (premios + bounties + Hunter) menos lo gastado.
             </p>
 
           </div>
@@ -1297,6 +1319,8 @@
           </button>
 
         </div>
+
+        <div class="stats" id="estadisticasPagosBox" style="margin-top:15px"></div>
 
         <div style="overflow:auto;margin-top:15px">
 
@@ -1311,6 +1335,12 @@
                 <th style="cursor:pointer" data-sort="totalGastado">Total gastado ⇅</th>
                 <th style="cursor:pointer" data-sort="recurrencia">Recurrencia ⇅</th>
                 <th style="cursor:pointer" data-sort="ultimaFecha">Última vez ⇅</th>
+                <th style="cursor:pointer" data-sort="premios">Premios ⇅</th>
+                <th style="cursor:pointer" data-sort="mejorPuesto">Mejor puesto ⇅</th>
+                <th style="cursor:pointer" data-sort="bounties">Bounties ⇅</th>
+                <th style="cursor:pointer" data-sort="hunters">Hunter ⇅</th>
+                <th style="cursor:pointer" data-sort="totalCobrado">Total cobrado ⇅</th>
+                <th style="cursor:pointer" data-sort="balance">Balance ⇅</th>
               </tr>
 
             </thead>
@@ -1467,6 +1497,21 @@
 
           </div>
 
+          <div class="field">
+
+            <label>
+              Aporte Hunter
+            </label>
+
+            <input id="torneoFormHunter" type="number" min="0" step="0.01" placeholder="Ej: 1500">
+
+            <div class="rake-help">
+              Monto fijo por cada Buy-in o Re-Entry que sale del pozo y arma
+              el premio Hunter (para el que más bounties cobra). 0 = sin Hunter.
+            </div>
+
+          </div>
+
         </div>
 
 
@@ -1480,6 +1525,125 @@
 
 
         <div id="torneoMsg"></div>
+
+      </div>
+
+
+      <!-- TORNEOS CARGADOS / BORRAR TORNEO DE PRUEBA -->
+      <div class="panel">
+
+        <div class="actions" style="justify-content:space-between">
+          <div>
+            <h2>Torneos cargados</h2>
+            <p class="sub">
+              Para borrar torneos de <b>prueba</b>. Se borran el torneo, sus Buy-in / Re-Entry,
+              sus pagos y su reloj; los jugadores no se tocan. Antes de borrar se guarda un respaldo.
+            </p>
+          </div>
+          <button class="btn" id="refreshTorneosLista">Actualizar</button>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="field" style="max-width:320px">
+            <label>Buscar por nombre</label>
+            <input id="torneosListaFiltro" placeholder="Ej: prueba">
+          </div>
+        </div>
+
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Buy-in</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="torneosListaBody"></tbody>
+          </table>
+        </div>
+
+        <div id="torneosListaEmpty" class="empty hidden">No hay torneos cargados.</div>
+
+      </div>
+
+    </section>
+
+
+    <!-- PAGOS (premios, bounties y Hunter que entrega Caja) -->
+    <section id="tab-pagos" class="hidden">
+
+      <div class="panel">
+
+        <div class="actions">
+          <button class="btn" id="refreshPagos">Actualizar</button>
+        </div>
+
+        <h2 style="margin-top:18px">Pagos del torneo</h2>
+        <p class="sub" id="pagosTorneoInfo"></p>
+        <div id="pagosAvisoDir"></div>
+
+        <div class="stats" id="pagosStatsBox" style="margin-top:14px"></div>
+
+      </div>
+
+      <div class="panel" id="pagosHunterPanel">
+
+        <h2>Premio Hunter</h2>
+        <p class="sub">
+          Para el jugador que más bounties cobró. Se habilita solo cuando se pagan
+          todos los bounties; si el torneo terminó y falta alguno (por ejemplo, el
+          bounty del ganador), habilitalo desde acá. Empate: partes iguales.
+        </p>
+
+        <div id="pagosHunterEstado"></div>
+
+        <div class="actions" style="margin-top:12px">
+          <button class="btn gold" id="btnHunterHabilitar">Habilitar pago del Hunter</button>
+        </div>
+
+        <h2 style="margin-top:22px;font-size:18px">Ranking de bounties</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Jugador</th>
+              <th>DNI</th>
+              <th>Bounties</th>
+              <th>Cobrado</th>
+            </tr>
+          </thead>
+          <tbody id="pagosRankingTbody"></tbody>
+        </table>
+
+        <div id="pagosRankingEmpty" class="empty hidden">Todavía no se pagó ningún bounty.</div>
+
+      </div>
+
+      <div class="panel">
+
+        <h2>Detalle de pagos</h2>
+        <p class="sub">Anular un pago libera el puesto (o el Hunter) para volver a pagarlo; un bounty anulado deja de contar para el Hunter.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Jugador</th>
+              <th>Monto</th>
+              <th>Cajero</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="pagosDirTbody"></tbody>
+        </table>
+
+        <div id="pagosDirEmpty" class="empty hidden">Caja todavía no registró pagos en este torneo.</div>
 
       </div>
 
@@ -1514,9 +1678,19 @@
 
         <div class="row" style="margin:14px 0 4px;align-items:flex-end">
 
-          <div class="field" style="max-width:340px">
+          <div class="field" style="max-width:300px">
 
-            <label>Torneo / fecha</label>
+            <label>Torneo</label>
+
+            <select id="controlTorneoNombre">
+              <option value="">Todos los torneos</option>
+            </select>
+
+          </div>
+
+          <div class="field" style="max-width:300px">
+
+            <label>Fecha</label>
 
             <select id="controlTorneoSelect">
               <option value="">Torneo actual (hoy)</option>
@@ -1734,6 +1908,18 @@
               <button class="btn btn-sm" id="relojBtnEliminar" type="button">− Eliminado</button>
               <button class="btn btn-sm" id="relojBtnDeshacer" type="button">Deshacer</button>
             </div>
+            <div class="rake-help" id="relojBurbujaInfo"></div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Fichas renunciadas</div>
+            <div class="val" id="relojRenunciadas">0</div>
+            <div class="sub-acc" style="flex-wrap:wrap">
+              <input id="relojRenunciaCant" type="number" min="1" step="1" placeholder="Cantidad" style="width:120px">
+              <button class="btn btn-sm" id="relojBtnRenunciar" type="button">Renunciar fichas</button>
+              <button class="btn btn-sm" id="relojBtnDeshacerRenuncia" type="button">Deshacer</button>
+            </div>
+            <div class="rake-help">Se descuentan de las fichas totales. En la TV aparecen solo si hay alguna.</div>
           </div>
 
           <div class="stat">
@@ -1791,6 +1977,14 @@
           </div>
           <div>
             <button class="btn" id="relojPlantillaAplicar" type="button">Aplicar plantilla</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:14px;align-items:flex-end">
+          <div class="field" style="max-width:420px">
+            <label>El registro cierra al terminar el nivel</label>
+            <select id="relojEstructuraCierre"></select>
+            <div class="rake-help">Si después de ese nivel hay un descanso, el registro sigue abierto durante el descanso y cierra cuando empieza el nivel siguiente. Se guarda con la estructura y con las plantillas.</div>
           </div>
         </div>
 
@@ -1855,11 +2049,6 @@
             <input id="relojCfgStackRe" type="number" min="0" step="1" placeholder="Igual al inicial">
             <div class="rake-help">Vacío o 0 = igual al stack inicial.</div>
           </div>
-          <div class="field">
-            <label>Cierre de registro (al final del nivel)</label>
-            <input id="relojCfgCierre" type="number" min="0" step="1">
-            <div class="rake-help">0 = sin definir.</div>
-          </div>
         </div>
 
         <div class="row" style="margin-top:14px">
@@ -1882,6 +2071,11 @@
             <label>Redondear premios a</label>
             <input id="relojCfgRedondeo" type="number" min="0" step="100">
           </div>
+          <div class="field">
+            <label>Jugadores en la mesa final</label>
+            <input id="relojCfgMesaFinal" type="number" min="0" step="1">
+            <div class="rake-help">La burbuja de mesa final sale cuando quedan estos + 1. 0 = sin burbuja de mesa final.</div>
+          </div>
         </div>
 
         <div class="actions" style="margin-top:18px;align-items:center">
@@ -1902,6 +2096,11 @@
             <select id="relojTema"></select>
             <div class="rake-help" id="relojTemaAyuda"></div>
           </div>
+        </div>
+        <div class="actions" style="margin-top:14px;align-items:center">
+          <button class="btn" id="relojProbarBurbuja" type="button">Probar anuncio de burbuja</button>
+          <button class="btn" id="relojProbarFestejo" type="button">Probar festejo "En los premios"</button>
+          <span class="rake-help">Se ve en la TV a los pocos segundos. No cambia nada del torneo.</span>
         </div>
       </div>
 
@@ -2648,6 +2847,14 @@
             : '';
 
 
+        // Hunter: si el torneo anterior no lo tenia, se propone el valor
+        // de la casa ($1.500).
+        $('torneoFormHunter').value =
+          config.tipo === 'mistery_bounty' && config.hunterAporte != null
+            ? config.hunterAporte
+            : 1500;
+
+
         actualizarVisibilidadTipoTorneo();
 
       } catch (e) {
@@ -2726,6 +2933,16 @@
       if (name === 'control') {
         loadTorneosHistorial();
         loadControl();
+      }
+
+      if (name === 'torneo')
+        loadTorneosLista();
+
+      detenerPagosInterval();
+
+      if (name === 'pagos') {
+        loadPagosDireccion();
+        iniciarPagosInterval();
       }
 
       detenerRotacionIntervals();
@@ -3289,7 +3506,9 @@
     async function loadEstadisticas() {
 
       $('estadisticasBody').innerHTML =
-        '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+        '<tr><td colspan="12" class="loading">Cargando...</td></tr>';
+
+      loadEstadisticasPagos();
 
       try {
 
@@ -3306,7 +3525,7 @@
       } catch (e) {
 
         $('estadisticasBody').innerHTML =
-          '<tr><td colspan="6" class="danger">' + esc(e.message) + '</td></tr>';
+          '<tr><td colspan="12" class="danger">' + esc(e.message) + '</td></tr>';
 
       }
 
@@ -3328,6 +3547,12 @@
 
       const ordenados = [...estadisticasCache].sort((a, b) => {
         let va = a[campo], vb = b[campo];
+        // Sin premio = sin "mejor puesto": siempre al final.
+        if (campo === 'mejorPuesto') {
+          if (va == null && vb == null) return 0;
+          if (va == null) return 1;
+          if (vb == null) return -1;
+        }
         if (campo === 'apellido') {
           va = (a.apellido + ' ' + a.nombre).toLowerCase();
           vb = (b.apellido + ' ' + b.nombre).toLowerCase();
@@ -3345,6 +3570,12 @@
       <td>${money(p.totalGastado)}</td>
       <td>${p.recurrencia}</td>
       <td>${esc(p.ultimaFecha || '—')}</td>
+      <td>${p.premios ? `${p.premios} · ${money(p.premiosMonto)}` : '—'}</td>
+      <td>${p.mejorPuesto ? p.mejorPuesto + 'º' : '—'}</td>
+      <td>${p.bounties ? `${p.bounties} · ${money(p.bountiesMonto)}` : '—'}</td>
+      <td>${p.hunters ? `${p.hunters} · ${money(p.hunterMonto)}` : '—'}</td>
+      <td>${money(p.totalCobrado || 0)}</td>
+      <td style="color:${(p.balance || 0) > 0 ? 'var(--green2, #5FB183)' : (p.balance || 0) < 0 ? 'var(--danger2, #E0755F)' : 'inherit'}">${(p.balance || 0) > 0 ? '+' : ''}${money(p.balance || 0).replace('$-', '-$')}</td>
     </tr>`).join('');
 
     }
@@ -3361,14 +3592,349 @@
       };
     });
 
+    // Totales históricos de pagos (todos los torneos).
+    async function loadEstadisticasPagos() {
+      try {
+        const r = await api('/pagos/estadisticas');
+        const t = await r.json();
+        if (!r.ok) throw new Error(t.error || '');
+        const stat = (label, val, sub) =>
+          `<div class="stat"><div class="label">${label}</div><div class="val">${val}</div>` +
+          (sub ? `<div class="sub" style="font-size:12px">${sub}</div>` : '') + `</div>`;
+        $('estadisticasPagosBox').innerHTML =
+          stat('Premios pagados', money(t.premios.monto), `${t.premios.cantidad} ${t.premios.cantidad === 1 ? 'premio' : 'premios'} · ${t.premios.torneos} ${t.premios.torneos === 1 ? 'torneo' : 'torneos'}`) +
+          stat('Bounties pagados', money(t.bounties.monto), `${t.bounties.cantidad} ${t.bounties.cantidad === 1 ? 'bounty' : 'bounties'}`) +
+          stat('Hunter pagado', money(t.hunter.monto), `${t.hunter.cantidad} ${t.hunter.cantidad === 1 ? 'pago' : 'pagos'}`) +
+          stat('Total entregado', money(t.total), 'premios + bounties + Hunter');
+      } catch (e) {
+        $('estadisticasPagosBox').innerHTML = '';
+      }
+    }
+
     $('refreshEstadisticas').onclick = loadEstadisticas;
+
+
+    /* =========================
+       PAGOS (premios, bounties y Hunter)
+    ========================= */
+
+    let pagosDir = null;
+
+    const etiquetaPago = p =>
+      p.tipo === 'premio' ? `Premio ${p.puesto}º`
+        : p.tipo === 'hunter' ? 'Hunter'
+          : 'Bounty';
+
+    async function loadPagosDireccion(silencioso = false) {
+
+      if (!silencioso)
+        $('pagosDirTbody').innerHTML = '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+
+      try {
+        const r = await api('/pagos/resumen');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudieron cargar los pagos.');
+        // Si se abrió una confirmación (anular / habilitar) mientras
+        // llegaba la respuesta, se espera a la próxima vuelta.
+        if (silencioso && !$('confirmModal').classList.contains('hidden')) return;
+        pagosDir = d;
+        renderPagosDireccion();
+      } catch (e) {
+        if (!silencioso)
+          $('pagosDirTbody').innerHTML = '<tr><td colspan="6">' + esc(e.message) + '</td></tr>';
+      }
+    }
+
+    // Refresco automático mientras la pestaña Pagos está abierta: así se
+    // ven los cobros y bounties nuevos de Caja sin tocar "Actualizar".
+    let pagosInterval = null;
+
+    function iniciarPagosInterval() {
+      detenerPagosInterval();
+      pagosInterval = setInterval(() => {
+        if (!document.hidden && $('confirmModal').classList.contains('hidden'))
+          loadPagosDireccion(true);
+      }, 10000);
+    }
+
+    function detenerPagosInterval() {
+      if (pagosInterval) clearInterval(pagosInterval);
+      pagosInterval = null;
+    }
+
+    function renderPagosDireccion() {
+
+      const d = pagosDir;
+
+      if (d.sinTorneo) {
+        $('pagosTorneoInfo').textContent = 'No hay un torneo activo.';
+        $('pagosStatsBox').innerHTML = '';
+        $('pagosHunterPanel').classList.add('hidden');
+        $('pagosDirTbody').innerHTML = '';
+        $('pagosDirEmpty').classList.remove('hidden');
+        return;
+      }
+
+      $('pagosTorneoInfo').textContent =
+        `${d.torneo.nombre} · ${d.torneo.fecha}` +
+        (d.torneo.montoBounty ? ` · Bounty ${money(d.torneo.montoBounty)}` : '') +
+        (d.torneo.hunterAporte ? ` · Aporte Hunter ${money(d.torneo.hunterAporte)}` : '');
+
+      $('pagosAvisoDir').innerHTML = d.torneoDeOtroDia
+        ? '<div class="msg warn">El torneo activo es de otro día.</div>'
+        : '';
+
+      const t = d.totales;
+      const stat = (label, val) => `<div class="stat"><div class="label">${label}</div><div class="val">${val}</div></div>`;
+      $('pagosStatsBox').innerHTML =
+        stat('Premios pagados', `${t.premios.cantidad} · ${money(t.premios.monto)}`) +
+        stat('Bounties pagados', `${t.bounties.cantidad} · ${money(t.bounties.monto)}`) +
+        stat('Hunter pagado', money(t.hunter.monto)) +
+        stat('Total entregado', money(t.premios.monto + t.bounties.monto + t.hunter.monto));
+
+      // ---- Hunter ----
+      const h = d.hunter;
+      const conHunter = h.esBounty && (h.aporte > 0 || h.bolsa > 0);
+      $('pagosHunterPanel').classList.toggle('hidden', !conHunter);
+
+      if (conHunter) {
+
+        let estado;
+        if (h.habilitado) {
+          estado = h.ganadores.map(g =>
+            `<b>${esc(g.nombre)}</b> (DNI ${esc(g.dni)}, ${g.bounties} bounties): ` +
+            (g.pagado ? `pagado ${money(g.montoPagado)} a las ${esc(g.hora)}` : `pendiente de cobro, ${money(g.monto)}`)
+          ).join('<br>');
+          estado = `<div class="msg info">Hunter <b>habilitado</b>${h.completo ? ' (se pagaron todos los bounties)' : ' por Dirección'}` +
+            `${h.empate ? ' · Empate: partes iguales' : ''}.<br>${estado}</div>`;
+        } else {
+          const lider = h.ganadores.length
+            ? `Va ganando <b>${h.ganadores.map(g => esc(g.nombre)).join(' y ')}</b> con ${h.ganadores[0].bounties} bounties${h.empate ? ' (empate)' : ''}.`
+            : 'Todavía no hay bounties pagados.';
+          estado = `<div class="msg info">En juego. ${lider}</div>`;
+        }
+
+        $('pagosHunterEstado').innerHTML =
+          `<div class="stats" style="margin-bottom:0">` +
+          stat('Bolsa Hunter', money(h.bolsa)) +
+          stat('Bounties pagados', `${h.bountiesPagados} / ${h.bountiesTotales}`) +
+          `</div>` + estado;
+
+        // El botón habilita a mano; si ya está habilitado a mano (y no se
+        // completó solo), permite volver a bloquearlo.
+        const btn = $('btnHunterHabilitar');
+        btn.classList.toggle('hidden', h.completo || !h.ranking.length);
+        btn.textContent = h.habilitadoManual ? 'Bloquear pago del Hunter' : 'Habilitar pago del Hunter';
+        btn.classList.toggle('gold', !h.habilitadoManual);
+
+        $('pagosRankingEmpty').classList.toggle('hidden', h.ranking.length > 0);
+        const maximo = h.ranking.length ? h.ranking[0].bounties : 0;
+        $('pagosRankingTbody').innerHTML = h.ranking.map((r, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.bounties === maximo ? '<b>' + esc(r.nombre) + '</b>' : esc(r.nombre)}</td>
+            <td>${esc(r.dni)}</td>
+            <td><b>${r.bounties}</b></td>
+            <td>${money(r.monto)}</td>
+          </tr>`).join('');
+      }
+
+      // ---- Detalle ----
+      $('pagosDirEmpty').classList.toggle('hidden', d.pagos.length > 0);
+      $('pagosDirTbody').innerHTML = d.pagos.map(p => `
+        <tr${p.anulado ? ' style="opacity:.5"' : ''}>
+          <td>${esc(p.hora)}</td>
+          <td>${p.anulado ? 'ANULADO - ' : ''}${etiquetaPago(p)}</td>
+          <td>${esc(p.nombre)}${p.dni ? ' <span class="sub">(' + esc(p.dni) + ')</span>' : ''}</td>
+          <td>${money(p.monto)}</td>
+          <td>${esc(p.cajero || '')}</td>
+          <td>${p.anulado
+            ? `<span class="sub">por ${esc(p.anuladoPor || '')}</span>`
+            : `<button class="btn btn-sm danger" data-anular-pago="${esc(p._id)}">Anular</button>`}</td>
+        </tr>`).join('');
+
+      document.querySelectorAll('[data-anular-pago]').forEach(b => {
+        b.onclick = () => anularPago(d.pagos.find(p => p._id === b.dataset.anularPago));
+      });
+    }
+
+    async function anularPago(p) {
+      if (!p) return;
+      const ok = await openConfirmModal({
+        title: '¿Anular pago?',
+        message: `Se anulará el pago "${etiquetaPago(p)}" de ${money(p.monto)} a ${p.nombre}. ` +
+          'No se borra: queda registrado como anulado.',
+        confirmText: 'Anular'
+      });
+      if (ok !== true) return;
+      try {
+        const r = await api('/pagos/' + p._id + '/anular', { method: 'PATCH' });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudo anular.');
+        showToast('Pago anulado', `${etiquetaPago(p)} · ${p.nombre}`);
+      } catch (e) {
+        showToast('No se pudo anular el pago', e.message, 'error');
+      }
+      loadPagosDireccion();
+    }
+
+    $('btnHunterHabilitar').onclick = async () => {
+      const h = pagosDir && pagosDir.hunter;
+      if (!h) return;
+      const habilitar = !h.habilitadoManual;
+      const ok = await openConfirmModal({
+        title: habilitar ? '¿Habilitar el Hunter?' : '¿Bloquear el Hunter?',
+        message: habilitar
+          ? `Faltan ${Math.max(0, h.bountiesTotales - h.bountiesPagados)} bounties por pagar. ` +
+            `Caja va a poder pagar el Hunter a ${h.ganadores.map(g => g.nombre).join(' y ')} con el ranking actual.`
+          : 'Caja no va a poder pagar el Hunter hasta que se paguen todos los bounties o se vuelva a habilitar.',
+        confirmText: habilitar ? 'Habilitar' : 'Bloquear'
+      });
+      if (ok !== true) return;
+      try {
+        const r = await api('/pagos/hunter/habilitar', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ habilitado: habilitar })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudo cambiar el estado.');
+        showToast(habilitar ? 'Hunter habilitado' : 'Hunter bloqueado', habilitar ? 'Caja ya puede pagarlo.' : '');
+      } catch (e) {
+        showToast('No se pudo cambiar el Hunter', e.message, 'error');
+      }
+      loadPagosDireccion();
+    };
+
+    $('refreshPagos').onclick = () => loadPagosDireccion();
+
+
+    /* =========================
+       TORNEOS CARGADOS / BORRAR TORNEO
+    ========================= */
+
+    let torneosListaCache = [];
+    let torneoABorrar = null;   // { id, preview }
+
+    async function loadTorneosLista() {
+      $('torneosListaBody').innerHTML = '<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+      try {
+        const r = await api('/tournament/historial');
+        const d = await r.json();
+        if (!r.ok || !Array.isArray(d)) throw new Error(d.error || 'No se pudo cargar la lista.');
+        torneosListaCache = d;
+        renderTorneosLista();
+      } catch (e) {
+        $('torneosListaBody').innerHTML = '<tr><td colspan="6" class="danger">' + esc(e.message) + '</td></tr>';
+      }
+    }
+
+    function renderTorneosLista() {
+      const filtro = $('torneosListaFiltro').value.trim().toLowerCase();
+      const lista = torneosListaCache.filter(t => !filtro || String(t.nombre).toLowerCase().includes(filtro));
+      $('torneosListaEmpty').classList.toggle('hidden', lista.length > 0);
+
+      $('torneosListaBody').innerHTML = lista.map(t => {
+        const fila = `<tr>
+          <td>${esc(etiquetaFecha(t.fecha))}</td>
+          <td>${esc(t.nombre)}</td>
+          <td>${t.tipo === 'mistery_bounty' ? 'Bounty' : 'Normal'}</td>
+          <td>${money(t.buyIn)}</td>
+          <td>${t.activo ? '<b style="color:var(--gold2)">Activo</b>' : '—'}</td>
+          <td><button class="btn btn-sm danger" data-borrar-torneo="${esc(t._id)}">Borrar</button></td>
+        </tr>`;
+        if (!torneoABorrar || torneoABorrar.id !== t._id) return fila;
+
+        const p = torneoABorrar.preview;
+        if (!p) return fila + '<tr class="edit-row"><td colspan="6" class="loading">Revisando qué se va a borrar...</td></tr>';
+
+        return fila + `<tr class="edit-row"><td colspan="6">
+          <div class="msg warn" style="margin-top:0">
+            <b>Se va a borrar definitivamente "${esc(p.torneo.nombre)}" (${esc(p.torneo.fecha)}):</b><br>
+            · ${p.operaciones.total} operaciones (${p.operaciones.activas} activas, ${p.operaciones.anuladas} anuladas) de ${p.operaciones.jugadores} jugadores · recaudado ${money(p.operaciones.recaudado)}<br>
+            · ${p.pagos.total} pagos (premios / bounties / Hunter) · ${money(p.pagos.monto)}<br>
+            · ${p.reloj || p.relojPrueba ? 'El reloj del torneo' : 'Sin reloj'}<br>
+            ${p.torneo.activo ? '<b>· Es el torneo ACTIVO: Caja va a quedar sin torneo hasta que cargues otro.</b><br>' : ''}
+            ${p.operaciones.activas > 0 ? '<b>· Tiene cobros activos. Si es un torneo real, NO lo borres.</b><br>' : ''}
+            Los jugadores no se tocan. Se guarda un respaldo antes de borrar.
+          </div>
+          <div class="row" style="margin-top:12px;align-items:flex-end">
+            <div class="field" style="max-width:360px">
+              <label>Para confirmar, escribí el nombre exacto: <b>${esc(p.torneo.nombre)}</b></label>
+              <input id="borrarTorneoConfirm" autocomplete="off">
+            </div>
+            <div class="actions" style="margin-bottom:15px">
+              <button class="btn" id="borrarTorneoCancelar">Cancelar</button>
+              <button class="btn" id="borrarTorneoOk" disabled
+                style="background:var(--danger, #C1503A);border-color:var(--danger, #C1503A);color:#fff">Borrar definitivamente</button>
+            </div>
+          </div>
+        </td></tr>`;
+      }).join('');
+
+      document.querySelectorAll('[data-borrar-torneo]').forEach(b => {
+        b.onclick = () => abrirBorradoTorneo(b.dataset.borrarTorneo);
+      });
+
+      if (torneoABorrar && torneoABorrar.preview && $('borrarTorneoConfirm')) {
+        const nombre = String(torneoABorrar.preview.torneo.nombre).trim();
+        $('borrarTorneoConfirm').oninput = () => {
+          $('borrarTorneoOk').disabled = $('borrarTorneoConfirm').value.trim() !== nombre;
+        };
+        $('borrarTorneoCancelar').onclick = () => { torneoABorrar = null; renderTorneosLista(); };
+        $('borrarTorneoOk').onclick = confirmarBorradoTorneo;
+        $('borrarTorneoConfirm').focus();
+      }
+    }
+
+    async function abrirBorradoTorneo(id) {
+      torneoABorrar = { id, preview: null };
+      renderTorneosLista();
+      try {
+        const r = await api('/tournament/' + id + '/borrado');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudo revisar el torneo.');
+        if (!torneoABorrar || torneoABorrar.id !== id) return;
+        torneoABorrar.preview = d;
+      } catch (e) {
+        torneoABorrar = null;
+        showToast('No se pudo revisar el torneo', e.message, 'error');
+      }
+      renderTorneosLista();
+    }
+
+    async function confirmarBorradoTorneo() {
+      const { id, preview } = torneoABorrar;
+      $('borrarTorneoOk').disabled = true;
+      try {
+        const r = await api('/tournament/' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirmacion: $('borrarTorneoConfirm').value.trim() })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudo borrar el torneo.');
+        showToast('Torneo borrado',
+          `"${preview.torneo.nombre}": ${d.borrados.operaciones} operaciones y ${d.borrados.pagos} pagos borrados. Respaldo: ${d.respaldo}`);
+        torneoABorrar = null;
+        loadTorneosLista();
+        loadTorneosHistorial();
+        if (d.eraActivo) loadConfig();
+      } catch (e) {
+        showToast('No se pudo borrar el torneo', e.message, 'error');
+        if ($('borrarTorneoOk')) $('borrarTorneoOk').disabled = false;
+      }
+    }
+
+    $('torneosListaFiltro').oninput = renderTorneosLista;
+    $('refreshTorneosLista').onclick = loadTorneosLista;
 
 
     /* =========================
        GUARDAR TORNEO
     ========================= */
 
-    enterSubmit(['torneoFormNombre', 'torneoFormFecha', 'torneoFormBuyin', 'torneoFormRecompra', 'torneoFormRake', 'torneoFormMbRake', 'torneoFormMbBounty'], 'saveTournament');
+    enterSubmit(['torneoFormNombre', 'torneoFormFecha', 'torneoFormBuyin', 'torneoFormRecompra', 'torneoFormRake', 'torneoFormMbRake', 'torneoFormMbBounty', 'torneoFormHunter'], 'saveTournament');
 
     $('saveTournament').onclick = async () => {
 
@@ -3513,11 +4079,28 @@
 
         }
 
-        if (mbRake + mbBounty > buyIn) {
+        const hunterTxt = $('torneoFormHunter').value.trim();
+        const hunterAporte = hunterTxt === '' ? 0 : Number(hunterTxt);
+
+        if (
+          !Number.isFinite(hunterAporte) ||
+          hunterAporte < 0
+        ) {
 
           $('torneoMsg').innerHTML =
             '<div class="msg warn">' +
-            'La suma de Rake y Bounty no puede superar el buy-in.' +
+            'El aporte Hunter no puede ser negativo.' +
+            '</div>';
+
+          return;
+
+        }
+
+        if (mbRake + mbBounty + hunterAporte > buyIn) {
+
+          $('torneoMsg').innerHTML =
+            '<div class="msg warn">' +
+            'La suma de Rake, Bounty y Hunter no puede superar el buy-in.' +
             '</div>';
 
           return;
@@ -3526,12 +4109,12 @@
 
         if (
           recompra > 0 &&
-          (mbRake + mbBounty) > recompra
+          (mbRake + mbBounty + hunterAporte) > recompra
         ) {
 
           $('torneoMsg').innerHTML =
             '<div class="msg warn">' +
-            'La suma de Rake y Bounty no puede superar el monto de Re-Entry.' +
+            'La suma de Rake, Bounty y Hunter no puede superar el monto de Re-Entry.' +
             '</div>';
 
           return;
@@ -3540,11 +4123,14 @@
 
         body.mbRake = mbRake;
         body.mbBounty = mbBounty;
+        body.hunterAporte = hunterAporte;
 
         confirmMessage =
           `Se va a activar "${nombre}" (Mistery Bounty, fecha ${fecha}) ` +
-          `con Rake $${mbRake.toLocaleString('es-AR')} y Bounty ` +
-          `$${mbBounty.toLocaleString('es-AR')} fijos por operación. ` +
+          `con Rake $${mbRake.toLocaleString('es-AR')}, Bounty ` +
+          `$${mbBounty.toLocaleString('es-AR')}` +
+          (hunterAporte > 0 ? ` y Hunter $${hunterAporte.toLocaleString('es-AR')}` : ' y sin Hunter') +
+          ` fijos por operación. Al pozo van $${(buyIn - mbRake - mbBounty - hunterAporte).toLocaleString('es-AR')} por Buy-in. ` +
           `Se desactivará el torneo activo anterior, si había uno.`;
 
       } else {
@@ -3658,6 +4244,8 @@
 
         await loadConfig();
 
+        loadTorneosLista();
+
 
       } catch (e) {
 
@@ -3696,19 +4284,19 @@
           await r.json();
 
 
-        const seleccionActual =
-          $('controlTorneoSelect').value;
+        // Primer filtro: nombres distintos (alfabético).
+        const nombreActual = $('controlTorneoNombre').value;
+        const nombres = [...new Set(torneosHistorialCache.map(t => t.nombre))]
+          .sort((a, b) => a.localeCompare(b, 'es'));
 
+        $('controlTorneoNombre').innerHTML =
+          '<option value="">Todos los torneos</option>' +
+          nombres.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
 
-        $('controlTorneoSelect').innerHTML =
-          '<option value="">Torneo actual (hoy)</option>' +
-          torneosHistorialCache.map(
-            t => `<option value="${esc(t.fecha)}">${esc(t.nombre)} — ${esc(t.fecha)}</option>`
-          ).join('');
+        $('controlTorneoNombre').value =
+          nombres.includes(nombreActual) ? nombreActual : '';
 
-
-        $('controlTorneoSelect').value =
-          seleccionActual;
+        renderFechasControl();
 
 
       } catch (e) {
@@ -3722,6 +4310,43 @@
 
     }
 
+
+    // Segundo filtro: fechas del torneo elegido (o de todos), de la más
+    // reciente a la más vieja. El valor sigue siendo la fecha, igual que
+    // antes, así el control y las exportaciones no cambian.
+    const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+    function etiquetaFecha(fecha) {
+      const [a, m, d] = String(fecha).split('-').map(Number);
+      if (!a || !m || !d) return fecha;
+      const dia = DIAS[new Date(a, m - 1, d).getDay()];
+      return `${dia} ${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${a}`;
+    }
+
+    function renderFechasControl() {
+      const nombre = $('controlTorneoNombre').value;
+      const fechaActual = $('controlTorneoSelect').value;
+      const lista = torneosHistorialCache
+        .filter(t => !nombre || t.nombre === nombre)
+        .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+
+      $('controlTorneoSelect').innerHTML =
+        '<option value="">Torneo actual (hoy)</option>' +
+        lista.map(t =>
+          `<option value="${esc(t.fecha)}">${esc(etiquetaFecha(t.fecha))}${nombre ? '' : ' — ' + esc(t.nombre)}</option>`
+        ).join('');
+
+      $('controlTorneoSelect').value =
+        lista.some(t => t.fecha === fechaActual) ? fechaActual : '';
+    }
+
+    $('controlTorneoNombre').onchange = () => {
+      renderFechasControl();
+      // Al elegir un torneo se muestra directamente su fecha más reciente.
+      const primera = $('controlTorneoSelect').options[1];
+      if ($('controlTorneoNombre').value && primera) $('controlTorneoSelect').value = primera.value;
+      loadControl();
+    };
 
     $('controlTorneoSelect').onchange =
       loadControl;
@@ -4654,6 +5279,8 @@
     let relojTickInterval = null;
     let relojPidiendo = false;
     let relojEstructuraEdit = [];
+    // Nivel al final del cual cierra el registro (0 = sin cierre)
+    let relojCierreEdit = 0;
     let relojEstructuraSucia = false;
     let relojEstructuraRenderizada = '';
     let relojCfgSucia = false;
@@ -4803,12 +5430,22 @@
       // Datos
       const j = d.jugadores;
       $('relojRestantes').textContent = `${j.restantes} / ${j.buyins}`;
+      const bb = d.burbuja || {};
+      $('relojBurbujaInfo').textContent =
+        bb.premios && bb.mesaFinal ? 'Burbuja de premios y de mesa final (se ve en la TV)' :
+        bb.premios ? `Burbuja de premios: cobran ${bb.cobran} (se ve en la TV)` :
+        bb.mesaFinal ? `Burbuja de mesa final: juegan ${bb.jugadoresMesaFinal} (se ve en la TV)` :
+        bb.enMesaFinal ? 'Mesa final' :
+        bb.enPremios ? 'En los premios' : '';
+      $('relojRenunciadas').textContent = fichas(d.fichas.fichasRenunciadas || 0);
       $('relojEntradas').textContent = j.entradasTotales;
       $('relojEntradasDetalle').textContent = `${j.buyins} buy-ins · ${j.reentradas} re-entradas · ${j.eliminaciones} eliminados`;
       $('relojPozo').textContent = money(d.pozo);
       $('relojBounty').textContent = d.torneo.tipo === 'mistery_bounty' ? 'Bounties aparte: ' + money(d.bounty) : '';
       $('relojStackProm').textContent = fichas(d.fichas.stackPromedio);
-      $('relojPuntos').textContent = 'Fichas en juego: ' + fichas(d.fichas.puntosTotales) + (d.fichas.stackInicial ? '' : ' · falta cargar el stack inicial');
+      $('relojPuntos').textContent = 'Fichas en juego: ' + fichas(d.fichas.puntosTotales) +
+        (d.fichas.fichasRenunciadas ? ' (ya descontadas ' + fichas(d.fichas.fichasRenunciadas) + ' renunciadas)' : '') +
+        (d.fichas.stackInicial ? '' : ' · falta cargar el stack inicial');
 
       const reg = d.registro;
       if (!reg.cierreNivel) {
@@ -4819,7 +5456,7 @@
         $('relojRegistroDetalle').textContent = 'Cierra en ' + fmtTiempo(reg.cierraEnSegundos);
       } else {
         $('relojRegistro').textContent = 'Cerrado';
-        $('relojRegistroDetalle').textContent = 'Cerró al final del nivel ' + reg.cierreNivel;
+        $('relojRegistroDetalle').textContent = 'Cerró al empezar el nivel ' + (reg.cierraAlEmpezarNivel || reg.cierreNivel + 1);
       }
 
       $('relojDescanso').textContent = d.proximoDescanso ? fmtTiempo(d.proximoDescanso.empiezaEnSegundos) : '—';
@@ -4847,15 +5484,15 @@
       const c = relojData.config;
       $('relojCfgStack').value = c.stackInicial || '';
       $('relojCfgStackRe').value = c.stackReentry || '';
-      $('relojCfgCierre').value = c.cierreRegistroNivel || 0;
       $('relojCfgIlimitadas').value = c.reentradasIlimitadas !== false ? 'si' : 'no';
       $('relojCfgMax').value = c.maxReentradas || 0;
       $('relojCfgPct').value = c.porcentajePagados;
       $('relojCfgRedondeo').value = c.redondeoPremios;
+      $('relojCfgMesaFinal').value = c.jugadoresMesaFinal === undefined ? 8 : c.jugadoresMesaFinal;
       $('relojCfgMaxWrap').classList.toggle('hidden', $('relojCfgIlimitadas').value === 'si');
     }
 
-    ['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgIlimitadas', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo']
+    ['relojCfgStack', 'relojCfgStackRe', 'relojCfgIlimitadas', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo', 'relojCfgMesaFinal']
       .forEach(id => {
         $(id).addEventListener('input', () => {
           relojCfgSucia = true;
@@ -4864,17 +5501,17 @@
         });
       });
 
-    enterSubmit(['relojCfgStack', 'relojCfgStackRe', 'relojCfgCierre', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo'], 'relojCfgGuardar');
+    enterSubmit(['relojCfgStack', 'relojCfgStackRe', 'relojCfgMax', 'relojCfgPct', 'relojCfgRedondeo', 'relojCfgMesaFinal'], 'relojCfgGuardar');
 
     $('relojCfgGuardar').onclick = async () => {
       const body = {
         stackInicial: Number($('relojCfgStack').value || 0),
         stackReentry: Number($('relojCfgStackRe').value || 0),
-        cierreRegistroNivel: Number($('relojCfgCierre').value || 0),
         reentradasIlimitadas: $('relojCfgIlimitadas').value === 'si',
         maxReentradas: Number($('relojCfgMax').value || 0),
         porcentajePagados: Number($('relojCfgPct').value),
-        redondeoPremios: Number($('relojCfgRedondeo').value || 0)
+        redondeoPremios: Number($('relojCfgRedondeo').value || 0),
+        jugadoresMesaFinal: Number($('relojCfgMesaFinal').value || 0)
       };
       try {
         const r = await api('/reloj/config', {
@@ -4930,6 +5567,22 @@
       }
     };
 
+    async function relojProbarAnuncio(tipo) {
+      try {
+        const r = await api('/reloj/probar-anuncio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipo })
+        });
+        if (!r.ok) throw new Error((await r.json()).error);
+        showToast('Anuncio enviado', 'Mirá la TV: aparece en unos segundos.');
+      } catch (e) {
+        showToast('No se pudo enviar', e.message, 'error');
+      }
+    }
+    $('relojProbarBurbuja').onclick = () => relojProbarAnuncio('burbuja');
+    $('relojProbarFestejo').onclick = () => relojProbarAnuncio('festejo');
+
     /* ---------- Estructura ---------- */
 
     function filaBloqueada(i) {
@@ -4953,13 +5606,28 @@
 
       if (modo !== 'edit') {
         relojEstructuraEdit = JSON.parse(JSON.stringify(relojData.config.niveles || []));
+        relojCierreEdit = Number(relojData.config.cierreRegistroNivel || 0);
       }
 
       const rel = relojData.reloj;
       // En el refresco automatico solo se redibuja si cambio algo.
-      const firma = JSON.stringify([relojEstructuraEdit, rel.estado, rel.indice]);
+      const firma = JSON.stringify([relojEstructuraEdit, relojCierreEdit, rel.estado, rel.indice]);
       if (modo === 'poll' && firma === relojEstructuraRenderizada) return;
       relojEstructuraRenderizada = firma;
+
+      // Posición después de la cual va la línea de cierre: el nivel de
+      // cierre y, si le siguen descansos, el último de ellos.
+      let posCierre = -1;
+      if (relojCierreEdit > 0) {
+        let num = 0;
+        relojEstructuraEdit.forEach((n, i) => { if (n.tipo !== 'descanso' && ++num === relojCierreEdit) posCierre = i; });
+        while (posCierre >= 0 && relojEstructuraEdit[posCierre + 1] && relojEstructuraEdit[posCierre + 1].tipo === 'descanso') posCierre++;
+      }
+      const cantNiveles = relojEstructuraEdit.filter(n => n.tipo !== 'descanso').length;
+      const sel = $('relojEstructuraCierre');
+      sel.innerHTML = '<option value="0">Sin cierre</option>' +
+        Array.from({ length: Math.max(cantNiveles, relojCierreEdit) }, (_, k) => `<option value="${k + 1}">Nivel ${k + 1}</option>`).join('');
+      sel.value = String(relojCierreEdit);
 
       let numero = 0;
       $('relojEstructuraBody').innerHTML = relojEstructuraEdit.map((n, i) => {
@@ -4992,7 +5660,9 @@
               <button class="btn btn-sm" type="button" onclick="relojMoverFila(${i},1)" ${dis} title="Bajar">↓</button>
               <button class="btn btn-sm danger" type="button" onclick="relojBorrarFila(${i})" ${dis} title="Borrar">✕</button>
             </td>
-          </tr>`;
+          </tr>` + (i === posCierre
+            ? `<tr class="cierre-registro"><td colspan="7">🔒 Cierra el registro: desde el nivel ${relojCierreEdit + 1} no se aceptan más entradas</td></tr>`
+            : '');
       }).join('');
 
       $('relojEstructuraVacia').classList.toggle('hidden', relojEstructuraEdit.length > 0);
@@ -5044,6 +5714,12 @@
       renderEstructura('edit');
     };
 
+    $('relojEstructuraCierre').onchange = () => {
+      relojCierreEdit = Number($('relojEstructuraCierre').value || 0);
+      marcarEstructuraSucia(true);
+      renderEstructura('edit');
+    };
+
     $('relojEstructuraDescartar').onclick = () => {
       marcarEstructuraSucia(false);
       renderEstructura('reset');
@@ -5058,6 +5734,14 @@
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.error);
+        // El cierre de registro se guarda junto con la estructura
+        const rc = await api('/reloj/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cierreRegistroNivel: relojCierreEdit })
+        });
+        const dc = await rc.json();
+        if (!rc.ok) throw new Error(dc.error);
         marcarEstructuraSucia(false);
         showToast('Estructura guardada', 'La pantalla del reloj ya usa la estructura nueva.');
         await loadReloj();
@@ -5133,7 +5817,7 @@
       const body = {
         nombre,
         niveles: relojEstructuraEdit,
-        cierreRegistroNivel: Number($('relojCfgCierre').value || 0)
+        cierreRegistroNivel: relojCierreEdit
       };
       try {
         const r = await api(existente ? '/reloj/plantillas/' + existente._id : '/reloj/plantillas', {
@@ -5851,6 +6535,26 @@
     enterSubmit(['relojPonerTiempo'], 'relojBtnPoner');
     $('relojBtnEliminar').onclick = () => relojAccion('eliminar');
     $('relojBtnDeshacer').onclick = () => relojAccion('deshacerEliminacion');
+
+    $('relojBtnRenunciar').onclick = async () => {
+      const cantidad = Number($('relojRenunciaCant').value || 0);
+      if (!Number.isInteger(cantidad) || cantidad <= 0) {
+        showToast('Falta la cantidad', 'Escribí cuántas fichas se renunciaron.', 'error');
+        return;
+      }
+      const ok = await openConfirmModal({
+        title: 'Renunciar fichas',
+        message: `Se descuentan ${fichas(cantidad)} fichas del total del torneo.`,
+        confirmText: 'Renunciar'
+      });
+      if (ok !== true) return;
+      if (await relojAccion('renunciar', { cantidad })) {
+        $('relojRenunciaCant').value = '';
+        showToast('Fichas renunciadas', fichas(cantidad) + ' fichas descontadas del total.');
+      }
+    };
+    $('relojBtnDeshacerRenuncia').onclick = () => relojAccion('deshacerRenuncia');
+    enterSubmit(['relojRenunciaCant'], 'relojBtnRenunciar');
 
     $('relojBtnReiniciar').onclick = async () => {
       const ok = await openConfirmModal({

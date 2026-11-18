@@ -339,9 +339,22 @@ router.get(
 
       const esMisteryBounty = tipoTorneo === 'mistery_bounty';
 
+      // Hunter: aporte fijo por operación que sale del pozo. Se muestra
+      // solo si el torneo lo tiene configurado o si alguna operación lo
+      // guardó (los torneos viejos quedan igual que antes).
+      const hunterAporte = Number(
+        torneo?.hunterAporte || 0
+      );
+
+      const tieneHunter = esMisteryBounty && (
+        hunterAporte > 0 ||
+        txs.some(t => Number((t.desglose || {}).hunter || 0) > 0)
+      );
+
       // Ultima columna usada en la hoja: para Mistery Bounty agregamos 3
-      // columnas mas (Rake / Bounty / Prizepool por operación).
-      const lastCol = esMisteryBounty ? 'K' : 'H';
+      // columnas mas (Rake / Bounty / Prizepool por operación), y una mas
+      // (Hunter) si el torneo tiene Hunter.
+      const lastCol = esMisteryBounty ? (tieneHunter ? 'L' : 'K') : 'H';
 
 
       // ==================================================
@@ -395,6 +408,7 @@ router.get(
 
       let rakeAcumulado = 0;
       let bountyAcumulado = 0;
+      let hunterAcumulado = 0;
       let prizepoolAcumulado = 0;
 
       if (esMisteryBounty) {
@@ -403,6 +417,7 @@ router.get(
           const d = t.desglose || {};
           rakeAcumulado += Number(d.rake || 0);
           bountyAcumulado += Number(d.bounty || 0);
+          hunterAcumulado += Number(d.hunter || 0);
           prizepoolAcumulado += Number(d.prizepool || 0);
         }
 
@@ -457,6 +472,7 @@ router.get(
         ...(esMisteryBounty ? [
           { width: 14 },
           { width: 14 },
+          ...(tieneHunter ? [{ width: 14 }] : []),
           { width: 14 }
         ] : [])
       ];
@@ -528,7 +544,9 @@ router.get(
         ? `Buy-in: $${buyIn.toLocaleString('es-AR')} · ` +
           `Recompra: $${recompra.toLocaleString('es-AR')} · ` +
           `Mistery Bounty — Rake: $${mbRake.toLocaleString('es-AR')} · ` +
-          `Bounty: $${mbBounty.toLocaleString('es-AR')} (fijos por operación)`
+          `Bounty: $${mbBounty.toLocaleString('es-AR')}` +
+          (tieneHunter ? ` · Hunter: $${hunterAporte.toLocaleString('es-AR')}` : '') +
+          ' (fijos por operación)'
         : `Buy-in: $${buyIn.toLocaleString('es-AR')} · ` +
           `Recompra: $${recompra.toLocaleString('es-AR')} · ` +
           `Rake por operación: $${rake.toLocaleString('es-AR')}`;
@@ -558,7 +576,7 @@ router.get(
         'Monto',
         'Torneo',
         'Cajero',
-        ...(esMisteryBounty ? ['Rake', 'Bounty', 'Prizepool'] : [])
+        ...(esMisteryBounty ? ['Rake', 'Bounty', ...(tieneHunter ? ['Hunter'] : []), 'Prizepool'] : [])
       ];
 
 
@@ -615,6 +633,7 @@ router.get(
           ...(esMisteryBounty ? [
             Number(d.rake || 0),
             Number(d.bounty || 0),
+            ...(tieneHunter ? [Number(d.hunter || 0)] : []),
             Number(d.prizepool || 0)
           ] : [])
         ];
@@ -635,6 +654,7 @@ router.get(
         ws.getColumn(9).numFmt = '$#,##0';
         ws.getColumn(10).numFmt = '$#,##0';
         ws.getColumn(11).numFmt = '$#,##0';
+        if (tieneHunter) ws.getColumn(12).numFmt = '$#,##0';
       }
 
 
@@ -738,6 +758,11 @@ router.get(
             bountyAcumulado,
             true
           ],
+          ...(tieneHunter ? [[
+            'Hunter acumulado',
+            hunterAcumulado,
+            true
+          ]] : []),
           [
             'Prizepool acumulado',
             prizepoolAcumulado,
@@ -882,7 +907,23 @@ router.get(
       if (esMisteryBounty) {
 
         const bountyRow = summaryStart + 6;
-        const prizepoolRow = summaryStart + 7;
+        const prizepoolRow = summaryStart + (tieneHunter ? 8 : 7);
+
+        // Hunter (si hay): mismo estilo que el bounty.
+        const filasBounty = tieneHunter ? [bountyRow, bountyRow + 1] : [bountyRow];
+        for (const fila of filasBounty.slice(1)) {
+          for (const col of ['A', 'B']) {
+            ws.getCell(`${col}${fila}`).fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'EFE2C6' }
+            };
+            ws.getCell(`${col}${fila}`).font = {
+              bold: true,
+              color: { argb: '8A6D1D' }
+            };
+          }
+        }
 
         ws.getCell(`A${bountyRow}`).fill = {
           type: 'pattern',
@@ -974,7 +1015,7 @@ router.get(
       // ==================================================
 
       const summaryEnd =
-        summaryStart + (esMisteryBounty ? 7 : 6);
+        summaryStart + (esMisteryBounty ? (tieneHunter ? 8 : 7) : 6);
 
       for (
         let r = summaryStart + 1;

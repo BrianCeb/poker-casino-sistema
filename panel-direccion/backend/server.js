@@ -30,6 +30,7 @@ async function startServer(port) {
   app.use('/api/reports', require('./routes/reports'));
   app.use('/api/pagadores', require('./routes/pagadores'));
   app.use('/api/reloj', require('./routes/reloj'));
+  app.use('/api/pagos', require('./routes/pagos'));
 
   // Panel Gerencia: se accede por su propia URL (no por Electron), ya
   // que es de uso exclusivo para el rol gerencia. Se sirve SOLO este
@@ -59,10 +60,24 @@ async function startServer(port) {
   // Imágenes de fondo del reloj (opcionales), una por tema:
   // reloj-fondo.jpg (clásico), reloj-fondo-crema.jpg (crema), etc.
   // Si el archivo no existe, la pantalla usa un fondo hecho con degradé.
-  app.get(/^\/reloj-fondo(-[a-z0-9]+)?\.jpg$/, (req, res) => {
-    const archivo = req.path.slice(1);
-    res.sendFile(path.join(__dirname, '..', 'renderer', archivo), err => {
-      if (err && !res.headersSent) res.status(404).end();
+  // Imágenes de la pantalla del reloj (fondos de cada tema y la firma de
+  // Arena Poker). Lista explícita de nombres: funciona en cualquier
+  // versión de Express. Si falta un archivo, la pantalla usa un fondo de
+  // respaldo y en la consola queda el aviso con la ruta buscada.
+  const IMAGENES_RELOJ = [
+    'reloj-fondo.jpg',
+    'reloj-fondo-crema.jpg',
+    'reloj-fondo-funny.jpg',
+    'reloj-fondo-bounty.jpg',
+    'reloj-firma.png'
+  ];
+  app.get(IMAGENES_RELOJ.map(nombre => '/' + nombre), (req, res) => {
+    const archivo = path.join(__dirname, '..', 'renderer', path.basename(req.path));
+    res.sendFile(archivo, err => {
+      if (err && !res.headersSent) {
+        console.warn('Reloj: no se encontró la imagen', archivo);
+        res.status(404).end();
+      }
     });
   });
 

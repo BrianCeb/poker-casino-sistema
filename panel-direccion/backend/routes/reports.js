@@ -79,7 +79,8 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
           // operacion.
           tipo: info && info.tipo === 'mistery_bounty' ? 'mistery_bounty' : 'normal',
           rakeMB: 0,
-          bountyMB: 0
+          bountyMB: 0,
+          hunterMB: 0
         };
       }
       porTorneo[key].recaudado += Number(t.monto || 0);
@@ -90,6 +91,7 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
         const d = t.desglose || {};
         porTorneo[key].rakeMB += Number(d.rake || 0);
         porTorneo[key].bountyMB += Number(d.bounty || 0);
+        porTorneo[key].hunterMB += Number(d.hunter || 0);
       }
     });
 
@@ -97,11 +99,13 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
       const info = torneoInfoPorFecha[key];
       let rake;
       let bounty;
+      let hunter = 0;
 
       if (g.tipo === 'mistery_bounty') {
         // Valores reales, sumados desde el desglose de cada transaccion.
         rake = g.rakeMB;
         bounty = g.bountyMB;
+        hunter = g.hunterMB;
       } else {
         const rakePorOperacion = info ? Number(info.rake || 0) : 0;
         rake = (g.buyins + g.recompras) * rakePorOperacion;
@@ -111,7 +115,9 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
       // "premios" (prizepool) es lo que queda despues de sacar la
       // comision del casino (rake) y, si aplica, el bounty (que no es
       // comision del casino, se destina aparte).
-      const premios = Math.max(0, g.recaudado - rake - bounty);
+      // El Hunter tampoco va al pozo: es la bolsa del premio al que mas
+      // bounties cobra. En los graficos de Gerencia se suma al bounty.
+      const premios = Math.max(0, g.recaudado - rake - bounty - hunter);
 
       return {
         nombre: g.nombre,
@@ -121,7 +127,8 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
         recompras: g.recompras,
         recaudado: g.recaudado,
         rake,
-        bounty,
+        bounty: bounty + hunter,
+        hunter,
         premios,
         // Se usa para el grafico "Jugadores por torneo", no para la tabla
         // (la tabla de Detalle por torneo no lo muestra a proposito).

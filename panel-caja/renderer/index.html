@@ -560,6 +560,86 @@
       }
 
     }
+    /* =========================================
+   PESTAÑA PAGOS (premios y bounties)
+========================================= */
+
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--b2);
+      border-radius: 8px;
+      color: var(--t);
+      padding: 11px 12px;
+      font-size: 14px
+    }
+
+    .pagos-resumen {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0 16px
+    }
+
+    .pagos-resumen .kpi {
+      flex: 1;
+      min-width: 140px;
+      background: var(--p2);
+      border: 1px solid var(--b);
+      border-radius: 8px;
+      padding: 10px 14px
+    }
+
+    .pagos-resumen .kpi span {
+      display: block;
+      font-size: 11px;
+      color: var(--d);
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    .pagos-resumen .kpi b {
+      font: 20px 'IBM Plex Mono';
+      color: var(--g2)
+    }
+
+    tr.pagado td {
+      color: var(--d)
+    }
+
+    .estado-pagado {
+      color: var(--green2);
+      font-weight: 600
+    }
+
+    .pago-form {
+      background: var(--p2);
+    }
+
+    .pago-form td {
+      padding: 14px 10px
+    }
+
+    .bounty-montos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px
+    }
+
+    .bounty-montos label {
+      margin-bottom: 3px
+    }
+
+    .bounty-total {
+      font: 15px 'IBM Plex Mono';
+      color: var(--d);
+      margin-bottom: 14px
+    }
+
+    .bounty-total b {
+      color: var(--g2)
+    }
   </style>
 </head>
 
@@ -693,6 +773,7 @@
     <nav class="tabs">
       <button id="tabCobrarBtn" class="active" type="button">Cobrar</button>
       <button id="tabJugadoresBtn" type="button">Jugadores</button>
+      <button id="tabPagosBtn" type="button">Pagos</button>
     </nav>
 
 
@@ -780,6 +861,124 @@
       </div>
 
     </div>
+
+    <div id="viewPagos" class="hidden">
+
+      <div id="pagosAviso"></div>
+
+      <div class="panel">
+        <h2>Premios del torneo</h2>
+        <p class="sub">Mismos montos que muestra el reloj. Elegí el puesto, pedile el nombre al jugador e imprimí el ticket para que cobre en caja.</p>
+
+        <div class="pagos-resumen">
+          <div class="kpi"><span>Jugadores</span><b id="pagosJugadores">0</b></div>
+          <div class="kpi"><span>Re-Entries</span><b id="pagosReentradas">0</b></div>
+          <div class="kpi"><span>Pozo</span><b id="pagosPozo">$0</b></div>
+          <div class="kpi"><span>Puestos pagos</span><b id="pagosPuestos">0</b></div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <button class="btn-sm" id="btnRefrescarPagos" type="button">Actualizar</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Puesto</th>
+              <th>%</th>
+              <th>Premio</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="premiosTbody"></tbody>
+        </table>
+        <div id="premiosEmpty" class="empty hidden">Todavía no hay premios: el pozo se arma con los Buy-in cobrados.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Pagar bounty</h2>
+        <p class="sub">Se imprime un ticket por cada bounty cobrado.</p>
+
+        <div id="bountyInfo" class="bounty-total"></div>
+
+        <div class="row">
+          <div class="field">
+            <label>Tipo de premio</label>
+            <select id="bountyTipo" disabled>
+              <option value="bounty">Bounty</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Jugador (elegilo de la lista de inscriptos)</label>
+            <input id="bountyNombre" list="inscriptosList" placeholder="Apellido, nombre o DNI" autocomplete="off">
+            <div id="bountyJugadorSel" class="sub" style="margin-top:6px"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Monto por bounty (configurado en el torneo)</label>
+            <input id="bountyMonto" readonly placeholder="Sin bounty configurado">
+          </div>
+          <div class="field">
+            <label>Cantidad de bounties</label>
+            <input id="bountyCantidad" type="number" min="1" max="30" value="1" inputmode="numeric">
+          </div>
+        </div>
+        <div id="bountyTotal" class="bounty-total"></div>
+
+        <button class="gold" id="btnPagarBounty" type="button">Pagar e imprimir</button>
+      </div>
+
+      <div class="panel" id="hunterPanel">
+        <h2>Premio Hunter</h2>
+        <p class="sub">Para el jugador que más bounties cobró. Se habilita cuando se pagan todos los bounties, o antes si Dirección lo habilita. Si hay empate, se divide en partes iguales.</p>
+
+        <div class="pagos-resumen">
+          <div class="kpi"><span>Bolsa Hunter</span><b id="hunterBolsa">$0</b></div>
+          <div class="kpi"><span>Bounties pagados</span><b id="hunterBounties">0 / 0</b></div>
+          <div class="kpi"><span>Estado</span><b id="hunterEstado">—</b></div>
+        </div>
+
+        <div id="hunterGanadores"></div>
+
+        <table style="margin-top:14px">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Jugador</th>
+              <th>Bounties</th>
+            </tr>
+          </thead>
+          <tbody id="hunterRankingTbody"></tbody>
+        </table>
+        <div id="hunterRankingEmpty" class="empty hidden">Todavía no se pagó ningún bounty.</div>
+      </div>
+
+      <div class="panel">
+        <h2>Pagos del torneo</h2>
+        <p class="sub">Premios y bounties ya entregados. Si un ticket salió mal, reimprimilo desde acá (no vuelvas a pagar).</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Tipo</th>
+              <th>Jugador</th>
+              <th>Monto</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="pagosTbody"></tbody>
+        </table>
+        <div id="pagosEmpty" class="empty hidden">Todavía no se pagó nada en este torneo.</div>
+      </div>
+
+      <datalist id="inscriptosList"></datalist>
+
+    </div>
+
 
   </div>
 
@@ -1472,23 +1671,26 @@
 
 
     /* =========================================
-       PESTAÑAS: COBRAR / JUGADORES
+       PESTAÑAS: COBRAR / JUGADORES / PAGOS
     ========================================= */
 
-    $('tabCobrarBtn').onclick = () => {
-      $('tabCobrarBtn').classList.add('active');
-      $('tabJugadoresBtn').classList.remove('active');
-      $('viewCobrar').classList.remove('hidden');
-      $('viewJugadores').classList.add('hidden');
+    const TABS = {
+      cobrar: { btn: 'tabCobrarBtn', view: 'viewCobrar' },
+      jugadores: { btn: 'tabJugadoresBtn', view: 'viewJugadores', alAbrir: () => loadJugadores() },
+      pagos: { btn: 'tabPagosBtn', view: 'viewPagos', alAbrir: () => cargarPagos() }
     };
 
-    $('tabJugadoresBtn').onclick = () => {
-      $('tabJugadoresBtn').classList.add('active');
-      $('tabCobrarBtn').classList.remove('active');
-      $('viewJugadores').classList.remove('hidden');
-      $('viewCobrar').classList.add('hidden');
-      loadJugadores();
-    };
+    function mostrarTab(nombre) {
+      Object.entries(TABS).forEach(([k, t]) => {
+        $(t.btn).classList.toggle('active', k === nombre);
+        $(t.view).classList.toggle('hidden', k !== nombre);
+      });
+      if (TABS[nombre].alAbrir) TABS[nombre].alAbrir();
+    }
+
+    $('tabCobrarBtn').onclick = () => mostrarTab('cobrar');
+    $('tabJugadoresBtn').onclick = () => mostrarTab('jugadores');
+    $('tabPagosBtn').onclick = () => mostrarTab('pagos');
 
 
 
@@ -2255,6 +2457,438 @@
       }
 
     }
+
+
+
+    /* =========================================
+       PAGOS: PREMIOS Y BOUNTIES
+       - Los montos de los premios los calcula el
+       backend con la misma fórmula del reloj; la
+       pantalla nunca manda el monto de un premio.
+       - Cada pago queda registrado e imprime su
+       ticket para que el jugador cobre en caja.
+    ========================================= */
+
+    let pagosData = null;
+    let puestoEnPago = null;
+
+    const normalizarNombre = s =>
+      String(s || '')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\s+/g, ' ').trim().toLowerCase();
+
+    // Si el nombre escrito coincide con UN solo inscripto de hoy (en
+    // cualquier orden: "Nombre Apellido" o "Apellido Nombre"), se
+    // completa el DNI. Si no coincide, se paga igual solo con el nombre.
+    function dniPorNombre(nombre) {
+      const n = normalizarNombre(nombre);
+      if (!n || !pagosData) return '';
+      const coincidencias = (pagosData.inscriptos || []).filter(j =>
+        normalizarNombre(j.nombre + ' ' + j.apellido) === n ||
+        normalizarNombre(j.apellido + ' ' + j.nombre) === n
+      );
+      return coincidencias.length === 1 ? coincidencias[0].dni : '';
+    }
+
+    // Interpreta lo que se escribió/eligió en un campo de jugador:
+    //  - una opción de la lista ("Apellido Nombre · DNI 123")
+    //  - un DNI solo
+    //  - un nombre que coincide con UN inscripto
+    // Devuelve el inscripto encontrado o null.
+    function inscriptoDe(valor) {
+      const v = String(valor || '').trim();
+      if (!v || !pagosData) return null;
+      const lista = pagosData.inscriptos || [];
+      const m = v.match(/DNI\s*(\d+)\s*$/i);
+      const soloDni = /^\d{6,}$/.test(v.replace(/\D/g, '')) && /^[\d.\s]+$/.test(v) ? v.replace(/\D/g, '') : '';
+      const dni = m ? m[1] : soloDni;
+      if (dni) return lista.find(j => j.dni === dni) || null;
+      const n = dniPorNombre(v);
+      return n ? lista.find(j => j.dni === n) || null : null;
+    }
+
+    const nombreDe = j => j.nombre + ' ' + j.apellido;
+
+    // Datos que entiende el puente de impresión (mismo formato que los
+    // tickets de Buy-in / Re-Entry): "tipo" y "monto" salen grandes.
+    function ticketDePago(pago, extra = '') {
+      return {
+        nombre: pago.nombre,
+        apellido: '',
+        dni: pago.dni || '-',
+        torneo: pago.torneo,
+        tipo: pago.tipo === 'premio' ? `PUESTO ${pago.puesto}` : pago.tipo === 'hunter' ? 'HUNTER' : ('BOUNTY' + extra),
+        monto: money(pago.monto),
+        hora: pago.hora,
+        cajero: pago.cajero || sessionStorage.getItem('caja_user') || '',
+        concepto: pago.tipo,
+        // Texto del final del ticket (en vez del saludo de los tickets de
+        // Buy-in / Re-Entry). Lo usa el puente de impresión.
+        pie: 'TICKET DE COBRO'
+      };
+    }
+
+    let cargandoPagos = false;
+
+    async function cargarPagos(silencioso = false) {
+      if (cargandoPagos) return;
+      cargandoPagos = true;
+      if (!silencioso) $('premiosTbody').innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
+      try {
+        const r = await api('/pagos/resumen');
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'No se pudieron cargar los premios.');
+        // Si mientras llegaba la respuesta el cajero abrió el formulario
+        // de un premio o una confirmación, no se redibuja (se toma en la
+        // próxima vuelta).
+        if (silencioso && !puedeRefrescarPagos()) return;
+        pagosData = d;
+        renderPagos();
+      } catch (e) {
+        if (!silencioso) $('premiosTbody').innerHTML = '<tr><td colspan="5">' + esc(e.message) + '</td></tr>';
+      } finally {
+        cargandoPagos = false;
+      }
+    }
+
+    /* Refresco automático de la pestaña Pagos: cada 10 segundos, solo si
+       está a la vista y el cajero no está en medio de un pago (formulario
+       de premio abierto o confirmación en pantalla). */
+    function puedeRefrescarPagos() {
+      return !$('viewPagos').classList.contains('hidden') &&
+        !document.hidden &&
+        puestoEnPago === null &&
+        $('confirmModal').classList.contains('hidden') &&
+        !document.querySelector('[data-hunter]:disabled, #btnPagarBounty:disabled:not([data-sin-bounties])');
+    }
+
+    setInterval(() => {
+      if (token && puedeRefrescarPagos()) cargarPagos(true);
+    }, 10000);
+
+    function renderPagos() {
+      const d = pagosData;
+
+      if (d.sinTorneo) {
+        $('pagosAviso').innerHTML = '<div class="msg warn" style="margin:0 0 18px">No hay un torneo activo configurado por Dirección.</div>';
+        $('premiosTbody').innerHTML = '';
+        $('pagosTbody').innerHTML = '';
+        return;
+      }
+
+      $('pagosAviso').innerHTML = d.torneoDeOtroDia
+        ? '<div class="msg warn" style="margin:0 0 18px">El torneo activo es de otro día. Avisá a Dirección antes de pagar.</div>'
+        : '';
+
+      $('pagosJugadores').textContent = d.jugadores;
+      $('pagosReentradas').textContent = d.reentradas;
+      $('pagosPozo').textContent = money(d.pozo);
+      $('pagosPuestos').textContent = d.premios.length;
+
+      // Sugerencias de nombre: inscriptos del día.
+      $('inscriptosList').innerHTML = (d.inscriptos || [])
+        .map(j => `<option value="${esc(j.apellido + ' ' + j.nombre + ' · DNI ' + j.dni)}"></option>`)
+        .join('');
+
+      // Premios: del último puesto pago al 1ro (es el orden en que se pagan).
+      const premios = [...d.premios].reverse();
+      $('premiosEmpty').classList.toggle('hidden', premios.length > 0 && d.pozo > 0);
+
+      $('premiosTbody').innerHTML = premios.map(p => {
+        if (p.pagado) {
+          return `<tr class="pagado">
+            <td><b>${p.puesto}º</b></td>
+            <td>${p.porcentaje}%</td>
+            <td>${money(p.montoPagado)}</td>
+            <td><span class="estado-pagado">Pagado</span> · ${esc(p.nombre)} · ${esc(p.hora)}</td>
+            <td></td>
+          </tr>`;
+        }
+        const fila = `<tr>
+          <td><b>${p.puesto}º</b></td>
+          <td>${p.porcentaje}%</td>
+          <td><b>${money(p.monto)}</b></td>
+          <td>Pendiente</td>
+          <td><button class="btn-sm gold" data-pagar="${p.puesto}" type="button" ${p.monto > 0 ? '' : 'disabled'}>Pagar</button></td>
+        </tr>`;
+        if (puestoEnPago !== p.puesto) return fila;
+        return fila + `<tr class="pago-form">
+          <td colspan="5">
+            <div class="row">
+              <div class="field">
+                <label>Nombre del jugador que cobra el ${p.puesto}º puesto</label>
+                <input id="premioNombre" list="inscriptosList" placeholder="Nombre y apellido" autocomplete="off">
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn-sm" id="premioCancelar" type="button">Cancelar</button>
+              <button class="btn-sm gold" id="premioConfirmar" type="button">Pagar ${money(p.monto)} e imprimir</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      document.querySelectorAll('[data-pagar]').forEach(btn => {
+        btn.onclick = () => {
+          puestoEnPago = Number(btn.dataset.pagar);
+          renderPagos();
+          $('premioNombre').focus();
+        };
+      });
+
+      if (puestoEnPago !== null && $('premioNombre')) {
+        $('premioCancelar').onclick = () => { puestoEnPago = null; renderPagos(); };
+        $('premioConfirmar').onclick = () => pagarPremio(puestoEnPago);
+        enterSubmit(['premioNombre'], 'premioConfirmar');
+      }
+
+      // Bounty
+      const b = d.bounty;
+      $('bountyInfo').innerHTML =
+        `Bounties pagados: <b>${b.cantidad} de ${b.enJuego}</b> · <b>${money(b.pagado)}</b> · ` +
+        (b.disponibles > 0 ? (b.disponibles === 1 ? 'Queda <b>1</b> por pagar' : `Quedan <b>${b.disponibles}</b> por pagar`) : '<b>No quedan bounties por pagar</b>');
+
+      // El valor del bounty viene del torneo (lo carga Dirección).
+      const montoB = Number(d.torneo.montoBounty || 0);
+      $('bountyMonto').value = montoB > 0 ? money(montoB) : '';
+      // Tope: no se pueden pagar más bounties que entradas (1 por Buy-in / Re-Entry).
+      const hayBounties = montoB > 0 && b.disponibles > 0;
+      ['bountyNombre', 'bountyCantidad', 'btnPagarBounty'].forEach(id => $(id).disabled = !hayBounties);
+      $('btnPagarBounty').toggleAttribute('data-sin-bounties', !hayBounties);
+      $('bountyCantidad').max = Math.max(1, Math.min(30, b.disponibles));
+      if (cantidadBounty() > b.disponibles && b.disponibles > 0) $('bountyCantidad').value = b.disponibles;
+      if (!(montoB > 0)) {
+        $('bountyInfo').innerHTML = 'Este torneo no tiene bounty configurado. Si corresponde, Dirección lo carga al crear el torneo.';
+      }
+      actualizarTotalBounty();
+
+      renderHunter(d);
+
+      // Pagos ya hechos
+      $('pagosEmpty').classList.toggle('hidden', d.pagos.length > 0);
+      $('pagosTbody').innerHTML = d.pagos.map((p, i) => `<tr>
+        <td>${esc(p.hora)}</td>
+        <td>${p.tipo === 'premio' ? 'Premio ' + p.puesto + 'º' : p.tipo === 'hunter' ? '<b>Hunter</b>' : 'Bounty'}</td>
+        <td>${esc(p.nombre)}${p.dni ? ' <span class="sub">(' + esc(p.dni) + ')</span>' : ''}</td>
+        <td>${money(p.monto)}</td>
+        <td><button class="btn-sm" data-reimprimir="${i}" type="button">Reimprimir</button></td>
+      </tr>`).join('');
+
+      document.querySelectorAll('[data-reimprimir]').forEach(btn => {
+        btn.onclick = () => imprimirTicket(ticketDePago(pagosData.pagos[Number(btn.dataset.reimprimir)]));
+      });
+    }
+
+    /* ---------- HUNTER ---------- */
+
+    function renderHunter(d) {
+      const h = d.hunter;
+      // Solo en torneos con bounty y aporte Hunter.
+      const visible = h && h.esBounty && (h.aporte > 0 || h.bolsa > 0);
+      $('hunterPanel').classList.toggle('hidden', !visible);
+      if (!visible) return;
+
+      $('hunterBolsa').textContent = money(h.bolsa);
+      $('hunterBounties').textContent = `${h.bountiesPagados} / ${h.bountiesTotales}`;
+      $('hunterEstado').textContent = h.habilitado
+        ? (h.ganadores.every(g => g.pagado) ? 'Pagado' : 'Habilitado')
+        : 'En juego';
+
+      if (!h.habilitado) {
+        const lider = h.ganadores.length
+          ? `Va ganando: <b>${h.ganadores.map(g => esc(g.nombre)).join(' y ')}</b> con ${h.ganadores[0].bounties} bounties${h.empate ? ' (empate)' : ''}.`
+          : 'Todavía no hay bounties pagados.';
+        $('hunterGanadores').innerHTML = `<div class="msg info">${lider} Faltan ${Math.max(0, h.bountiesTotales - h.bountiesPagados)} bounties por pagar.</div>`;
+      } else {
+        $('hunterGanadores').innerHTML = (h.empate ? '<div class="msg info">Empate: la bolsa se divide en partes iguales.</div>' : '') +
+          h.ganadores.map(g => `
+            <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div>
+                <div class="name">${esc(g.nombre)}</div>
+                <div class="dni">DNI ${esc(g.dni)} · ${g.bounties} bounties</div>
+              </div>
+              ${g.pagado
+                ? `<div><span class="estado-pagado">Pagado</span> ${money(g.montoPagado)} · ${esc(g.hora)}</div>`
+                : `<button class="gold" data-hunter="${esc(g.dni)}" type="button">Pagar Hunter ${money(g.monto)} e imprimir</button>`}
+            </div>`).join('');
+        document.querySelectorAll('[data-hunter]').forEach(btn => {
+          btn.onclick = () => pagarHunter(btn.dataset.hunter, btn);
+        });
+      }
+
+      $('hunterRankingEmpty').classList.toggle('hidden', h.ranking.length > 0);
+      $('hunterRankingTbody').innerHTML = h.ranking.slice(0, 10).map((r, i) => `<tr>
+        <td>${i + 1}</td>
+        <td>${esc(r.nombre)}${r.dni ? ' <span class="sub">(' + esc(r.dni) + ')</span>' : ''}</td>
+        <td><b>${r.bounties}</b></td>
+      </tr>`).join('');
+    }
+
+    async function pagarHunter(dni, btn) {
+      const g = pagosData.hunter.ganadores.find(x => x.dni === dni);
+      if (!g) return;
+      const confirmado = await openConfirmModal({
+        title: '¿Pagar el Hunter?',
+        message: `Se va a registrar el premio Hunter de ${money(g.monto)} a nombre de ${g.nombre} (${g.bounties} bounties) y se imprimirá el ticket.`,
+        confirmText: 'Pagar e imprimir'
+      });
+      if (!confirmado) return;
+      btn.disabled = true;
+      try {
+        const r = await api('/pagos/hunter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dni })
+        });
+        const pago = await r.json();
+        if (!r.ok) throw new Error(pago.error || 'No se pudo registrar el pago.');
+        showToast('Hunter pagado', `${pago.nombre} · ${money(pago.monto)}`);
+        await imprimirTicket(ticketDePago(pago));
+      } catch (e) {
+        showToast('No se pudo pagar el Hunter', e.message, 'error');
+        btn.disabled = false;
+        return;
+      }
+      cargarPagos();
+    }
+
+    async function pagarPremio(puesto) {
+      const elegido = inscriptoDe($('premioNombre').value);
+      const nombre = elegido ? nombreDe(elegido) : $('premioNombre').value.replace(/\s+/g, ' ').trim();
+      if (nombre.length < 2) {
+        showToast('Falta el nombre', 'Pedile el nombre al jugador antes de pagar.', 'error');
+        $('premioNombre').focus();
+        return;
+      }
+      const premio = pagosData.premios.find(p => p.puesto === puesto);
+
+      const confirmado = await openConfirmModal({
+        title: `¿Pagar el ${puesto}º puesto?`,
+        message: `Se va a registrar el premio de ${money(premio ? premio.monto : 0)} a nombre de ${nombre} y se imprimirá el ticket.`,
+        confirmText: 'Pagar e imprimir'
+      });
+      if (!confirmado) return;
+
+      const btn = $('premioConfirmar');
+      if (btn) btn.disabled = true;
+
+      try {
+        const r = await api('/pagos/premio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ puesto, nombre, dni: elegido ? elegido.dni : '' })
+        });
+        const pago = await r.json();
+        if (!r.ok) throw new Error(pago.error || 'No se pudo registrar el pago.');
+
+        // El monto pagado es el que calculó el backend. Si difiere de lo
+        // que se veía (entró un Re-Entry en el medio), se avisa.
+        if (premio && pago.monto !== premio.monto) {
+          showToast('El premio se actualizó', `El pozo cambió: el ${puesto}º puesto cobra ${money(pago.monto)}.`, 'error');
+        }
+        showToast('Premio pagado', `${puesto}º puesto · ${money(pago.monto)} · ${pago.nombre}`);
+        await imprimirTicket(ticketDePago(pago));
+        puestoEnPago = null;
+      } catch (e) {
+        showToast('No se pudo pagar el premio', e.message, 'error');
+        if (btn) btn.disabled = false;
+        return;
+      }
+      cargarPagos();
+    }
+
+    // Bounty clásico: monto fijo configurado en el torneo (no se edita
+    // desde Caja; el backend usa siempre el valor del torneo).
+    function montoBounty() {
+      return Number((pagosData && pagosData.torneo && pagosData.torneo.montoBounty) || 0);
+    }
+
+    function cantidadBounty() {
+      return Math.min(30, Math.max(1, parseInt($('bountyCantidad').value, 10) || 1));
+    }
+
+    function actualizarTotalBounty() {
+      const monto = montoBounty();
+      const cant = cantidadBounty();
+      $('bountyTotal').innerHTML = monto > 0
+        ? `Total a pagar: <b>${money(monto * cant)}</b> · ${cant} ticket${cant === 1 ? '' : 's'} de ${money(monto)}`
+        : '';
+    }
+
+    $('bountyCantidad').oninput = actualizarTotalBounty;
+
+    // Muestra a quién se le va a pagar apenas se elige de la lista.
+    $('bountyNombre').oninput = () => {
+      const j = inscriptoDe($('bountyNombre').value);
+      $('bountyJugadorSel').innerHTML = j
+        ? `Cobra: <b>${esc(j.apellido + ' ' + j.nombre)}</b> · DNI ${esc(j.dni)}`
+        : ($('bountyNombre').value.trim() ? 'Elegí un jugador de la lista de inscriptos.' : '');
+    };
+
+    $('btnPagarBounty').onclick = async () => {
+      const jugador = inscriptoDe($('bountyNombre').value);
+      const monto = montoBounty();
+      const cantidad = cantidadBounty();
+
+      if (!jugador) {
+        showToast('Elegí el jugador', 'El bounty se paga a un jugador inscripto: elegilo de la lista (por apellido, nombre o DNI).', 'error');
+        $('bountyNombre').focus();
+        return;
+      }
+      const nombre = nombreDe(jugador);
+      if (!(monto > 0)) {
+        showToast('Sin bounty', 'El torneo activo no tiene bounty configurado.', 'error');
+        return;
+      }
+      const disponibles = pagosData.bounty.disponibles;
+      if (cantidad > disponibles) {
+        showToast('Demasiados bounties', disponibles > 0
+          ? `${disponibles === 1 ? 'Solo queda 1 bounty' : `Solo quedan ${disponibles} bounties`} por pagar (uno por cada entrada).`
+          : 'Ya se pagaron todos los bounties del torneo.', 'error');
+        return;
+      }
+
+      const total = monto * cantidad;
+      const confirmado = await openConfirmModal({
+        title: cantidad === 1 ? '¿Pagar bounty?' : `¿Pagar ${cantidad} bounties?`,
+        message: `Se va a registrar ${cantidad === 1 ? 'un bounty' : cantidad + ' bounties'} de ${money(monto)} (total ${money(total)}) a nombre de ${nombre}. Se imprime un ticket por cada bounty.`,
+        confirmText: 'Pagar e imprimir'
+      });
+      if (!confirmado) return;
+
+      const btn = $('btnPagarBounty');
+      btn.disabled = true;
+
+      try {
+        const r = await api('/pagos/bounty', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dni: jugador.dni, cantidad })
+        });
+        const pagos = await r.json();
+        if (!r.ok) throw new Error(pagos.error || 'No se pudo registrar el pago.');
+
+        showToast('Bounty pagado', `${pagos.length} ticket${pagos.length === 1 ? '' : 's'} · ${money(total)} · ${nombre}`);
+
+        // Uno por uno, para que salgan en orden y separados.
+        for (let i = 0; i < pagos.length; i++) {
+          const extra = pagos.length > 1 ? ` ${i + 1}/${pagos.length}` : '';
+          await imprimirTicket(ticketDePago(pagos[i], extra));
+        }
+
+        $('bountyNombre').value = '';
+        $('bountyJugadorSel').innerHTML = '';
+        $('bountyCantidad').value = 1;
+        actualizarTotalBounty();
+      } catch (e) {
+        showToast('No se pudo pagar el bounty', e.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+      cargarPagos();
+    };
+
+    $('btnRefrescarPagos').onclick = cargarPagos;
 
 
 

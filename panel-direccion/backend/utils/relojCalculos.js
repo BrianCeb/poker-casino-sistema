@@ -167,11 +167,12 @@ function tablaAutomatica(porcentajePagados = 12.5, hastaJugadores = 200) {
 // desglose de Mistery Bounty), sin guardar nada en la base.
 function transaccionesDePrueba(torneo, prueba) {
   const armar = (tipo, monto) => {
-    const t = { tipo, monto, desglose: { rake: 0, bounty: 0, prizepool: 0 } };
+    const t = { tipo, monto, desglose: { rake: 0, bounty: 0, hunter: 0, prizepool: 0 } };
     if (torneo.tipo === 'mistery_bounty') {
       const rake = Number(torneo.mbRake || 0);
       const bounty = Number(torneo.mbBounty || 0);
-      t.desglose = { rake, bounty, prizepool: monto - rake - bounty };
+      const hunter = Number(torneo.hunterAporte || 0);
+      t.desglose = { rake, bounty, hunter, prizepool: monto - rake - bounty - hunter };
     }
     return t;
   };
@@ -209,18 +210,20 @@ function calcularPozo(transaccionesActivas, torneo) {
   if (torneo && torneo.tipo === 'mistery_bounty') {
     let rake = 0;
     let bounty = 0;
+    let hunter = 0;
     let prizepool = 0;
     for (const t of transaccionesActivas) {
       const d = t.desglose || {};
       rake += Number(d.rake || 0);
       bounty += Number(d.bounty || 0);
+      hunter += Number(d.hunter || 0);
       prizepool += Number(d.prizepool || 0);
     }
-    return { recaudado, rake, bounty, pozo: Math.max(0, prizepool) };
+    return { recaudado, rake, bounty, hunter, pozo: Math.max(0, prizepool) };
   }
 
   const rake = transaccionesActivas.length * Number((torneo && torneo.rake) || 0);
-  return { recaudado, rake, bounty: 0, pozo: Math.max(0, recaudado - rake) };
+  return { recaudado, rake, bounty: 0, hunter: 0, pozo: Math.max(0, recaudado - rake) };
 }
 
 
@@ -261,15 +264,22 @@ function armarVista({ torneo, reloj, transaccionesActivas, ahora = new Date() })
     }
   }
 
-  // Cierre de registro: al FINAL del nivel de juego numero N.
+  // Cierre de registro: al FINAL del nivel de juego numero N. Si justo
+  // despues de ese nivel viene un descanso, el registro sigue abierto
+  // durante el descanso y cierra cuando empieza el nivel siguiente (por
+  // ej. cierre en nivel 10 + descanso => cierra al empezar el nivel 11).
   let registro = { abierto: true, cierreNivel: 0, cierraEnSegundos: null };
   const cierreN = Number(reloj.cierreRegistroNivel || 0);
   if (cierreN > 0 && niveles.length) {
-    const posCierre = posicionDelNivel(niveles, cierreN);
+    let posCierre = posicionDelNivel(niveles, cierreN);
+    while (posCierre + 1 < niveles.length && niveles[posCierre + 1].tipo === 'descanso') posCierre++;
     const abierto = reloj.estado !== 'finalizado' && ef.indice <= posCierre;
     registro = {
       abierto,
       cierreNivel: cierreN,
+      // Nivel de juego que arranca con el registro ya cerrado
+      cierraAlEmpezarNivel: cierreN + 1,
+      incluyeDescanso: posCierre !== posicionDelNivel(niveles, cierreN),
       cierraEnSegundos: abierto ? segundosHasta(posCierre + 1) : 0
     };
   }
@@ -282,7 +292,9 @@ function armarVista({ torneo, reloj, transaccionesActivas, ahora = new Date() })
   const stackInicial = Number(reloj.stackInicial || 0);
   // Si no se cargo un stack de re-entry distinto, se usa el inicial.
   const stackReentry = Number(reloj.stackReentry || 0) || stackInicial;
-  const puntosTotales = buyins * stackInicial + reentradas * stackReentry;
+  // Fichas renunciadas (surrender): salen del total de fichas en juego.
+  const fichasRenunciadas = (reloj.renuncias || []).reduce((s, r) => s + Number(r.cantidad || 0), 0);
+  const puntosTotales = Math.max(0, buyins * stackInicial + reentradas * stackReentry - fichasRenunciadas);
   const stackPromedio = jugadoresRestantes > 0 ? Math.round(puntosTotales / jugadoresRestantes) : 0;
 
   // Pozo y premios.
@@ -290,6 +302,23 @@ function armarVista({ torneo, reloj, transaccionesActivas, ahora = new Date() })
   const { origen, porcentajes } = porcentajesPremios(buyins, reloj);
   const premios = montosPremios(pozo.pozo, porcentajes, reloj.redondeoPremios)
     .map((p, i) => ({ puesto: i + 1, ...p }));
+
+  // Burbujas. Solo cuentan con el registro ya cerrado (antes puede haber
+  // pocos inscriptos y no es una burbuja de verdad) y el torneo en curso.
+  //   premios:    quedan exactamente los que cobran + 1
+  //   mesa final: quedan exactamente los de la mesa final + 1
+  // "enPremios" / "enMesaFinal" sirven para anunciar cuando se rompe.
+  const cobran = premios.length;
+  const mesaFinal = reloj.jugadoresMesaFinal === undefined ? 8 : Number(reloj.jugadoresMesaFinal || 0);
+  const enJuego = registro.cierreNivel > 0 && !registro.abierto && reloj.estado !== 'finalizado';
+  const burbuja = {
+    premios: enJuego && cobran > 0 && jugadoresRestantes === cobran + 1,
+    mesaFinal: enJuego && mesaFinal > 0 && jugadoresRestantes === mesaFinal + 1,
+    enPremios: enJuego && cobran > 0 && jugadoresRestantes <= cobran,
+    enMesaFinal: enJuego && mesaFinal > 0 && jugadoresRestantes <= mesaFinal,
+    cobran,
+    jugadoresMesaFinal: mesaFinal
+  };
 
   return {
     serverNow: ahora.getTime(),
@@ -323,7 +352,8 @@ function armarVista({ torneo, reloj, transaccionesActivas, ahora = new Date() })
       eliminaciones,
       restantes: jugadoresRestantes
     },
-    fichas: { stackInicial, stackReentry, puntosTotales, stackPromedio },
+    fichas: { stackInicial, stackReentry, puntosTotales, stackPromedio, fichasRenunciadas },
+    burbuja,
     reentradas: {
       ilimitadas: reloj.reentradasIlimitadas !== false,
       maximo: Number(reloj.maxReentradas || 0)
