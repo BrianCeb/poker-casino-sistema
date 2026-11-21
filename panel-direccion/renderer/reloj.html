@@ -1248,7 +1248,10 @@
   <script>
 
     // Se sirve desde el mismo backend, así que la ruta es relativa.
-    const URL_ESTADO = '/api/reloj/pantalla';
+    // Local (backend en 127.0.0.1) -> /api ; producción -> /direccion/api
+    const URL_ESTADO = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? '/api/reloj/pantalla'
+      : '/direccion/api/reloj/pantalla';
     const INTERVALO_CONSULTA = 3000;
 
     const $ = id => document.getElementById(id);

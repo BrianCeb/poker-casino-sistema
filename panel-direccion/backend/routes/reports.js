@@ -11,15 +11,69 @@ function restarDias(fechaStr, dias) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// "Funny Sundays" / "FUNNY SUNDAYS " / "Funny Sundáys" -> "funny sundays"
+function normalizarNombre(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+// Nombres de torneos jugados (toda la historia), sin repetir: para el
+// selector de Gerencia. Si un nombre se escribio de varias formas, se
+// muestra la mas usada.
+async function torneosDisponibles() {
+  const docs = await Tournament.find({}, 'nombre').lean();
+  const grupos = new Map();
+  for (const t of docs) {
+    const k = normalizarNombre(t.nombre);
+    if (!k) continue;
+    if (!grupos.has(k)) grupos.set(k, new Map());
+    const variantes = grupos.get(k);
+    const nombre = String(t.nombre).replace(/\s+/g, ' ').trim();
+    variantes.set(nombre, (variantes.get(nombre) || 0) + 1);
+  }
+  return [...grupos.values()]
+    .map(v => [...v.entries()].sort((a, b) => b[1] - a[1])[0][0])
+    .sort((a, b) => a.localeCompare(b, 'es'));
+}
+
 router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async (req, res) => {
   try {
     const hasta = req.query.hasta || diaOperativo();
     const desde = req.query.desde || restarDias(hasta, 6);
 
-    const txs = await Transaction.find({
+    const txsPeriodo = await Transaction.find({
       fecha: { $gte: desde, $lte: hasta },
       anulado: { $ne: true }
     }).lean();
+
+    // AGRUPAR POR TORNEO — se agrupa por FECHA (la fecha real de cada
+    // transaccion), no por torneoId. Antes, si un dia arrancaba sin
+    // configurar un torneo nuevo, las transacciones quedaban con el
+    // torneoId del ultimo torneo activo (de otra fecha), y ese dia
+    // terminaba mezclado/oculto bajo la fecha del torneo viejo.
+    const fechasPeriodo = [...new Set(txsPeriodo.map(t => t.fecha))];
+    const torneosDocs = fechasPeriodo.length
+      ? await Tournament.find({ fecha: { $in: fechasPeriodo } }).sort({ createdAt: -1 }).lean()
+      : [];
+    const torneoInfoPorFecha = {};
+    torneosDocs.forEach(t => {
+      // Si hubiera mas de un Tournament con la misma fecha, nos
+      // quedamos con el mas reciente (por el sort de arriba).
+      if (!torneoInfoPorFecha[t.fecha]) torneoInfoPorFecha[t.fecha] = t;
+    });
+
+    // FILTRO POR NOMBRE DE TORNEO (opcional): ?torneo=Funny Sundays
+    // Se quedan solo las fechas cuyo torneo se llama asi (sin distinguir
+    // mayusculas ni tildes) y TODO el resumen se calcula con esas fechas.
+    const filtroTorneo = normalizarNombre(req.query.torneo);
+    const nombreDeFecha = (fecha, t) => {
+      const info = torneoInfoPorFecha[fecha];
+      return info ? info.nombre : (t && t.torneo) || '';
+    };
+    const txs = filtroTorneo
+      ? txsPeriodo.filter(t => normalizarNombre(nombreDeFecha(t.fecha, t)) === filtroTorneo)
+      : txsPeriodo;
 
     const totalRecaudado = txs.reduce((s, t) => s + Number(t.monto || 0), 0);
     const buyins = txs.filter(t => t.tipo === 'buyin').length;
@@ -45,22 +99,6 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
     const tasaRecompra = dnisConBuyin.size > 0
       ? Math.round((dnisConRecompra.size / dnisConBuyin.size) * 100)
       : 0;
-
-    // AGRUPAR POR TORNEO — se agrupa por FECHA (la fecha real de cada
-    // transaccion), no por torneoId. Antes, si un dia arrancaba sin
-    // configurar un torneo nuevo, las transacciones quedaban con el
-    // torneoId del ultimo torneo activo (de otra fecha), y ese dia
-    // terminaba mezclado/oculto bajo la fecha del torneo viejo.
-    const fechasUnicas = [...new Set(txs.map(t => t.fecha))];
-    const torneosDocs = fechasUnicas.length
-      ? await Tournament.find({ fecha: { $in: fechasUnicas } }).sort({ createdAt: -1 }).lean()
-      : [];
-    const torneoInfoPorFecha = {};
-    torneosDocs.forEach(t => {
-      // Si hubiera mas de un Tournament con la misma fecha, nos
-      // quedamos con el mas reciente (por el sort de arriba).
-      if (!torneoInfoPorFecha[t.fecha]) torneoInfoPorFecha[t.fecha] = t;
-    });
 
     const porTorneo = {};
     txs.forEach(t => {
@@ -144,6 +182,8 @@ router.get('/resumen', requireAuth, requireRole('direccion', 'gerencia'), async 
 
     res.json({
       desde, hasta,
+      torneo: req.query.torneo || '',
+      torneosDisponibles: await torneosDisponibles(),
       totalRecaudado, rakeAcumulado, bountyAcumulado, premiosEntregados,
       buyins, recompras, tasaRecompra,
       totalJugadores, jugadoresNuevos, jugadoresRecurrentes,
