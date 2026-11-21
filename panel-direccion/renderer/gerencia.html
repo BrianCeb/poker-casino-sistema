@@ -199,6 +199,24 @@
       margin-bottom: 0;
     }
 
+    /* Selector de torneo: mismo aspecto que los campos de fecha */
+    .filtros select {
+      width: 100%;
+      min-width: 190px;
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .filtros select:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
     .chip-rango {
       display: flex;
       gap: 6px;
@@ -394,6 +412,12 @@
         <button data-dias="30" type="button">30 días</button>
         <button data-dias="90" type="button">90 días</button>
       </div>
+      <div>
+        <label>Torneo</label>
+        <select id="fTorneo">
+          <option value="">Todos los torneos</option>
+        </select>
+      </div>
       <div><label>Desde</label><input type="date" id="fDesde"></div>
       <div><label>Hasta</label><input type="date" id="fHasta"></div>
       <div><button class="btn btn-gold" id="btnAplicar" type="button">Aplicar</button></div>
@@ -405,7 +429,15 @@
   </div>
 
   <script>
-    const API = window.location.protocol === 'file:' ? 'http://127.0.0.1:4001/api' : '/api';
+    // Archivo abierto directo (file://) -> backend local.
+    // Servido por el backend local (127.0.0.1 / localhost) -> /api.
+    // Producción (poker.arenamaipu.com.ar) -> /direccion/api.
+    // Así no hace falta cambiar esta línea a mano en cada subida.
+    const API = window.location.protocol === 'file:'
+      ? 'http://127.0.0.1:4001/api'
+      : ['localhost', '127.0.0.1'].includes(window.location.hostname)
+        ? '/api'
+        : '/direccion/api';
 
     function money(n) { return '$' + (Number(n) || 0).toLocaleString('es-AR'); }
     function pad(n) { return String(n).padStart(2, '0'); }
@@ -508,21 +540,38 @@
       });
     });
     document.getElementById('btnAplicar').addEventListener('click', cargarResumen);
+    document.getElementById('fTorneo').addEventListener('change', cargarResumen);
+
+    // Carga la lista de torneos jugados en el selector, sin perder lo
+    // que ya estaba elegido.
+    function actualizarSelectorTorneos(nombres) {
+      const sel = document.getElementById('fTorneo');
+      const actual = sel.value;
+      sel.innerHTML = '<option value="">Todos los torneos</option>' +
+        (nombres || []).map(n => {
+          const v = String(n).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+          return `<option value="${v}">${v}</option>`;
+        }).join('');
+      sel.value = (nombres || []).includes(actual) ? actual : '';
+    }
 
     async function cargarResumen() {
       const contenido = document.getElementById('contenido');
       contenido.innerHTML = '<div class="loading">Cargando datos...</div>';
       const desde = document.getElementById('fDesde').value;
       const hasta = document.getElementById('fHasta').value;
+      const torneo = document.getElementById('fTorneo').value;
 
       try {
-        const r = await fetch(`${API}/reports/resumen?desde=${desde}&hasta=${hasta}`, {
+        const r = await fetch(`${API}/reports/resumen?desde=${desde}&hasta=${hasta}` +
+          (torneo ? `&torneo=${encodeURIComponent(torneo)}` : ''), {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         if (r.status === 401) { sessionStorage.removeItem('gerencia_token'); mostrarLogin(); return; }
         const data = await r.json();
         if (!r.ok) { contenido.innerHTML = '<div class="loading">No se pudo cargar el resumen.</div>'; return; }
         ultimoResumenData = data;
+        actualizarSelectorTorneos(data.torneosDisponibles);
         renderDashboard(data);
       } catch (e) {
         contenido.innerHTML = '<div class="loading">No se pudo conectar con el servidor.</div>';

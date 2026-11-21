@@ -16,3 +16,6 @@ Thumbs.db
 
 mongodb.txt
 
+
+# Listado de premios para cargar con el script (tiene datos de jugadores)
+premios.txt

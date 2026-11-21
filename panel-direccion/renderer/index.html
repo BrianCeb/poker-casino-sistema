@@ -2468,7 +2468,14 @@
 
   <script>
 
-    const API = 'http://127.0.0.1:4001/api';
+    // Dónde está corriendo la página:
+    //  - archivo abierto directo (Electron / file://) -> backend local
+    //  - servida por el backend local (127.0.0.1 / localhost) -> rutas locales
+    //  - producción (poker.arenamaipu.com.ar) -> rutas del servidor
+    // Así no hace falta cambiar estas líneas a mano en cada subida.
+    const ES_ARCHIVO = window.location.protocol === 'file:';
+    const ES_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const API = ES_ARCHIVO ? 'http://127.0.0.1:4001/api' : ES_LOCAL ? '/api' : '/direccion/api';
 
     let token = sessionStorage.getItem('direccion_token');
 
@@ -5286,7 +5293,7 @@
     let relojCfgSucia = false;
     let relojPlantillas = [];
 
-    const RELOJ_PANTALLA_URL = 'http://127.0.0.1:4001/reloj.html';
+    const RELOJ_PANTALLA_URL = ES_ARCHIVO ? 'http://127.0.0.1:4001/reloj.html' : ES_LOCAL ? '/reloj.html' : '/direccion/reloj.html';
 
     function fmtTiempo(seg) {
       seg = Math.max(0, Math.floor(seg));
